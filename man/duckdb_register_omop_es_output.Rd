@@ -15,15 +15,15 @@ duckdb_register_omop_es_output(con, extract_path, omop_es_path)
 concept tables from the `omop_metadata` directory)}
 }
 \description{
-A single extract from OMOP-ES produces a new (timestampped) directory
-as a subdirectory of `extract` e.g.
+A single extract from OMOP-ES produces one of two formats:
 }
 \details{
-`extract/CUH_EPIC_batch_cohort-20260201_090000`
-
-Within this, there are 3 directories (`public`, `private` and `custom`),
-each of which contains a directory for each OMOP table (e.g.
-`condition_occurrence`), which then contains multiple `*.parquet` files.
+1. A folder of CSV files
+2. A new (timestampped) directory as a subdirectory of `extract` e.g.
+  `extract/CUH_EPIC_batch_cohort-20260201_090000`.
+  Within this, there are 3 directories (`public`, `private` and `custom`),
+  each of which contains a directory for each OMOP table (e.g.
+  `condition_occurrence`), which then contains multiple `*.parquet` files.
 
 This function registers:
 1. Tables under `public` in the `dbo` schema
