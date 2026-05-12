@@ -1,0 +1,134 @@
+#' Register OMOP-ES datalake as duckdb table
+#'
+#' A single extract from OMOP-ES produces a new (timestampped) directory
+#' as a subdirectory of `extract` e.g.
+#'
+#' `extract/CUH_EPIC_batch_cohort-20260201_090000`
+#'
+#' Within this, there are 3 directories (`public`, `private` and `custom`),
+#' each of which contains a directory for each OMOP table (e.g.
+#' `condition_occurrence`), which then contains multiple `*.parquet` files.
+#'
+#' This function registers:
+#' 1. Tables under `public` in the `dbo` schema
+#' 2. Tables under `private` in the `priv` schema
+#' 3. Tables under `custom` in the `dbo` schema
+#' 4. Tables in the `omop_metadata` subdirectory of `omop_es_path` in the `dbo`
+#'    schema
+#'
+#' @param con A database connection
+#' @param extract_path Path to folder containing OMOP-ES extract
+#' @param omop_es_path Path to OMOP-ES directory (used for registering
+#'   concept tables from the `omop_metadata` directory)
+#' @importFrom duckdb duckdb
+#' @importFrom DBI dbConnect dbExecute
+#' @importFrom fs path
+#' @importFrom cli cli_progress_step
+duckdb_register_omop_es_output <- function(con, extract_path, omop_es_path) {
+  cli::cli_progress_step("Creating schemas 'dbo' and 'priv'")
+  dbExecute(con, "CREATE SCHEMA IF NOT EXISTS dbo;")
+  dbExecute(con, "CREATE SCHEMA IF NOT EXISTS priv;")
+
+  duckdb_register_omop_es_datalake(
+    con,
+    folder_path = fs::path(extract_path, "public"),
+    schema = "dbo"
+  )
+
+  duckdb_register_omop_es_datalake(
+    con,
+    folder_path = fs::path(extract_path, "custom"),
+    schema = "dbo"
+  )
+
+  # concept tables
+  duckdb_register_parquet_dir(
+    con,
+    folder_path = fs::path(omop_es_path, "omop_metadata"),
+    schema = "dbo"
+  )
+
+  duckdb_register_omop_es_datalake(
+    con,
+    folder_path = fs::path(extract_path, "private"),
+    schema = "priv"
+  )
+}
+
+#' Register a data-lake parquet files as duckdb table
+#'
+#' Given a folder containing one folder per table, with each containing
+#' several parquet files, this function registers these as tables in a duckdb
+#' database
+#'
+#' @param con A database connection
+#' @param folder_path Path to folder containing parquet files (one parquet per
+#'   table)
+#' @param schema Name of schema to register tables in
+#'
+#' @importFrom fs dir_ls path_dir path_file
+#' @importFrom glue glue
+#' @importFrom cli cli_progress_step
+duckdb_register_omop_es_datalake <- function(con, folder_path, schema = NULL) {
+  subfolders <- fs::dir_ls(path = folder_path)
+
+  if (!is.null(schema)) {
+    schema_string <- glue::glue("{schema}.")
+  } else {
+    schema_string <- ""
+  }
+
+  for (path in subfolders) {
+    table_name <- path |>
+      fs::path_file()
+
+    dbExecute(
+      con,
+      glue::glue("
+      CREATE VIEW {schema_string}{table_name} AS
+        SELECT * FROM read_parquet('{path}/*.parquet');
+    ")
+    )
+  }
+
+  cli::cli_progress_step(
+    "Registered {length(subfolders)} table-folders from '{folder_path}' to schema '{schema}'"
+  )
+}
+
+#' Register a folder of parquet files as duckdb table
+#'
+#' @param con A database connection
+#' @param folder_path Path to folder containing parquet files (one parquet per
+#'   table)
+#' @param schema Name of schema to register tables in
+#' @importFrom fs path_dir path_ext_remove dir_ls path_file
+duckdb_register_parquet_dir <- function(con, folder_path, schema = NULL) {
+  parquet_files <- fs::dir_ls(path = folder_path, glob = "*.parquet")
+
+  if (!is.null(schema)) {
+    schema_string <- glue::glue("{schema}.")
+  } else {
+    schema_string <- ""
+  }
+
+  # Loop through each file and create a view
+  for (file_path in parquet_files) {
+    # Extract the file name without the extension (e.g., "users.parquet" -> "users")
+    table_name <- file_path |>
+      fs::path_file() |>
+      fs::path_ext_remove()
+
+    dbExecute(
+      con,
+      glue::glue("
+      CREATE VIEW {schema_string}{table_name} AS
+        SELECT * FROM read_parquet('{file_path}');
+    ")
+    )
+  }
+
+  cli::cli_progress_step(
+    "Registered {length(parquet_files)} files from '{folder_path}' to schema '{schema}'"
+  )
+}

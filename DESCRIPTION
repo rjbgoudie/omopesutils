@@ -1,0 +1,16 @@
+Package: omop_es_utils
+Type: Package
+Title: Utilities for working with OMOP-ES
+Version: 0.1.0
+Authors@R: c(
+    person(
+      "Robert", "Goudie",
+      email = "rjbgoudie@gmail.com",
+      role = c("aut", "cre")
+    )
+  )
+Description: Utilities for working OMOP-ES, particularly output
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.3.2
