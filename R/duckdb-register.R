@@ -157,7 +157,7 @@ duckdb_register_parquet_dir <- function(con, folder_path, schema = NULL) {
   )
 }
 
-#' @importFrom dplyr recode_values group_walk rowwise
+#' @importFrom dplyr case_when group_walk rowwise
 #' @importFrom fs dir_ls path_file path_ext_remove
 #' @importFrom stringr str_detect
 #' @importFrom glue glue
@@ -183,11 +183,10 @@ duckdb_register_omop_es_csv <- function(
           TRUE ~ "public"
         ),
       schema =
-        dplyr::recode_values(
-          type,
-          "public" ~ schema_public,
-          "bad" ~ schema_private,
-          "links" ~ schema_private
+        dplyr::case_when(
+          type == "public" ~ schema_public,
+          type == "bad" ~ schema_private,
+          type == "links" ~ schema_private
         ),
       schema_string =
         glue::glue("{schema}.")
