@@ -5,15 +5,20 @@ omop_tables_row_count <- function(db, schema = "dbo") {
   available_tables <- DBI::dbListTables(db)
   tables <- intersect(omop_tables, available_tables)
 
-  tibble(table = tables) |>
-    rowwise() |>
-    mutate(
-      row_count =
-        tbl_omop(db, table, schema = schema) |>
-          count() |>
-          pull(n)
-    ) |>
-    ungroup()
+  result <- tibble()
+  for (table in tables) {
+    cli::cli_progress_step("Calculating row counts for {table}")
+    row_count <- tbl_omop(db, table, schema = schema) |>
+      count() |>
+      pull(n)
+
+    result <-
+      bind_rows(
+        result,
+        tibble(table = table, row_count = row_count)
+      )
+  }
+  result
 }
 
 #' @importFrom purrr map
