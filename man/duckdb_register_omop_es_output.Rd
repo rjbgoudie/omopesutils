@@ -4,7 +4,13 @@
 \alias{duckdb_register_omop_es_output}
 \title{Register OMOP-ES datalake as duckdb table}
 \usage{
-duckdb_register_omop_es_output(con, extract_path, omop_es_path)
+duckdb_register_omop_es_output(
+  con,
+  extract_path,
+  omop_es_path,
+  schema_public = "dbo",
+  schema_private = "priv"
+)
 }
 \arguments{
 \item{con}{A database connection}
@@ -13,6 +19,10 @@ duckdb_register_omop_es_output(con, extract_path, omop_es_path)
 
 \item{omop_es_path}{Path to OMOP-ES directory (used for registering
 concept tables from the `omop_metadata` directory)}
+
+\item{schema_public}{Name of schema into which public OMOP data goes}
+
+\item{schema_private}{Name of schema into which private OMOP data goes}
 }
 \description{
 A single extract from OMOP-ES produces one of two formats:

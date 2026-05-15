@@ -20,14 +20,23 @@
 #' @param extract_path Path to folder containing OMOP-ES extract
 #' @param omop_es_path Path to OMOP-ES directory (used for registering
 #'   concept tables from the `omop_metadata` directory)
+#' @param schema_public Name of schema into which public OMOP data goes
+#' @param schema_private Name of schema into which private OMOP data goes
 #' @importFrom duckdb duckdb
 #' @importFrom DBI dbConnect dbExecute
 #' @importFrom fs path dir_exists
 #' @importFrom cli cli_progress_step
-duckdb_register_omop_es_output <- function(con, extract_path, omop_es_path) {
-  cli::cli_progress_step("Creating schemas 'dbo' and 'priv'")
-  DBI::dbExecute(con, "CREATE SCHEMA IF NOT EXISTS dbo;")
-  DBI::dbExecute(con, "CREATE SCHEMA IF NOT EXISTS priv;")
+duckdb_register_omop_es_output <- function(
+    con,
+    extract_path,
+    omop_es_path,
+    schema_public = "dbo",
+    schema_private = "priv") {
+  cli::cli_progress_step(
+    "Creating schemas '{schema_public}' and '{schema_private}'"
+  )
+  DBI::dbExecute(con, glue::glue("CREATE SCHEMA IF NOT EXISTS {schema_public};"))
+  DBI::dbExecute(con, glue::glue("CREATE SCHEMA IF NOT EXISTS {schema_private};"))
 
   is_data_lake <- fs::dir_exists(fs::path(extract_path, "public"))
 
@@ -35,26 +44,26 @@ duckdb_register_omop_es_output <- function(con, extract_path, omop_es_path) {
     duckdb_register_omop_es_datalake(
       con,
       folder_path = fs::path(extract_path, "public"),
-      schema = "dbo"
+      schema = schema_public
     )
 
     duckdb_register_omop_es_datalake(
       con,
       folder_path = fs::path(extract_path, "custom"),
-      schema = "dbo"
+      schema = schema_public
     )
 
     duckdb_register_omop_es_datalake(
       con,
       folder_path = fs::path(extract_path, "private"),
-      schema = "priv"
+      schema = schema_private
     )
   } else {
     duckdb_register_omop_es_csv(
       con,
       folder_path = extract_path,
-      public_schema = "dbo",
-      private_schema = "priv"
+      schema_public = schema_public,
+      schema_private = schema_private
     )
   }
 
@@ -62,7 +71,7 @@ duckdb_register_omop_es_output <- function(con, extract_path, omop_es_path) {
   duckdb_register_parquet_dir(
     con,
     folder_path = fs::path(omop_es_path, "omop_metadata"),
-    schema = "dbo"
+    schema = schema_public
   )
 }
 
@@ -80,6 +89,7 @@ duckdb_register_omop_es_output <- function(con, extract_path, omop_es_path) {
 #' @importFrom fs dir_ls path_dir path_file
 #' @importFrom glue glue
 #' @importFrom cli cli_progress_step
+#' @importFrom stringr str_to_lower
 duckdb_register_omop_es_datalake <- function(con, folder_path, schema = NULL) {
   subfolders <- fs::dir_ls(path = folder_path)
 
@@ -91,7 +101,8 @@ duckdb_register_omop_es_datalake <- function(con, folder_path, schema = NULL) {
 
   for (path in subfolders) {
     table_name <- path |>
-      fs::path_file()
+      fs::path_file() |>
+      stringr::str_to_lower()
 
     DBI::dbExecute(
       con,
@@ -114,6 +125,7 @@ duckdb_register_omop_es_datalake <- function(con, folder_path, schema = NULL) {
 #'   table)
 #' @param schema Name of schema to register tables in
 #' @importFrom fs path_dir path_ext_remove dir_ls path_file
+#' @importFrom stringr str_to_lower
 duckdb_register_parquet_dir <- function(con, folder_path, schema = NULL) {
   parquet_files <- fs::dir_ls(path = folder_path, glob = "*.parquet")
 
@@ -128,7 +140,8 @@ duckdb_register_parquet_dir <- function(con, folder_path, schema = NULL) {
     # Extract the file name without the extension (e.g., "users.parquet" -> "users")
     table_name <- file_path |>
       fs::path_file() |>
-      fs::path_ext_remove()
+      fs::path_ext_remove() |>
+      stringr::str_to_lower()
 
     DBI::dbExecute(
       con,
@@ -148,11 +161,12 @@ duckdb_register_parquet_dir <- function(con, folder_path, schema = NULL) {
 #' @importFrom fs dir_ls path_file path_ext_remove
 #' @importFrom stringr str_detect
 #' @importFrom glue glue
+#' @importFrom stringr str_to_lower
 duckdb_register_omop_es_csv <- function(
     con,
     folder_path,
-    public_schema = "dbo",
-    private_schema = "priv") {
+    schema_public = "dbo",
+    schema_private = "priv") {
   tables <- fs::dir_ls(folder_path, glob = "*.csv")
 
   df <- tibble(path = tables) |>
@@ -160,7 +174,8 @@ duckdb_register_omop_es_csv <- function(
       table_name =
         path |>
           fs::path_file() |>
-          fs::path_ext_remove(),
+          fs::path_ext_remove() |>
+          stringr::str_to_lower(),
       type =
         case_when(
           stringr::str_detect(tables, "_LINKS.csv") ~ "links",
@@ -170,9 +185,9 @@ duckdb_register_omop_es_csv <- function(
       schema =
         dplyr::recode_values(
           type,
-          "public" ~ public_schema,
-          "bad" ~ private_schema,
-          "links" ~ private_schema
+          "public" ~ schema_public,
+          "bad" ~ schema_private,
+          "links" ~ schema_private
         ),
       schema_string =
         glue::glue("{schema}.")
