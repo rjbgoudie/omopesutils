@@ -1,4 +1,4 @@
-Package: omop_es_utils
+Package: omopesutils
 Type: Package
 Title: Utilities for working with OMOP-ES
 Version: 0.1.0

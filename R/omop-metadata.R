@@ -2,9 +2,7 @@
 #' @importFrom readr read_csv
 omop_metadata_table_level <- function() {
   readr::read_csv(
-    system.file("OMOP_CDMv5.4_Table_Level.csv",
-      package = "omop_es_utils"
-    ),
+    system.file("OMOP_CDMv5.4_Table_Level.csv", package = "omopesutils"),
     show_col_types = FALSE
   )
 }
@@ -16,9 +14,7 @@ omop_all_tables <- function() {
 
 omop_metadata_field_level <- function() {
   readr::read_csv(
-    system.file("OMOP_CDMv5.4_Field_Level.csv",
-      package = "omop_es_utils"
-    ),
+    system.file("OMOP_CDMv5.4_Field_Level.csv", package = "omopesutils"),
     show_col_types = FALSE
   )
 }
