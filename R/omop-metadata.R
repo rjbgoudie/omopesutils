@@ -28,11 +28,10 @@ omop_source_tables_for_foreign_key_columns <- function(table) {
     filter(cdmTableName == table) |>
     filter(fkTableName != "CONCEPT" | isPrimaryKey == "Yes") |>
     mutate(
-      table_name =
-        case_when(
-          isPrimaryKey == "Yes" ~ cdmTableName,
-          TRUE ~ fkTableName
-        )
+      table_name = case_when(
+        isPrimaryKey == "Yes" ~ cdmTableName,
+        TRUE ~ fkTableName
+      )
     ) |>
     pull(table_name) |>
     stringr::str_to_lower() |>

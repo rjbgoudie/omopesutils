@@ -171,7 +171,8 @@ plugins_extract_tables <- function(omop_plugins, conns, cohort) {
 enabled_by_settings <- function(plugin) {
   some_intersection <- function(x, y) length(intersect(x, y)) > 0
   source_enabled <- some_intersection(plugin$source, settings$enabled_sources)
-  tags_enabled <- some_intersection(plugin$tags, settings$enabled_tags) | is.na(plugin$tags)
+  tags_enabled <- some_intersection(plugin$tags, settings$enabled_tags) |
+    is.na(plugin$tags)
   source_enabled & tags_enabled
 }
 

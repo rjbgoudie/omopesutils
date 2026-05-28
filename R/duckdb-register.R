@@ -27,16 +27,23 @@
 #' @importFrom fs path dir_exists
 #' @importFrom cli cli_progress_step
 duckdb_register_omop_es_output <- function(
-    con,
-    extract_path,
-    omop_es_path,
-    schema_public = "dbo",
-    schema_private = "priv") {
+  con,
+  extract_path,
+  omop_es_path,
+  schema_public = "dbo",
+  schema_private = "priv"
+) {
   cli::cli_progress_step(
     "Creating schemas '{schema_public}' and '{schema_private}'"
   )
-  DBI::dbExecute(con, glue::glue("CREATE SCHEMA IF NOT EXISTS {schema_public};"))
-  DBI::dbExecute(con, glue::glue("CREATE SCHEMA IF NOT EXISTS {schema_private};"))
+  DBI::dbExecute(
+    con,
+    glue::glue("CREATE SCHEMA IF NOT EXISTS {schema_public};")
+  )
+  DBI::dbExecute(
+    con,
+    glue::glue("CREATE SCHEMA IF NOT EXISTS {schema_private};")
+  )
 
   is_data_lake <- fs::dir_exists(fs::path(extract_path, "public"))
 
@@ -106,10 +113,12 @@ duckdb_register_omop_es_datalake <- function(con, folder_path, schema = NULL) {
 
     DBI::dbExecute(
       con,
-      glue::glue("
+      glue::glue(
+        "
       CREATE VIEW {schema_string}{table_name} AS
         SELECT * FROM read_parquet('{path}/*.parquet');
-    ")
+    "
+      )
     )
   }
 
@@ -145,10 +154,12 @@ duckdb_register_parquet_dir <- function(con, folder_path, schema = NULL) {
 
     DBI::dbExecute(
       con,
-      glue::glue("
+      glue::glue(
+        "
       CREATE VIEW {schema_string}{table_name} AS
         SELECT * FROM read_parquet('{file_path}');
-    ")
+    "
+      )
     )
   }
 
@@ -163,33 +174,30 @@ duckdb_register_parquet_dir <- function(con, folder_path, schema = NULL) {
 #' @importFrom glue glue
 #' @importFrom stringr str_to_lower
 duckdb_register_omop_es_csv <- function(
-    con,
-    folder_path,
-    schema_public = "dbo",
-    schema_private = "priv") {
+  con,
+  folder_path,
+  schema_public = "dbo",
+  schema_private = "priv"
+) {
   tables <- fs::dir_ls(folder_path, glob = "*.csv")
 
   df <- tibble(path = tables) |>
     mutate(
-      table_name =
-        path |>
-          fs::path_file() |>
-          fs::path_ext_remove() |>
-          stringr::str_to_lower(),
-      type =
-        case_when(
-          stringr::str_detect(tables, "_LINKS.csv") ~ "links",
-          stringr::str_detect(tables, "_BAD.csv") ~ "bad",
-          TRUE ~ "public"
-        ),
-      schema =
-        dplyr::case_when(
-          type == "public" ~ schema_public,
-          type == "bad" ~ schema_private,
-          type == "links" ~ schema_private
-        ),
-      schema_string =
-        glue::glue("{schema}.")
+      table_name = path |>
+        fs::path_file() |>
+        fs::path_ext_remove() |>
+        stringr::str_to_lower(),
+      type = case_when(
+        stringr::str_detect(tables, "_LINKS.csv") ~ "links",
+        stringr::str_detect(tables, "_BAD.csv") ~ "bad",
+        TRUE ~ "public"
+      ),
+      schema = dplyr::case_when(
+        type == "public" ~ schema_public,
+        type == "bad" ~ schema_private,
+        type == "links" ~ schema_private
+      ),
+      schema_string = glue::glue("{schema}.")
     )
 
   df |>
@@ -197,10 +205,12 @@ duckdb_register_omop_es_csv <- function(
     dplyr::group_walk(function(.x, ...) {
       DBI::dbExecute(
         con,
-        glue::glue("
+        glue::glue(
+          "
       CREATE VIEW {.x$schema_string}{.x$table_name} AS
         SELECT * FROM read_csv('{.x$path}');
-    ")
+    "
+        )
       )
     })
 }

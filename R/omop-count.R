@@ -24,7 +24,11 @@ omop_tables_row_count <- function(db, schema = "dbo") {
 #' @importFrom purrr map
 #' @importFrom dplyr bind_rows tibble
 #' @importFrom cli cli_progress_step
-omop_plugin_row_count <- function(db, schema_public = "dbo", schema_private = "priv") {
+omop_plugin_row_count <- function(
+  db,
+  schema_public = "dbo",
+  schema_private = "priv"
+) {
   omop_tables <- omop_all_tables()
   available_tables <- DBI::dbListTables(db)
   tables <- intersect(omop_tables, available_tables)
@@ -32,7 +36,9 @@ omop_plugin_row_count <- function(db, schema_public = "dbo", schema_private = "p
   result <- tibble()
   for (table in tables) {
     cli::cli_progress_step("Calculating row counts for {table}")
-    tab <- omop_es_tbl_with_links(db, table,
+    tab <- omop_es_tbl_with_links(
+      db,
+      table,
       schema_public = schema_public,
       schema_private = schema_private
     )

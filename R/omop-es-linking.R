@@ -5,18 +5,18 @@ omop_es_link_tables_for_foreign_key_columns <- function(table) {
 }
 
 
-
 #' Join OMOP-ES table to links tables
 #'
 #' @import glue
 #' @importFrom purrr map_lgl
 #' @importFrom DBI dbExistsTable dbListFields
 omop_es_tbl_with_links <- function(
-    conn,
-    table,
-    schema_public = "dbo",
-    schema_private = "priv",
-    drop_omop_foreign_keys = FALSE) {
+  conn,
+  table,
+  schema_public = "dbo",
+  schema_private = "priv",
+  drop_omop_foreign_keys = FALSE
+) {
   # cli::li_progress_step("Joining {schema_public}.{table} to {schema_private}.{table}_links")
 
   omop_table_id <- id_omop(table, schema_public)

@@ -1,4 +1,8 @@
-omop_diff_tables_row_count <- function(db, schema_left = "dbo", schema_right = "dbo2") {
+omop_diff_tables_row_count <- function(
+  db,
+  schema_left = "dbo",
+  schema_right = "dbo2"
+) {
   left <- omop_tables_row_count(db, schema = schema_left) |>
     rename(left_row_count = row_count)
   right <- omop_tables_row_count(db, schema = schema_right) |>
@@ -10,11 +14,12 @@ omop_diff_tables_row_count <- function(db, schema_left = "dbo", schema_right = "
 
 
 omop_diff_plugins_row_count <- function(
-    db,
-    schema_public_left = "dbo",
-    schema_private_left = "priv",
-    schema_public_right = "dbo",
-    schema_private_right = "priv") {
+  db,
+  schema_public_left = "dbo",
+  schema_private_left = "priv",
+  schema_public_right = "dbo",
+  schema_private_right = "priv"
+) {
   left <- omop_plugin_row_count(
     db,
     schema_public = schema_public_left,

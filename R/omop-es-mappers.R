@@ -15,9 +15,11 @@
 #'   contains one element for each OMOP table. Within each table-level element,
 #'   there is a named list containing one element per plugin.
 #' @importFrom withr with_dir
-omop_es_plugins_extract_sql <- function(omop_es_path,
-                                        settings_id = "CUH_EPIC_small_cohort",
-                                        cohort_limit = 10) {
+omop_es_plugins_extract_sql <- function(
+  omop_es_path,
+  settings_id = "CUH_EPIC_small_cohort",
+  cohort_limit = 10
+) {
   withr::with_dir(omop_es_path, {
     # --------- Setup Environment ---------
     source(here::here("setup_environment.R"))
@@ -29,7 +31,9 @@ omop_es_plugins_extract_sql <- function(omop_es_path,
 
     # ----------- Build Cohort ------------
     cohort <- project$build_cohort(settings, conns) |>
-      pipe_if(!is.null(cohort_limit), \(x) dplyr::slice_sample(x, n = cohort_limit))
+      pipe_if(!is.null(cohort_limit), \(x) {
+        dplyr::slice_sample(x, n = cohort_limit)
+      })
 
     # ---------------- Map ----------------
     source(here::here("mapping/framework/map_omop.R"))
@@ -54,9 +58,11 @@ omop_es_plugins_extract_sql <- function(omop_es_path,
 #'   table-level element, there is a named list containing one element per
 #'   plugin.
 #' @importFrom withr with_dir
-omop_es_plugins_extract_tables <- function(omop_es_path,
-                                           settings_id = "CUH_EPIC_small_cohort",
-                                           cohort_limit = 10) {
+omop_es_plugins_extract_tables <- function(
+  omop_es_path,
+  settings_id = "CUH_EPIC_small_cohort",
+  cohort_limit = 10
+) {
   withr::with_dir(omop_es_path, {
     # --------- Setup Environment ---------
     source(here::here("setup_environment.R"))
@@ -68,7 +74,9 @@ omop_es_plugins_extract_tables <- function(omop_es_path,
 
     # ----------- Build Cohort ------------
     cohort <- project$build_cohort(settings, conns) |>
-      pipe_if(!is.null(cohort_limit), \(x) dplyr::slice_sample(x, n = cohort_limit))
+      pipe_if(!is.null(cohort_limit), \(x) {
+        dplyr::slice_sample(x, n = cohort_limit)
+      })
 
     # ---------------- Map ----------------
     source(here::here("mapping/framework/map_omop.R"))
@@ -90,9 +98,11 @@ omop_es_plugins_extract_tables <- function(omop_es_path,
 #' @returns A named list, with one element per OMOP table. Each element of the
 #'   list contains the corresponding Markdown code
 #' @importFrom withr with_dir
-omop_es_plugins_extract_docs_public <- function(omop_es_path,
-                                                settings_id = "CUH_EPIC_small_cohort",
-                                                cohort_limit = 10) {
+omop_es_plugins_extract_docs_public <- function(
+  omop_es_path,
+  settings_id = "CUH_EPIC_small_cohort",
+  cohort_limit = 10
+) {
   withr::with_dir(omop_es_path, {
     # --------- Setup Environment ---------
     source(here::here("setup_environment.R"))
@@ -104,7 +114,9 @@ omop_es_plugins_extract_docs_public <- function(omop_es_path,
 
     # ----------- Build Cohort ------------
     cohort <- project$build_cohort(settings, conns) |>
-      pipe_if(!is.null(cohort_limit), \(x) dplyr::slice_sample(x, n = cohort_limit))
+      pipe_if(!is.null(cohort_limit), \(x) {
+        dplyr::slice_sample(x, n = cohort_limit)
+      })
 
     # ---------------- Map ----------------
     source(here::here("mapping/framework/map_omop.R"))
@@ -130,9 +142,11 @@ omop_es_plugins_extract_docs_public <- function(omop_es_path,
 #'   list contains the corresponding Markdown code
 #' @importFrom withr with_dir
 #' @importFrom withr with_dir
-omop_es_plugins_extract_docs_private <- function(omop_es_path,
-                                                 settings_id = "CUH_EPIC_small_cohort",
-                                                 cohort_limit = 10) {
+omop_es_plugins_extract_docs_private <- function(
+  omop_es_path,
+  settings_id = "CUH_EPIC_small_cohort",
+  cohort_limit = 10
+) {
   withr::with_dir(omop_es_path, {
     # --------- Setup Environment ---------
     source(here::here("setup_environment.R"))
@@ -144,7 +158,9 @@ omop_es_plugins_extract_docs_private <- function(omop_es_path,
 
     # ----------- Build Cohort ------------
     cohort <- project$build_cohort(settings, conns) |>
-      pipe_if(!is.null(cohort_limit), \(x) dplyr::slice_sample(x, n = cohort_limit))
+      pipe_if(!is.null(cohort_limit), \(x) {
+        dplyr::slice_sample(x, n = cohort_limit)
+      })
 
     # ---------------- Map ----------------
     source(here::here("mapping/framework/map_omop.R"))
