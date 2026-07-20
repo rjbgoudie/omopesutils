@@ -26,6 +26,7 @@
 #' @importFrom DBI dbConnect dbExecute
 #' @importFrom fs path dir_exists
 #' @importFrom cli cli_progress_step
+#' @export
 duckdb_register_omop_es_output <- function(
   con,
   extract_path,
@@ -97,6 +98,7 @@ duckdb_register_omop_es_output <- function(
 #' @importFrom glue glue
 #' @importFrom cli cli_progress_step
 #' @importFrom stringr str_to_lower
+#' @export
 duckdb_register_omop_es_datalake <- function(con, folder_path, schema = NULL) {
   subfolders <- fs::dir_ls(path = folder_path)
 
