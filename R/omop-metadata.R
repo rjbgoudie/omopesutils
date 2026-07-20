@@ -1,5 +1,6 @@
 #' Load the OMOP CDM table level definition table
 #' @importFrom readr read_csv
+#' @export
 omop_metadata_table_level <- function() {
   readr::read_csv(
     system.file("OMOP_CDMv5.4_Table_Level.csv", package = "omopesutils"),
@@ -7,11 +8,13 @@ omop_metadata_table_level <- function() {
   )
 }
 
+#' @export
 omop_all_tables <- function() {
   omop_metadata_table_level() |>
     pull(cdmTableName)
 }
 
+#' @export
 omop_cdm_tables <- function() {
   omop_metadata_table_level() |>
     filter(schema == "CDM") |>
