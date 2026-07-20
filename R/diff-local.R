@@ -41,6 +41,7 @@ omop_es_diff_viewer_local_git <- function(
   right_branch,
   settings_id = "CUH_EPIC_small_cohort",
   cohort_limit = 5000,
+  pull = TRUE,
   envvar = callr::rcmd_safe_env()
 ) {
   custom_dir_left <- fs::path(omop_es_path, "extract", "diff", "left")
@@ -53,6 +54,7 @@ omop_es_diff_viewer_local_git <- function(
     settings_id = settings_id,
     cohort_limit = cohort_limit,
     custom_dir = custom_dir_left,
+    pull = pull,
     envvar = envvar
   )
 
@@ -63,6 +65,7 @@ omop_es_diff_viewer_local_git <- function(
     settings_id = settings_id,
     cohort_limit = cohort_limit,
     custom_dir = custom_dir_right,
+    pull = pull,
     envvar = envvar
   )
 

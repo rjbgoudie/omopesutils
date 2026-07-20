@@ -10,6 +10,7 @@ omop_es_diff_viewer_local_git(
   right_branch,
   settings_id = "CUH_EPIC_small_cohort",
   cohort_limit = 5000,
+  pull = TRUE,
   envvar = callr::rcmd_safe_env()
 )
 }
