@@ -12,6 +12,18 @@ omop_all_tables <- function() {
     pull(cdmTableName)
 }
 
+omop_cdm_tables <- function() {
+  omop_metadata_table_level() |>
+    filter(schema == "CDM") |>
+    pull(cdmTableName)
+}
+
+omop_vocab_tables <- function() {
+  omop_metadata_table_level() |>
+    filter(schema == "VOCAB") |>
+    pull(cdmTableName)
+}
+
 omop_metadata_field_level <- function() {
   readr::read_csv(
     system.file("OMOP_CDMv5.4_Field_Level.csv", package = "omopesutils"),
