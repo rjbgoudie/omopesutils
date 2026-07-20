@@ -3,9 +3,9 @@
 #' @param conn A [DBI::DBIConnection] object, as returned by [DBI::dbConnect()].
 #' @param schema The schema name, a character string
 #' @importFrom glue glue
-#' @importFrom DBI dbExecute
+#' @importFrom DBI dbExecute dbQuoteString
 dbCreateSchema <- function(conn, schema) {
-  schema_name <- dbQuoteString(conn, schema)
+  schema_name <- DBI::dbQuoteString(conn, schema)
   DBI::dbExecute(conn, glue::glue("CREATE OR REPLACE SCHEMA {schema_name};"))
 }
 
