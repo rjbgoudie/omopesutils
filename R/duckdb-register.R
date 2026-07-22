@@ -3,7 +3,8 @@
 #' A single extract from OMOP-ES produces one of two formats:
 #'
 #' 1. A folder of CSV files
-#' 2. A new (timestampped) directory as a subdirectory of `extract` e.g.
+#' 2. A folder of parquet files
+#' 3. A new (timestampped) directory as a subdirectory of `extract` e.g.
 #'   `extract/CUH_EPIC_batch_cohort-20260201_090000`.
 #'   Within this, there are 3 directories (`public`, `private` and `custom`),
 #'   each of which contains a directory for each OMOP table (e.g.
@@ -25,7 +26,7 @@
 #' @importFrom duckdb duckdb
 #' @importFrom DBI dbConnect dbExecute
 #' @importFrom fs path dir_exists
-#' @importFrom cli cli_progress_step
+#' @importFrom cli cli_progress_step cli_progress_done
 #' @export
 duckdb_register_omop_es_output <- function(
   con,
@@ -34,7 +35,7 @@ duckdb_register_omop_es_output <- function(
   schema_public = "dbo",
   schema_private = "priv"
 ) {
-  cli::cli_progress_step(
+  prog <- cli::cli_progress_step(
     "Creating schemas '{schema_public}' and '{schema_private}'"
   )
   DBI::dbExecute(
@@ -45,6 +46,7 @@ duckdb_register_omop_es_output <- function(
     con,
     glue::glue("CREATE SCHEMA IF NOT EXISTS {schema_private};")
   )
+  cli::cli_progress_done(prog)
 
   is_data_lake <- fs::dir_exists(fs::path(extract_path, "public"))
 
@@ -67,7 +69,7 @@ duckdb_register_omop_es_output <- function(
       schema = schema_private
     )
   } else {
-    duckdb_register_omop_es_csv(
+    duckdb_register_omop_es_single_batch(
       con,
       folder_path = extract_path,
       schema_public = schema_public,
@@ -98,6 +100,7 @@ duckdb_register_omop_es_output <- function(
 #' @importFrom glue glue
 #' @importFrom cli cli_progress_step
 #' @importFrom stringr str_to_lower
+#' @importFrom cli cli_progress_step cli_progress_done
 #' @export
 duckdb_register_omop_es_datalake <- function(con, folder_path, schema = NULL) {
   subfolders <- fs::dir_ls(path = folder_path)
@@ -107,6 +110,10 @@ duckdb_register_omop_es_datalake <- function(con, folder_path, schema = NULL) {
   } else {
     schema_string <- ""
   }
+
+  prog <- cli::cli_progress_step(
+    "Registering {length(subfolders)} table-folders from '{folder_path}' to schema '{schema}'"
+  )
 
   for (path in subfolders) {
     table_name <- path |>
@@ -124,9 +131,7 @@ duckdb_register_omop_es_datalake <- function(con, folder_path, schema = NULL) {
     )
   }
 
-  cli::cli_progress_step(
-    "Registered {length(subfolders)} table-folders from '{folder_path}' to schema '{schema}'"
-  )
+  cli::cli_progress_done(prog)
 }
 
 #' Register a folder of parquet files as duckdb table
@@ -137,6 +142,7 @@ duckdb_register_omop_es_datalake <- function(con, folder_path, schema = NULL) {
 #' @param schema Name of schema to register tables in
 #' @importFrom fs path_dir path_ext_remove dir_ls path_file
 #' @importFrom stringr str_to_lower
+#' @importFrom cli cli_progress_step cli_progress_done
 duckdb_register_parquet_dir <- function(con, folder_path, schema = NULL) {
   parquet_files <- fs::dir_ls(path = folder_path, glob = "*.parquet")
 
@@ -145,6 +151,10 @@ duckdb_register_parquet_dir <- function(con, folder_path, schema = NULL) {
   } else {
     schema_string <- ""
   }
+
+  prog <- cli::cli_progress_step(
+    "Registering {length(parquet_files)} files from '{folder_path}' to schema '{schema}'"
+  )
 
   # Loop through each file and create a view
   for (file_path in parquet_files) {
@@ -165,9 +175,7 @@ duckdb_register_parquet_dir <- function(con, folder_path, schema = NULL) {
     )
   }
 
-  cli::cli_progress_step(
-    "Registered {length(parquet_files)} files from '{folder_path}' to schema '{schema}'"
-  )
+  cli::cli_progress_done(prog)
 }
 
 #' @importFrom dplyr case_when group_walk rowwise
@@ -175,13 +183,20 @@ duckdb_register_parquet_dir <- function(con, folder_path, schema = NULL) {
 #' @importFrom stringr str_detect
 #' @importFrom glue glue
 #' @importFrom stringr str_to_lower
-duckdb_register_omop_es_csv <- function(
+#' @importFrom cli cli_progress_step cli_progress_done
+duckdb_register_omop_es_single_batch <- function(
   con,
   folder_path,
   schema_public = "dbo",
   schema_private = "priv"
 ) {
-  tables <- fs::dir_ls(folder_path, glob = "*.csv")
+  csv_tables <- fs::dir_ls(folder_path, glob = "*.csv")
+  parquet_tables <- fs::dir_ls(folder_path, glob = "*.parquet")
+  tables <- union(csv_tables, parquet_tables)
+
+  prog <- cli::cli_progress_step(
+    "Registering {length(tables)} tables from '{folder_path}' to schemas '{schema_public}' or {schema_private}"
+  )
 
   df <- tibble(path = tables) |>
     mutate(
@@ -190,8 +205,8 @@ duckdb_register_omop_es_csv <- function(
         fs::path_ext_remove() |>
         stringr::str_to_lower(),
       type = case_when(
-        stringr::str_detect(tables, "_LINKS.csv") ~ "links",
-        stringr::str_detect(tables, "_BAD.csv") ~ "bad",
+        stringr::str_detect(tables, "_LINKS") ~ "links",
+        stringr::str_detect(tables, "_BAD") ~ "bad",
         TRUE ~ "public"
       ),
       schema = dplyr::case_when(
@@ -199,7 +214,11 @@ duckdb_register_omop_es_csv <- function(
         type == "bad" ~ schema_private,
         type == "links" ~ schema_private
       ),
-      schema_string = glue::glue("{schema}.")
+      schema_string = glue::glue("{schema}."),
+      format = case_when(
+        stringr::str_detect(tables, ".csv") ~ "csv",
+        stringr::str_detect(tables, ".parquet") ~ "parquet"
+      )
     )
 
   df |>
@@ -210,9 +229,10 @@ duckdb_register_omop_es_csv <- function(
         glue::glue(
           "
       CREATE VIEW {.x$schema_string}{.x$table_name} AS
-        SELECT * FROM read_csv('{.x$path}');
+        SELECT * FROM read_{.x$format}('{.x$path}');
     "
         )
       )
     })
+  cli::cli_progress_done(prog)
 }
