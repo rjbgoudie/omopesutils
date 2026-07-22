@@ -7,6 +7,7 @@ omop_es_run_git_sha <- function(
   omop_es_path,
   settings_id = "CUH_EPIC_small_cohort",
   cohort_limit = 5000,
+  output_parquet = NA,
   zip_output = FALSE,
   custom_dir = NULL,
   fetch = TRUE,
@@ -50,6 +51,7 @@ omop_es_run_git_sha <- function(
     omop_es_path = omop_es_path,
     settings_id = settings_id,
     cohort_limit = cohort_limit,
+    output_parquet = output_parquet,
     zip_output = zip_output,
     custom_dir = custom_dir,
     envvar = envvar
