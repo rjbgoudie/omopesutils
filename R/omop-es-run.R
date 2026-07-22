@@ -87,28 +87,13 @@ omop_es_main_cuh_interactive <- function(
       cli::cli_alert_info("Setting up omop temp tables")
       source(here("utils/create_temp_caboodle_tables.R"))
       start <- Sys.time()
-      if (
-        !DBI::dbExistsTable(
-          conns$caboodle,
-          "##temp_concepts",
-          catalog_name = "tempdb"
-        )
-      ) {
-        omop_concepts <- create_omop_metadata_temp_concept_table(conns)
-      } else {
-        omop_concepts <- tbl(conns$caboodle, "##temp_concepts")
-      }
-      if (
-        !DBI::dbExistsTable(
-          conns$caboodle,
-          "##temp_concept_relationship",
-          catalog_name = "tempdb"
-        )
-      ) {
-        omop_relationships <- create_omop_metadata_temp_con_rel_table(conns)
-      } else {
-        omop_relationships <- tbl(conns$caboodle, "##temp_concept_relationship")
-      }
+      create_omop_metadata_temp_concept_table(conns)
+      create_omop_metadata_temp_con_rel_table(conns)
+      glue("Time elapsed to setup temp tables: {Sys.time() - start}.")
+
+      omop_concepts <- tbl(conns$caboodle, "##omop_concepts")
+      omop_relationships <- tbl(conns$caboodle, "##omop_concept_relationship")
+
       # Force assignment in global env
       assign("omop_concepts", omop_concepts, globalenv())
       assign("omop_relationships", omop_relationships, globalenv())
