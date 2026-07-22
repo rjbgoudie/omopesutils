@@ -1,6 +1,7 @@
 #' @importFrom purrr map
 #' @importFrom DBI dbListTables
 omop_tables_row_count <- function(db, schema = "dbo") {
+  cli::cli_progress_step("Starting row counts")
   omop_tables <- omop_all_tables()
   available_tables <- DBI::dbListTables(db)
   tables <- intersect(omop_tables, available_tables)
@@ -29,6 +30,7 @@ omop_plugin_row_count <- function(
   schema_public = "dbo",
   schema_private = "priv"
 ) {
+  cli::cli_progress_step("Starting plugin row counts")
   omop_tables <- omop_all_tables()
   available_tables <- DBI::dbListTables(db)
   tables <- intersect(omop_tables, available_tables)
