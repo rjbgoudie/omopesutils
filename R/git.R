@@ -1,4 +1,6 @@
-#' @importFrom gert git_branch_checkout git_stash_save git_stash_pop git_stash_drop git_fetch
+#' @importFrom gert git_branch_checkout git_stash_save git_stash_pop
+#'   git_stash_drop git_fetch git_merge_analysis git_merge
+#' @importFrom cli cli_progress_step cli_alert_info cli_progress_done
 #' @export
 omop_es_run_git_sha <- function(
   branch,
@@ -7,7 +9,7 @@ omop_es_run_git_sha <- function(
   cohort_limit = 5000,
   zip_output = FALSE,
   custom_dir = NULL,
-  pull = TRUE,
+  fetch = TRUE,
   envvar = callr::rcmd_safe_env()
 ) {
   changes_stashed <- FALSE
@@ -21,11 +23,27 @@ omop_es_run_git_sha <- function(
     changes_stashed <- TRUE
   }
 
-  cli::cli_alert_info("Checking out {branch}")
+  p <- cli::cli_progress_step("Checking out {branch}")
   gert::git_branch_checkout(branch, repo = omop_es_path)
+  cli::cli_progress_done(p)
 
-  if (pull) {
-    gert::git_pull(repo = omop_es_path)
+  if (fetch) {
+    p <- cli::cli_progress_step("Fetching from remote")
+    gert::git_fetch(repo = omop_es_path)
+    cli::cli_progress_done(p)
+  }
+
+  # This if on branch "mybranch", this is shorthand for "origin/mybranch"
+  upstream_ref <- "@{upstream}"
+  merge_state <- gert::git_merge_analysis(upstream_ref, repo = omop_es_path)
+  if (merge_state == "up_to_date"){
+    cli::cli_alert_info("{branch} already up to date, nothing to merge")
+  } else if (merge_state == "fastforward"){
+    p <- cli::cli_progress_step("Merging upstream into {branch}")
+    gert::git_merge(upstream_ref, repo = omop_es_path)
+    cli::cli_progress_done(p)
+  } else {
+    cli::cli_abort("Merging upstream into {branch} is not a fast-forward")
   }
 
   omop_es_run(
