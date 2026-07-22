@@ -17,6 +17,7 @@ omop_es_run <- function(
   omop_es_path,
   settings_id = "CUH_EPIC_small_cohort",
   cohort_limit = 5000,
+  output_parquet = NA,
   zip_output = FALSE,
   custom_dir = NULL,
   envvar = callr::rcmd_safe_env()
@@ -25,6 +26,7 @@ omop_es_run <- function(
     omop_es_path = omop_es_path,
     settings_id = settings_id,
     cohort_limit = cohort_limit,
+    output_parquet = output_parquet,
     zip_output = zip_output,
     custom_dir = custom_dir
   ) {
@@ -32,6 +34,7 @@ omop_es_run <- function(
       omop_es_path = omop_es_path,
       settings_id = settings_id,
       cohort_limit = cohort_limit,
+      output_parquet = output_parquet,
       zip_output = zip_output,
       custom_dir = custom_dir
     )
@@ -43,6 +46,7 @@ omop_es_run <- function(
       omop_es_path = omop_es_path,
       settings_id = settings_id,
       cohort_limit = cohort_limit,
+      output_parquet = output_parquet,
       zip_output = zip_output,
       custom_dir = custom_dir
     ),
@@ -58,6 +62,7 @@ omop_es_main_cuh_interactive <- function(
   omop_es_path,
   settings_id = "CUH_EPIC_small_cohort",
   cohort_limit = 5000,
+  output_parquet = NA,
   zip_output = FALSE,
   custom_dir = NULL
 ) {
@@ -119,6 +124,11 @@ omop_es_main_cuh_interactive <- function(
 
     # ----------- Post Process ------------
     post_processed <- project$post_process(projected_omop, cohort, conns)
+
+    if (isTRUE(output_parquet)){
+      cli::cli_alert_info("Forcing parquet output")
+      settings[["output"]][["format"]] <- "parquet"
+    }
 
     # -------------- Output ---------------
     source(here("output/output_omop.R"))
