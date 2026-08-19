@@ -29,7 +29,8 @@ A single extract from OMOP-ES produces one of two formats:
 }
 \details{
 1. A folder of CSV files
-2. A new (timestampped) directory as a subdirectory of `extract` e.g.
+2. A folder of parquet files
+3. A new (timestampped) directory as a subdirectory of `extract` e.g.
   `extract/CUH_EPIC_batch_cohort-20260201_090000`.
   Within this, there are 3 directories (`public`, `private` and `custom`),
   each of which contains a directory for each OMOP table (e.g.

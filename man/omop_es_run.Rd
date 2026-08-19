@@ -8,6 +8,7 @@ omop_es_run(
   omop_es_path,
   settings_id = "CUH_EPIC_small_cohort",
   cohort_limit = 5000,
+  output_parquet = NA,
   zip_output = FALSE,
   custom_dir = NULL,
   envvar = callr::rcmd_safe_env()

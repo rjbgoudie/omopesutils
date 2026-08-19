@@ -1,16 +1,34 @@
-Package: omopesutils
 Type: Package
+Package: omopesutils
 Title: Utilities for working with OMOP-ES
 Version: 0.1.0
-Authors@R: c(
-    person(
-      "Robert", "Goudie",
-      email = "rjbgoudie@gmail.com",
-      role = c("aut", "cre")
-    )
-  )
+Authors@R: 
+    person("Robert", "Goudie", , "rjbgoudie@gmail.com", role = c("aut", "cre"))
 Description: Utilities for working OMOP-ES, particularly output
 License: GPL (>= 3)
+Imports: 
+    bslib,
+    callr,
+    cli,
+    daff,
+    DBI,
+    dbplyr,
+    dplyr,
+    duckdb,
+    fs,
+    gert,
+    glue,
+    gt,
+    here,
+    purrr,
+    reactable,
+    readr,
+    rlang,
+    rmarkdown,
+    shiny,
+    stringr,
+    tidyr,
+    withr
+Config/roxygen2/version: 8.1.0
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.3

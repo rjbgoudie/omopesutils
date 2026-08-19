@@ -5,11 +5,16 @@ export(decorate_mapping_table)
 export(duckdb_register_omop_es_datalake)
 export(duckdb_register_omop_es_output)
 export(gt_decorate_mapping_table)
+export(mapping_table_report)
 export(omop_all_tables)
 export(omop_cdm_tables)
 export(omop_es_diff_viewer)
 export(omop_es_diff_viewer_local_git)
 export(omop_es_main_cuh_interactive)
+export(omop_es_plugins_extract_docs_private)
+export(omop_es_plugins_extract_docs_public)
+export(omop_es_plugins_extract_sql)
+export(omop_es_plugins_extract_tables)
 export(omop_es_run)
 export(omop_es_run_git_sha)
 export(omop_es_viewer)
@@ -22,46 +27,68 @@ import(gt)
 import(reactable)
 import(shiny)
 import(stringr)
-importFrom(DBI,Id)
-importFrom(DBI,dbConnect)
-importFrom(DBI,dbExecute)
-importFrom(DBI,dbExistsTable)
-importFrom(DBI,dbListFields)
-importFrom(DBI,dbListTables)
-importFrom(DBI,dbQuoteString)
-importFrom(callr,r)
-importFrom(callr,rcmd_safe_env)
-importFrom(cli,cli_progress_done)
-importFrom(cli,cli_progress_step)
+importFrom(DBI,
+  Id,
+  dbConnect,
+  dbExecute,
+  dbExistsTable,
+  dbListFields,
+  dbListTables,
+  dbQuoteString
+)
+importFrom(callr,
+  r,
+  rcmd_safe_env
+)
+importFrom(cli,
+  cli_alert_info,
+  cli_progress_done,
+  cli_progress_step
+)
 importFrom(dbplyr,window_order)
-importFrom(dplyr,bind_rows)
-importFrom(dplyr,case_when)
-importFrom(dplyr,group_walk)
-importFrom(dplyr,rowwise)
-importFrom(dplyr,tbl)
-importFrom(dplyr,tibble)
+importFrom(dplyr,
+  bind_rows,
+  case_when,
+  group_walk,
+  rowwise,
+  tbl,
+  tibble
+)
 importFrom(duckdb,duckdb)
-importFrom(fs,dir_exists)
-importFrom(fs,dir_ls)
-importFrom(fs,file_exists)
-importFrom(fs,path)
-importFrom(fs,path_dir)
-importFrom(fs,path_ext_remove)
-importFrom(fs,path_file)
-importFrom(gert,git_branch_checkout)
-importFrom(gert,git_fetch)
-importFrom(gert,git_stash_drop)
-importFrom(gert,git_stash_pop)
-importFrom(gert,git_stash_save)
-importFrom(gert,git_status)
+importFrom(fs,
+  dir_exists,
+  dir_ls,
+  file_exists,
+  path,
+  path_dir,
+  path_ext_remove,
+  path_file
+)
+importFrom(gert,
+  git_branch_checkout,
+  git_fetch,
+  git_merge,
+  git_merge_analysis,
+  git_stash_drop,
+  git_stash_pop,
+  git_stash_save,
+  git_status
+)
 importFrom(glue,glue)
-importFrom(gt,fmt_markdown)
-importFrom(gt,gt)
-importFrom(purrr,map)
-importFrom(purrr,map_lgl)
+importFrom(gt,
+  fmt_markdown,
+  gt
+)
+importFrom(purrr,
+  map,
+  map_lgl
+)
 importFrom(readr,read_csv)
-importFrom(stringr,str_detect)
-importFrom(stringr,str_to_lower)
-importFrom(stringr,str_to_upper)
+importFrom(rmarkdown,render)
+importFrom(stringr,
+  str_detect,
+  str_to_lower,
+  str_to_upper
+)
 importFrom(tidyr,pivot_wider)
 importFrom(withr,with_dir)
