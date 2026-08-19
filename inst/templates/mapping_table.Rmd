@@ -1,0 +1,31 @@
+---
+title: "OMOP Mapping Table"
+output:
+  html_document:
+    page-layout: full
+    toc-location: left
+    theme: cosmo
+params:
+  mapping_table: null
+  db: null
+  concept_id_column: null
+
+---
+
+```{css, echo=FALSE}
+.main-container {
+  max-width: 100% !important;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(omopesutils)
+
+gt_decorate_mapping_table(
+  mapping_table = params$mapping_table,
+  db = params$db,
+  concept_id_column = params$concept_id_column
+)
+```
