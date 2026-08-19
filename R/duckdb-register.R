@@ -80,7 +80,7 @@ duckdb_register_omop_es_output <- function(
   # concept tables
   duckdb_register_parquet_dir(
     con,
-    folder_path = fs::path(omop_es_path, "omop_metadata"),
+    folder_path = fs::path(omop_es_path, "omop_metadata", "vocabs"),
     schema = schema_public
   )
 }
