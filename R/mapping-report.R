@@ -1,7 +1,10 @@
+#' @export
+#' @importFrom rmarkdown render
 mapping_table_report <- function(
   mapping_table,
   db,
-  concept_id_column = guess_concept_id_column(mapping_table)
+  concept_id_column = guess_concept_id_column(mapping_table),
+  output_dir = getwd()
 ) {
   rmarkdown::render(
     system.file(
@@ -15,6 +18,7 @@ mapping_table_report <- function(
       concept_id_column = concept_id_column
     ),
     output_file = "mapping_table.html",
+    output_dir = output_dir,
     clean = FALSE
   )
 }
