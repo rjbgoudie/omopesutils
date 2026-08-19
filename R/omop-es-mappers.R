@@ -15,6 +15,7 @@
 #'   contains one element for each OMOP table. Within each table-level element,
 #'   there is a named list containing one element per plugin.
 #' @importFrom withr with_dir
+#' @export
 omop_es_plugins_extract_sql <- function(
   omop_es_path,
   settings_id = "CUH_EPIC_small_cohort",
@@ -58,6 +59,7 @@ omop_es_plugins_extract_sql <- function(
 #'   table-level element, there is a named list containing one element per
 #'   plugin.
 #' @importFrom withr with_dir
+#' @export
 omop_es_plugins_extract_tables <- function(
   omop_es_path,
   settings_id = "CUH_EPIC_small_cohort",
@@ -98,6 +100,7 @@ omop_es_plugins_extract_tables <- function(
 #' @returns A named list, with one element per OMOP table. Each element of the
 #'   list contains the corresponding Markdown code
 #' @importFrom withr with_dir
+#' @export
 omop_es_plugins_extract_docs_public <- function(
   omop_es_path,
   settings_id = "CUH_EPIC_small_cohort",
@@ -142,6 +145,7 @@ omop_es_plugins_extract_docs_public <- function(
 #'   list contains the corresponding Markdown code
 #' @importFrom withr with_dir
 #' @importFrom withr with_dir
+#' @export
 omop_es_plugins_extract_docs_private <- function(
   omop_es_path,
   settings_id = "CUH_EPIC_small_cohort",
