@@ -16,6 +16,7 @@ omop_es_diff_viewer_local_git(
   right_branch,
   settings_id = "CUH_EPIC_small_cohort",
   cohort_limit = 5000,
+  links_patient_id_column,
   output_parquet = TRUE,
   fetch = TRUE,
   envvar = callr::rcmd_safe_env()
@@ -43,6 +44,11 @@ omop_es_diff_viewer_local_git(
 - cohort_limit:
 
   The max number of patients to use.
+
+- links_patient_id_column:
+
+  Name of the patient identifier column in the OMOP-ES `person` `_links`
+  table, without the `links__person__` prefix.
 
 - output_parquet:
 

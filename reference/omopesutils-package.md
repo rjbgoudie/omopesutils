@@ -70,6 +70,16 @@ standard-concept status, and
 [`mapping_table_report()`](https://rjbgoudie.github.io/omopesutils/reference/mapping_table_report.md)
 renders the annotated table to a standalone HTML report.
 
+## See also
+
+Useful links:
+
+- <https://rjbgoudie.github.io/omopesutils/>
+
+- <https://github.com/rjbgoudie/omopesutils>
+
+- Report bugs at <https://github.com/rjbgoudie/omopesutils/issues>
+
 ## Author
 
 **Maintainer**: Robert Goudie <rjbgoudie@gmail.com>
