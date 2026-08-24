@@ -74,6 +74,8 @@ omop_es_diff_viewer_local <- function(
 #' @param cohort_limit The max number of patients to use.
 #' @param left_branch A git branch or SHA
 #' @param right_branch A git branch or SHA
+#' @param links_patient_id_column Name of the patient identifier column in the
+#'   OMOP-ES `person` `_links` table, without the `links__person__` prefix.
 #' @param output_parquet Whether to force parquet output for both runs,
 #'   overriding the format in the OMOP-ES settings
 #' @param fetch Whether to fetch from the remote before merging upstream into
@@ -100,6 +102,7 @@ omop_es_diff_viewer_local_git <- function(
   right_branch,
   settings_id = "CUH_EPIC_small_cohort",
   cohort_limit = 5000,
+  links_patient_id_column,
   output_parquet = TRUE,
   fetch = TRUE,
   envvar = callr::rcmd_safe_env()
@@ -154,5 +157,5 @@ omop_es_diff_viewer_local_git <- function(
     schema_private = "priv2"
   )
 
-  omop_es_diff_viewer(db)
+  omop_es_diff_viewer(db, links_patient_id_column = links_patient_id_column)
 }
