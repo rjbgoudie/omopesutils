@@ -153,7 +153,7 @@ omop_es_diff_viewer <- function(
 
       if (isTRUE(input$omop_columns_only)) {
         left <- left |>
-          select(any_of(omop_table_columns))
+          select(any_of(omop_table_columns()))
       }
 
       # If using duckdb, materialise to a temporary table,
@@ -180,7 +180,7 @@ omop_es_diff_viewer <- function(
         select(any_of(omop_table_columns(input$table_sel)), everything())
       if (isTRUE(input$omop_columns_only)) {
         right <- right |>
-          select(any_of(omop_table_columns))
+          select(any_of(omop_table_columns()))
       }
 
       # If using duckdb, materialise to a temporary table,
