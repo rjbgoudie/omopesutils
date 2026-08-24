@@ -7,7 +7,7 @@
 dbListTablesInSchema(conn, schema)
 }
 \arguments{
-\item{conn}{A [DBI::DBIConnection] object, as returned by [DBI::dbConnect()].}
+\item{conn}{A \link[DBI:DBIConnection-class]{DBI::DBIConnection} object, as returned by \code{\link[DBI:dbConnect]{DBI::dbConnect()}}.}
 
 \item{schema}{The schema name, a character string}
 }
@@ -15,5 +15,16 @@ dbListTablesInSchema(conn, schema)
 A character vector of table names
 }
 \description{
-List all tables in a schema
+Lists the base tables in \code{schema}, by querying \code{information_schema.tables}.
+Views are \emph{not} included; use \code{\link[=dbListTablesAndViewsInSchema]{dbListTablesAndViewsInSchema()}} if views are
+wanted too. This matters for OMOP-ES output registered with
+\code{\link[=duckdb_register_omop_es_output]{duckdb_register_omop_es_output()}}, which creates views rather than tables.
 }
+\seealso{
+Other database schema helpers:
+\code{\link[=dbCreateSchema]{dbCreateSchema()}},
+\code{\link[=dbListOmopTables]{dbListOmopTables()}},
+\code{\link[=dbListTablesAndViewsInSchema]{dbListTablesAndViewsInSchema()}}
+}
+\concept{database schema helpers}
+\keyword{internal}

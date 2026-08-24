@@ -2,13 +2,52 @@
 % Please edit documentation in R/omop-metadata.R
 \name{omop_source_tables_for_foreign_key_columns}
 \alias{omop_source_tables_for_foreign_key_columns}
-\title{Foreign key column names for OMOP table}
+\title{Source tables referenced by an OMOP table's key columns}
 \usage{
 omop_source_tables_for_foreign_key_columns(table)
 }
 \arguments{
 \item{table}{OMOP table name}
 }
-\description{
-Foreign key column names for OMOP table
+\value{
+A character vector of lower-case OMOP table names.
 }
+\description{
+Returns the names of the OMOP tables that \code{table} is related to through its
+primary key and its non-vocabulary foreign keys. That is, the table itself
+(via its own primary key) together with every table referenced by one of
+its foreign key columns, excluding foreign keys into the vocabulary
+\code{concept} table.
+}
+\details{
+For example, \code{condition_occurrence} has a primary key of
+\code{condition_occurrence_id} and non-vocabulary foreign keys pointing at
+\code{person}, \code{provider}, \code{visit_occurrence} and \code{visit_detail}, so all five
+table names are returned.
+
+Note that \code{death} has no primary key in the v5.4 specification, so the
+\code{death} table itself is not included in its own result.
+
+This function drives the automatic joining performed by
+\code{\link[=omop_es_tbl_with_links]{omop_es_tbl_with_links()}}: OMOP-ES stores one \verb{_links} table per OMOP
+table, and the \verb{_links} tables that are relevant to a given OMOP table are
+exactly the ones for the tables returned here.
+}
+\seealso{
+\code{\link[=omop_table_all_key_columns]{omop_table_all_key_columns()}} for the corresponding column names,
+and \code{\link[=omop_es_link_tables_for_foreign_key_columns]{omop_es_link_tables_for_foreign_key_columns()}} for the corresponding
+OMOP-ES \verb{_links} table names.
+
+Other OMOP CDM metadata:
+\code{\link[=omop_all_tables]{omop_all_tables()}},
+\code{\link[=omop_cdm_tables]{omop_cdm_tables()}},
+\code{\link[=omop_metadata_field_level]{omop_metadata_field_level()}},
+\code{\link[=omop_metadata_table_level]{omop_metadata_table_level()}},
+\code{\link[=omop_table_all_key_columns]{omop_table_all_key_columns()}},
+\code{\link[=omop_table_columns]{omop_table_columns()}},
+\code{\link[=omop_table_common_columns]{omop_table_common_columns()}},
+\code{\link[=omop_table_primary_key]{omop_table_primary_key()}},
+\code{\link[=omop_vocab_tables]{omop_vocab_tables()}}
+}
+\concept{OMOP CDM metadata}
+\keyword{internal}

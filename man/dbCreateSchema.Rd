@@ -7,10 +7,25 @@
 dbCreateSchema(conn, schema)
 }
 \arguments{
-\item{conn}{A [DBI::DBIConnection] object, as returned by [DBI::dbConnect()].}
+\item{conn}{A \link[DBI:DBIConnection-class]{DBI::DBIConnection} object, as returned by \code{\link[DBI:dbConnect]{DBI::dbConnect()}}.}
 
 \item{schema}{The schema name, a character string}
 }
-\description{
-Create or replace schema in a database
+\value{
+The number of rows affected by the statement, as returned by
+\code{\link[DBI:dbExecute]{DBI::dbExecute()}}, invisibly in practice since \verb{CREATE SCHEMA} affects no
+rows.
 }
+\description{
+Issues a \verb{CREATE OR REPLACE SCHEMA} statement. Note that, because the
+schema is \emph{replaced}, any existing schema of the same name (and everything
+in it) is dropped.
+}
+\seealso{
+Other database schema helpers:
+\code{\link[=dbListOmopTables]{dbListOmopTables()}},
+\code{\link[=dbListTablesAndViewsInSchema]{dbListTablesAndViewsInSchema()}},
+\code{\link[=dbListTablesInSchema]{dbListTablesInSchema()}}
+}
+\concept{database schema helpers}
+\keyword{internal}

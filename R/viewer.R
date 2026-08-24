@@ -1,10 +1,61 @@
+#' Browse a single OMOP-ES extract
 #'
+#' Launches a \pkg{shiny} application for browsing the tables of one OMOP-ES
+#' extract, with the OMOP-ES `_links` tables joined on. It is a convenient way
+#' to look at what the pipeline actually produced without writing queries.
+#'
+#' @details
+#' The table picker offers every table and view in the `dbo` schema (see
+#' [dbListTablesAndViewsInSchema()]), and the selected table is read with
+#' [omop_es_tbl_with_links()], so the OMOP-ES provenance and source-system
+#' columns are available alongside the OMOP columns. The sidebar allows the
+#' rows to be restricted to particular patients, the `links__*` columns to be
+#' hidden, and the page size to be chosen; it also reports how many rows match
+#' before paging.
+#'
+#' Paging is done in the database rather than in the browser: rows are ordered
+#' by the table's primary key (see [omop_table_primary_key()]) with
+#' [dbplyr::window_order()] and then sliced by row number, so only one page is
+#' ever collected. This is what makes it usable on tables too large to bring
+#' into R.
+#'
+#' The patient identifier column is passed by name rather than hard-coded, and
+#' is looked up as `links__person__<links_patient_id_column>` --- the name
+#' [omop_es_tbl_with_links()] gives it after joining the `person` `_links`
+#' table. This keeps identifiable source-system column names out of this open
+#' source package.
+#'
+#' @section Known limitations:
+#'
+#' The Previous and Next buttons, and the unused `page_info` output, refer to
+#' a `total_rows` object that is not defined in the function, so paging past
+#' the first page raises an error. The schema is also hard-coded: the table
+#' picker reads `dbo`, and [omop_es_tbl_with_links()] is called with its
+#' default `dbo`/`priv` schemas, so this cannot be pointed at an extract
+#' registered under other schema names.
+#'
+#' @param db A [DBI::DBIConnection-class] object with an OMOP-ES extract registered
+#'   in the `dbo` and `priv` schemas, as by
+#'   [duckdb_register_omop_es_output()]
+#' @param links_patient_id_column Name of the patient identifier column in the
+#'   OMOP-ES `person` `_links` table, without the `links__person__` prefix.
+#'   Used to label and populate the patient picker. Required.
+#' @returns A shiny app object, as returned by [shiny::shinyApp()].
+#' @family OMOP-ES extract viewers
+#' @seealso [omop_es_diff_viewer()] for comparing two extracts.
+#' @examples
+#' \dontrun{
+#' db <- DBI::dbConnect(duckdb::duckdb())
+#' duckdb_register_omop_es_output(db, extract_path, omop_es_path)
+#' omop_es_viewer(db, links_patient_id_column = "my_patient_id_column")
+#' }
 #' @export
 #' @import shiny
 #' @import gt
 #' @import dplyr
 #' @import bslib
 #' @import reactable
+#' @importFrom DBI Id
 omop_es_viewer <- function(db, links_patient_id_column) {
   # Construct link column name to avoid including private column names in
   # open source code

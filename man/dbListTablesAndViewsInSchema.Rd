@@ -7,7 +7,7 @@
 dbListTablesAndViewsInSchema(conn, schema)
 }
 \arguments{
-\item{conn}{A [DBI::DBIConnection] object, as returned by [DBI::dbConnect()].}
+\item{conn}{A \link[DBI:DBIConnection-class]{DBI::DBIConnection} object, as returned by \code{\link[DBI:dbConnect]{DBI::dbConnect()}}.}
 
 \item{schema}{The schema name, a character string}
 }
@@ -15,5 +15,14 @@ dbListTablesAndViewsInSchema(conn, schema)
 A character vector of table or view names
 }
 \description{
-Get all tables and views in a schema
+Lists both base tables and views in \code{schema}, by querying
+\code{information_schema.tables}.
 }
+\seealso{
+Other database schema helpers:
+\code{\link[=dbCreateSchema]{dbCreateSchema()}},
+\code{\link[=dbListOmopTables]{dbListOmopTables()}},
+\code{\link[=dbListTablesInSchema]{dbListTablesInSchema()}}
+}
+\concept{database schema helpers}
+\keyword{internal}

@@ -21,10 +21,38 @@ of the included patients have an imaging results)}
 }
 \value{
 A named list, with one element per OMOP table. Each element of the
-  list contains the corresponding Markdown code
+list contains the corresponding Markdown code
 }
 \description{
-Loads the documentation stored in `docs/CUH/{table_name}.md`
-within the OMOP-ES directory `omop_es_path` for every OMOP table with a
+Loads the documentation stored in \verb{docs/CUH/\{table_name\}.md}
+within the OMOP-ES directory \code{omop_es_path} for every OMOP table with a
 mapper specified.
 }
+\details{
+The list of tables comes from the \code{omop_plugins} object that OMOP-ES's
+\code{mapping/framework/map_omop.R} defines, so only tables that OMOP-ES
+actually maps are included. Tables that are mapped but have no
+documentation file appear in the result with a value of \code{NULL}, which makes
+it straightforward to spot undocumented tables.
+
+Setting up the OMOP-ES environment requires the source database
+connections and a cohort, even though only the plugin names are used, hence
+the \code{settings_id} and \code{cohort_limit} arguments.
+}
+\seealso{
+\code{\link[=read_table_level_md]{read_table_level_md()}}, which reads a single file.
+
+Other OMOP-ES plugin introspection:
+\code{\link[=check_type]{check_type()}},
+\code{\link[=enabled_by_settings]{enabled_by_settings()}},
+\code{\link[=omop_es_plugins_extract_docs_private]{omop_es_plugins_extract_docs_private()}},
+\code{\link[=omop_es_plugins_extract_sql]{omop_es_plugins_extract_sql()}},
+\code{\link[=omop_es_plugins_extract_tables]{omop_es_plugins_extract_tables()}},
+\code{\link[=plugin_extract_sql]{plugin_extract_sql()}},
+\code{\link[=plugin_extract_tables]{plugin_extract_tables()}},
+\code{\link[=plugins_extract_sql]{plugins_extract_sql()}},
+\code{\link[=plugins_extract_tables]{plugins_extract_tables()}},
+\code{\link[=read_table_level_md]{read_table_level_md()}},
+\code{\link[=read_table_level_private_md]{read_table_level_private_md()}}
+}
+\concept{OMOP-ES plugin introspection}

@@ -7,14 +7,40 @@
 read_table_level_md(table_name, omop_es_path)
 }
 \arguments{
-\item{omop_es_path}{Path to OMOP-ES directory}
+\item{table_name}{The OMOP table e.g. \code{"condition_occurrence"}}
 
-\item{table}{The OMOP table e.g. `"condition_occurrence"`}
+\item{omop_es_path}{Path to OMOP-ES directory}
 }
 \value{
-Character vector of length 1 containing the Markdown file
+Character vector of length 1 containing the Markdown file, or
+\code{NULL} if there is no documentation file for \code{table_name}.
 }
 \description{
-Loads the documentation stored in `docs/CUH/{table_name}.md`
-within the OMOP-ES directory `omop_es_path`.
+Loads the documentation stored in \verb{docs/CUH/\{table_name\}.md}
+within the OMOP-ES directory \code{omop_es_path}.
 }
+\details{
+This is the hand-written, publishable documentation for how an OMOP table
+is populated. The file is returned verbatim as a single string, with lines
+joined by newlines, so that it can be embedded in a larger document.
+}
+\seealso{
+\code{\link[=read_table_level_private_md]{read_table_level_private_md()}} for the private counterpart, and
+\code{\link[=omop_es_plugins_extract_docs_public]{omop_es_plugins_extract_docs_public()}} to load these for every mapped
+table.
+
+Other OMOP-ES plugin introspection:
+\code{\link[=check_type]{check_type()}},
+\code{\link[=enabled_by_settings]{enabled_by_settings()}},
+\code{\link[=omop_es_plugins_extract_docs_private]{omop_es_plugins_extract_docs_private()}},
+\code{\link[=omop_es_plugins_extract_docs_public]{omop_es_plugins_extract_docs_public()}},
+\code{\link[=omop_es_plugins_extract_sql]{omop_es_plugins_extract_sql()}},
+\code{\link[=omop_es_plugins_extract_tables]{omop_es_plugins_extract_tables()}},
+\code{\link[=plugin_extract_sql]{plugin_extract_sql()}},
+\code{\link[=plugin_extract_tables]{plugin_extract_tables()}},
+\code{\link[=plugins_extract_sql]{plugins_extract_sql()}},
+\code{\link[=plugins_extract_tables]{plugins_extract_tables()}},
+\code{\link[=read_table_level_private_md]{read_table_level_private_md()}}
+}
+\concept{OMOP-ES plugin introspection}
+\keyword{internal}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/duckdb-register.R
 \name{duckdb_register_parquet_dir}
 \alias{duckdb_register_parquet_dir}
-\title{Register a folder of parquet files as duckdb table}
+\title{Register a folder of parquet files as duckdb views}
 \usage{
 duckdb_register_parquet_dir(con, folder_path, schema = NULL)
 }
@@ -12,8 +12,27 @@ duckdb_register_parquet_dir(con, folder_path, schema = NULL)
 \item{folder_path}{Path to folder containing parquet files (one parquet per
 table)}
 
-\item{schema}{Name of schema to register tables in}
+\item{schema}{Name of schema to register tables in. If \code{NULL}, views are
+created in the connection's default schema.}
+}
+\value{
+Called for its side effect of registering views on \code{con}. Returns
+\code{NULL} invisibly.
 }
 \description{
-Register a folder of parquet files as duckdb table
+Given a folder containing one parquet file per table, this function
+registers each file as a duckdb view. Used for the OMOP vocabulary tables
+in the \code{omop_metadata/vocabs} directory of an OMOP-ES checkout.
 }
+\details{
+The view name is the file name with its extension removed, lower-cased, so
+\code{CONCEPT.parquet} becomes the view \code{concept}.
+}
+\seealso{
+Other OMOP-ES database registration:
+\code{\link[=duckdb_register_omop_es_datalake]{duckdb_register_omop_es_datalake()}},
+\code{\link[=duckdb_register_omop_es_output]{duckdb_register_omop_es_output()}},
+\code{\link[=duckdb_register_omop_es_single_batch]{duckdb_register_omop_es_single_batch()}}
+}
+\concept{OMOP-ES database registration}
+\keyword{internal}

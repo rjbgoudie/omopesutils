@@ -2,7 +2,7 @@
 % Please edit documentation in R/duckdb-register.R
 \name{duckdb_register_omop_es_output}
 \alias{duckdb_register_omop_es_output}
-\title{Register OMOP-ES datalake as duckdb table}
+\title{Register OMOP-ES output as duckdb views}
 \usage{
 duckdb_register_omop_es_output(
   con,
@@ -18,28 +18,68 @@ duckdb_register_omop_es_output(
 \item{extract_path}{Path to folder containing OMOP-ES extract}
 
 \item{omop_es_path}{Path to OMOP-ES directory (used for registering
-concept tables from the `omop_metadata` directory)}
+concept tables from the \code{omop_metadata} directory)}
 
 \item{schema_public}{Name of schema into which public OMOP data goes}
 
 \item{schema_private}{Name of schema into which private OMOP data goes}
 }
+\value{
+Called for its side effect of registering views on \code{con}. The
+return value is that of the final \code{\link[=duckdb_register_parquet_dir]{duckdb_register_parquet_dir()}} call and
+should not be relied upon.
+}
 \description{
-A single extract from OMOP-ES produces one of two formats:
+Registers a single OMOP-ES extract in a duckdb database, so that it can be
+queried with \pkg{dplyr} and \pkg{dbplyr}. Nothing is copied: each table
+becomes a duckdb view over the files on disk.
 }
 \details{
-1. A folder of CSV files
-2. A folder of parquet files
-3. A new (timestampped) directory as a subdirectory of `extract` e.g.
-  `extract/CUH_EPIC_batch_cohort-20260201_090000`.
-  Within this, there are 3 directories (`public`, `private` and `custom`),
-  each of which contains a directory for each OMOP table (e.g.
-  `condition_occurrence`), which then contains multiple `*.parquet` files.
+OMOP-ES writes an extract in one of two layouts, and this function detects
+which by looking for a \code{public} subdirectory of \code{extract_path}.
 
-This function registers:
-1. Tables under `public` in the `dbo` schema
-2. Tables under `private` in the `priv` schema
-3. Tables under `custom` in the `dbo` schema
-4. Tables in the `omop_metadata` subdirectory of `omop_es_path` in the `dbo`
-   schema
+\strong{Single batch.} A single directory of \verb{*.csv} or \verb{*.parquet} files, one
+file per table. Files whose name contains \verb{_LINKS} or \verb{_BAD} are registered
+into \code{schema_private}; everything else is registered into \code{schema_public}.
+See \code{\link[=duckdb_register_omop_es_single_batch]{duckdb_register_omop_es_single_batch()}}.
+
+\strong{Data lake.} A timestamped directory, e.g.
+\verb{extract/CUH_EPIC_batch_cohort-20260201_090000}, containing \code{public},
+\code{private} and \code{custom} subdirectories. Each of those contains one directory
+per OMOP table (e.g. \code{condition_occurrence}), which in turn contains
+several \verb{*.parquet} files. See \code{\link[=duckdb_register_omop_es_datalake]{duckdb_register_omop_es_datalake()}}.
+
+In the data-lake case the tables are registered as follows:
+\enumerate{
+\item Tables under \code{public} in \code{schema_public}
+\item Tables under \code{private} in \code{schema_private}
+\item Tables under \code{custom} in \code{schema_public}
 }
+
+In both cases the OMOP vocabulary tables are then registered into
+\code{schema_public} from the \code{omop_metadata/vocabs} subdirectory of
+\code{omop_es_path}, since these are shared between extracts rather than being
+written out with each one.
+
+Both schemas are created if they do not already exist, but existing
+contents are left alone. Registering two extracts into the same connection
+under different schema names is how \code{\link[=omop_es_diff_viewer]{omop_es_diff_viewer()}} compares them.
+}
+\examples{
+\dontrun{
+db <- DBI::dbConnect(duckdb::duckdb())
+duckdb_register_omop_es_output(
+  db,
+  extract_path = "~/omop_es/extract/CUH_EPIC_small_cohort_2026-02-01",
+  omop_es_path = "~/omop_es"
+)
+dplyr::tbl(db, DBI::Id(schema = "dbo", table = "person"))
+}
+}
+\seealso{
+Other OMOP-ES database registration:
+\code{\link[=duckdb_register_omop_es_datalake]{duckdb_register_omop_es_datalake()}},
+\code{\link[=duckdb_register_omop_es_single_batch]{duckdb_register_omop_es_single_batch()}},
+\code{\link[=duckdb_register_parquet_dir]{duckdb_register_parquet_dir()}}
+}
+\concept{OMOP-ES database registration}
