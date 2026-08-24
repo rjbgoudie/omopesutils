@@ -14,13 +14,17 @@
 #'   (baseline) extract
 #' @param right_extract_path Path to the folder containing the right-hand
 #'   (comparison) extract
+#' @param links_patient_id_column Name of the patient identifier column in the
+#'   OMOP-ES `person` `_links` table, without the `links__person__` prefix.
+#'   Used to label and populate the patient picker. Required.
 #' @returns A shiny app object, as returned by [shiny::shinyApp()].
 #' @family OMOP-ES extract viewers
 #' @keywords internal
 omop_es_diff_viewer_local <- function(
   omop_es_path,
   left_extract_path,
-  right_extract_path
+  right_extract_path,
+  links_patient_id_column
 ) {
   db <- DBI::dbConnect(duckdb::duckdb())
 
@@ -40,7 +44,7 @@ omop_es_diff_viewer_local <- function(
     schema_private = "priv2"
   )
 
-  omop_es_diff_viewer(db)
+  omop_es_diff_viewer(db, links_patient_id_column = links_patient_id_column)
 }
 
 #' Run OMOP-ES for two git SHAs and compare
