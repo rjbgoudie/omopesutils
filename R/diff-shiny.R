@@ -1,4 +1,65 @@
+#' Browse the differences between two OMOP-ES extracts
 #'
+#' Launches a \pkg{shiny} application for comparing two OMOP-ES extracts that
+#' have both been registered into the same database, typically by two calls to
+#' [duckdb_register_omop_es_output()] with different schema names.
+#'
+#' @details
+#' The application has three panels:
+#'
+#' * **Plugin Row Counts** --- the output of [omop_diff_plugins_row_count()],
+#'   i.e. row counts per OMOP table and OMOP-ES plugin, side by side with the
+#'   change between them
+#' * **Table Row Counts** --- the output of [omop_diff_tables_row_count()],
+#'   i.e. the same thing per table
+#' * **Details** --- a row-level diff of one OMOP table, rendered by
+#'   [daff_compare()], with a sidebar for choosing the table, restricting to
+#'   particular patients, and hiding the OMOP-ES columns
+#'
+#' In the Details panel each side is read with [omop_es_tbl_with_links()] with
+#' `drop_omop_foreign_keys = TRUE`, since surrogate keys are not expected to
+#' be stable between pipeline runs. Rows are ordered by the columns whose
+#' names end in `datetime` or `concept_id`, or contain `Key`, and the standard
+#' OMOP columns are moved to the front. On duckdb, each side is materialised
+#' into a table (`temp_left` and `temp_right`) with [as_table()], because
+#' otherwise the set difference between the two sides runs out of memory.
+#'
+#' The table picker offers every table present in *either* extract (see
+#' [omop_es_tables_in_either_db()]), so a table that has been added or removed
+#' can still be selected.
+#'
+#' The patient identifier column is passed by name rather than hard-coded, and
+#' is looked up as `links__person__<links_patient_id_column>` --- the name
+#' [omop_es_tbl_with_links()] gives it after joining the `person` `_links`
+#' table. This keeps identifiable source-system column names out of this open
+#' source package.
+#'
+#' @param conn A [DBI::DBIConnection-class] object holding both extracts
+#' @param schema_public_left,schema_private_left Names of the schemas holding
+#'   the left-hand (baseline) public OMOP tables and private `_links` tables
+#' @param schema_public_right,schema_private_right Names of the schemas holding
+#'   the right-hand (comparison) public OMOP tables and private `_links`
+#'   tables
+#' @param links_patient_id_column Name of the patient identifier column in the
+#'   OMOP-ES `person` `_links` table, without the `links__person__` prefix.
+#'   Used to label and populate the patient picker. Required.
+#' @returns A shiny app object, as returned by [shiny::shinyApp()].
+#' @family OMOP-ES extract viewers
+#' @seealso [omop_es_diff_viewer_local_git()], which runs the pipeline twice
+#'   and then calls this; [omop_es_viewer()] for browsing a single extract.
+#' @examples
+#' \dontrun{
+#' db <- DBI::dbConnect(duckdb::duckdb())
+#' duckdb_register_omop_es_output(
+#'   db, left_extract_path, omop_es_path,
+#'   schema_public = "dbo", schema_private = "priv"
+#' )
+#' duckdb_register_omop_es_output(
+#'   db, right_extract_path, omop_es_path,
+#'   schema_public = "dbo2", schema_private = "priv2"
+#' )
+#' omop_es_diff_viewer(db, links_patient_id_column = "my_patient_id_column")
+#' }
 #' @export
 #' @import shiny
 #' @import gt
@@ -256,6 +317,15 @@ omop_es_diff_viewer <- function(
   shiny::shinyApp(ui, server)
 }
 
+#' CSS for the daff diff table in the shiny apps
+#'
+#' The stylesheet injected into the `<head>` of [omop_es_diff_viewer()]. It
+#' colours the markup that [daff::render_diff()] emits: green for added rows,
+#' red for removed rows, blue for modified cells and red for conflicts, plus
+#' borders and whitespace handling for the table itself. The rules are scoped
+#' to the `highlighter` class, which wraps the diff output in the app's UI.
+#'
+#' @noRd
 shiny_app_css <- ".highlighter .add {
   background-color: #7fff7f;
 }

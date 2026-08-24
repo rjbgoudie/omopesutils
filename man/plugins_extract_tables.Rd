@@ -9,16 +9,39 @@ plugins_extract_tables(omop_plugins, conns, cohort)
 \arguments{
 \item{omop_plugins}{A list of OMOP-ES plugins}
 
-\item{conns}{The OMOP-ES `conns` object (a list of database connections)}
+\item{conns}{The OMOP-ES \code{conns} object (a list of database connections)}
 
-\item{cohort}{The OMOP-ES `cohort` tibble}
+\item{cohort}{The OMOP-ES \code{cohort} tibble}
 }
 \value{
 A nested list of list of database table names
 }
 \description{
-The function runs all the `omop_plugins` on the supplied cohort, but
-overrides the relevant R functions that query the database (`collect()` and
-`dbGetQuery()`) so that we can extract database tables that the plug-in
+The function runs all the \code{omop_plugins} on the supplied cohort, but
+overrides the relevant R functions that query the database (\code{collect()} and
+\code{dbGetQuery()}) so that we can extract database tables that the plug-in
 uses.
 }
+\details{
+As \code{\link[=plugins_extract_sql]{plugins_extract_sql()}}, plugins that the OMOP-ES \code{settings} do not
+enable are skipped.
+}
+\seealso{
+\code{\link[=omop_es_plugins_extract_tables]{omop_es_plugins_extract_tables()}}, which sets up the OMOP-ES
+environment and then calls this.
+
+Other OMOP-ES plugin introspection:
+\code{\link[=check_type]{check_type()}},
+\code{\link[=enabled_by_settings]{enabled_by_settings()}},
+\code{\link[=omop_es_plugins_extract_docs_private]{omop_es_plugins_extract_docs_private()}},
+\code{\link[=omop_es_plugins_extract_docs_public]{omop_es_plugins_extract_docs_public()}},
+\code{\link[=omop_es_plugins_extract_sql]{omop_es_plugins_extract_sql()}},
+\code{\link[=omop_es_plugins_extract_tables]{omop_es_plugins_extract_tables()}},
+\code{\link[=plugin_extract_sql]{plugin_extract_sql()}},
+\code{\link[=plugin_extract_tables]{plugin_extract_tables()}},
+\code{\link[=plugins_extract_sql]{plugins_extract_sql()}},
+\code{\link[=read_table_level_md]{read_table_level_md()}},
+\code{\link[=read_table_level_private_md]{read_table_level_private_md()}}
+}
+\concept{OMOP-ES plugin introspection}
+\keyword{internal}

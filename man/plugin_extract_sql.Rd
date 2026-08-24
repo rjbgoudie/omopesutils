@@ -11,16 +11,48 @@ plugin_extract_sql(plugin, name, conns, cohort)
 
 \item{name}{The name of the OMOP-ES plugin}
 
-\item{conns}{The OMOP-ES `conns` object (a list of database connections)}
+\item{conns}{The OMOP-ES \code{conns} object (a list of database connections)}
 
-\item{cohort}{The OMOP-ES `cohort` tibble}
+\item{cohort}{The OMOP-ES \code{cohort} tibble}
 }
 \value{
 A list of character SQL queries
 }
 \description{
 The function runs the plugin on the supplied cohort, but overrides the
-relevant R functions that query the database (`collect()` and
-`dbGetQuery()`) so that we can extract the SQL queries that the plug-in
+relevant R functions that query the database (\code{collect()} and
+\code{dbGetQuery()}) so that we can extract the SQL queries that the plug-in
 uses.
 }
+\details{
+The plugin's \code{mapper} body is evaluated in an environment in which
+\code{collect()} and \code{dbGetQuery()} are rebound (with
+\code{\link[rlang:local_bindings]{rlang::local_bindings()}}) to functions that record what they are asked
+for before delegating to the real thing. The plugin therefore still runs
+normally --- it is not simulated --- and the queries are collected as a
+side effect.
+
+\code{collect()} queries are rendered with common table expressions where
+possible, since that is much more readable, falling back to a
+non-CTE rendering where that fails. Columns are always qualified and never
+rendered as \code{*}, so that the query records exactly which columns the plugin
+depends on.
+}
+\seealso{
+\code{\link[=plugins_extract_sql]{plugins_extract_sql()}}, which calls this for every plugin.
+
+Other OMOP-ES plugin introspection:
+\code{\link[=check_type]{check_type()}},
+\code{\link[=enabled_by_settings]{enabled_by_settings()}},
+\code{\link[=omop_es_plugins_extract_docs_private]{omop_es_plugins_extract_docs_private()}},
+\code{\link[=omop_es_plugins_extract_docs_public]{omop_es_plugins_extract_docs_public()}},
+\code{\link[=omop_es_plugins_extract_sql]{omop_es_plugins_extract_sql()}},
+\code{\link[=omop_es_plugins_extract_tables]{omop_es_plugins_extract_tables()}},
+\code{\link[=plugin_extract_tables]{plugin_extract_tables()}},
+\code{\link[=plugins_extract_sql]{plugins_extract_sql()}},
+\code{\link[=plugins_extract_tables]{plugins_extract_tables()}},
+\code{\link[=read_table_level_md]{read_table_level_md()}},
+\code{\link[=read_table_level_private_md]{read_table_level_private_md()}}
+}
+\concept{OMOP-ES plugin introspection}
+\keyword{internal}

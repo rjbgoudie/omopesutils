@@ -1,7 +1,16 @@
 #' Create or replace schema in a database
 #'
-#' @param conn A [DBI::DBIConnection] object, as returned by [DBI::dbConnect()].
+#' Issues a `CREATE OR REPLACE SCHEMA` statement. Note that, because the
+#' schema is *replaced*, any existing schema of the same name (and everything
+#' in it) is dropped.
+#'
+#' @param conn A [DBI::DBIConnection-class] object, as returned by [DBI::dbConnect()].
 #' @param schema The schema name, a character string
+#' @returns The number of rows affected by the statement, as returned by
+#'   [DBI::dbExecute()], invisibly in practice since `CREATE SCHEMA` affects no
+#'   rows.
+#' @family database schema helpers
+#' @keywords internal
 #' @importFrom glue glue
 #' @importFrom DBI dbExecute dbQuoteString
 dbCreateSchema <- function(conn, schema) {
@@ -11,9 +20,16 @@ dbCreateSchema <- function(conn, schema) {
 
 #' List all tables in a schema
 #'
-#' @param conn A [DBI::DBIConnection] object, as returned by [DBI::dbConnect()].
+#' Lists the base tables in `schema`, by querying `information_schema.tables`.
+#' Views are *not* included; use [dbListTablesAndViewsInSchema()] if views are
+#' wanted too. This matters for OMOP-ES output registered with
+#' [duckdb_register_omop_es_output()], which creates views rather than tables.
+#'
+#' @param conn A [DBI::DBIConnection-class] object, as returned by [DBI::dbConnect()].
 #' @param schema The schema name, a character string
 #' @returns A character vector of table names
+#' @family database schema helpers
+#' @keywords internal
 #' @importFrom glue glue
 #' @importFrom DBI dbExecute
 dbListTablesInSchema <- function(conn, schema) {
@@ -30,9 +46,14 @@ dbListTablesInSchema <- function(conn, schema) {
 
 #' Get all tables and views in a schema
 #'
-#' @param conn A [DBI::DBIConnection] object, as returned by [DBI::dbConnect()].
+#' Lists both base tables and views in `schema`, by querying
+#' `information_schema.tables`.
+#'
+#' @param conn A [DBI::DBIConnection-class] object, as returned by [DBI::dbConnect()].
 #' @param schema The schema name, a character string
 #' @returns A character vector of table or view names
+#' @family database schema helpers
+#' @keywords internal
 #' @importFrom glue glue
 #' @importFrom DBI dbExecute
 dbListTablesAndViewsInSchema <- function(conn, schema) {

@@ -12,6 +12,61 @@ omop_es_tbl_with_links(
   drop_omop_foreign_keys = FALSE
 )
 }
-\description{
-Join OMOP-ES table to links tables
+\arguments{
+\item{conn}{A \link[DBI:DBIConnection-class]{DBI::DBIConnection} object, as returned by \code{\link[DBI:dbConnect]{DBI::dbConnect()}}.}
+
+\item{table}{OMOP table name, e.g. \code{"condition_occurrence"}}
+
+\item{schema_public}{Name of the schema holding the public OMOP tables}
+
+\item{schema_private}{Name of the schema holding the private OMOP-ES
+\verb{_links} tables}
+
+\item{drop_omop_foreign_keys}{Whether to drop the OMOP primary key and
+non-vocabulary foreign key columns (see
+\code{\link[=omop_table_all_key_columns]{omop_table_all_key_columns()}}). Useful when comparing two extracts,
+because surrogate keys are not expected to be stable between pipeline
+runs.}
 }
+\value{
+A lazy \code{tbl}.
+}
+\description{
+Returns a lazy \code{tbl} for an OMOP table with the corresponding OMOP-ES
+\verb{_links} tables joined on. The \verb{_links} tables record the provenance of
+each row --- which source-system record and which OMOP-ES plugin it came
+from --- and live in the private schema because they contain source-system
+identifiers.
+}
+\details{
+Both the OMOP table's own \verb{_links} table and the \verb{_links} tables of the
+tables it references by foreign key are joined on, as given by
+\code{\link[=omop_source_tables_for_foreign_key_columns]{omop_source_tables_for_foreign_key_columns()}}. So, for example, a
+\code{condition_occurrence} query also picks up the \code{person} linking columns,
+which is what makes it possible to filter an arbitrary OMOP table by a
+source-system patient identifier.
+
+For each candidate \verb{_links} table:
+\itemize{
+\item it is skipped if it does not exist in \code{schema_private}, or if it shares
+no column names with the OMOP table
+\item the join columns are those given by \code{\link[=omop_table_common_columns]{omop_table_common_columns()}}
+\item its columns are prefixed with \verb{links__<fk_table>__} so that columns
+coming from different \verb{_links} tables cannot collide
+\item \code{plugin_provenance} and \code{data_source} are treated specially. For the
+table's own \verb{_links} table they are renamed to
+\code{links__plugin_provenance} and \code{links__data_source}; for the \verb{_links}
+tables of referenced tables they are dropped, since the provenance of a
+referenced row is not the provenance of this row.
+\item the join is a \code{\link[dplyr:left_join]{dplyr::left_join()}}, so rows of the OMOP table are never
+dropped
+}
+
+No data is fetched: the result is a lazy \code{tbl} that can be filtered and
+aggregated further before being collected.
+}
+\seealso{
+\code{\link[=omop_es_viewer]{omop_es_viewer()}} and \code{\link[=omop_es_diff_viewer]{omop_es_diff_viewer()}}, which are built on
+this.
+}
+\keyword{internal}

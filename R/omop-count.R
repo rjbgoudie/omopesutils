@@ -1,3 +1,21 @@
+#' Row counts of every OMOP table in a schema
+#'
+#' Counts the rows of each OMOP table in a single schema. Progress is reported
+#' with \pkg{cli}, since counting every table of a large extract can take some
+#' time.
+#'
+#' @details
+#' Only tables that are both part of the OMOP CDM (see [omop_all_tables()])
+#' and actually present in the database, according to [DBI::dbListTables()],
+#' are counted. Tables that OMOP-ES adds beyond the CDM are therefore not
+#' included.
+#'
+#' @param db A [DBI::DBIConnection-class] object, as returned by [DBI::dbConnect()].
+#' @param schema Name of the schema holding the public OMOP tables
+#' @returns A tibble with columns `table` and `row_count`, with one row per
+#'   counted table.
+#' @family row counts
+#' @keywords internal
 #' @importFrom purrr map
 #' @importFrom DBI dbListTables
 omop_tables_row_count <- function(db, schema = "dbo") {
@@ -22,6 +40,30 @@ omop_tables_row_count <- function(db, schema = "dbo") {
   result
 }
 
+#' Row counts of every OMOP table in a schema, by OMOP-ES plugin
+#'
+#' As [omop_tables_row_count()], but attributing each row to the OMOP-ES
+#' plugin that produced it. This makes it possible to see which mapper is
+#' responsible for the rows in a table.
+#'
+#' @details
+#' The plugin is read from the `links__plugin_provenance` column that
+#' [omop_es_tbl_with_links()] joins on from the table's own `_links` table.
+#' Where a table has no such column --- because it has no `_links` table, or
+#' none that can be joined --- all of its rows are attributed to a plugin
+#' named `"default"`, so that every table appears in the result.
+#'
+#' As with [omop_tables_row_count()], only tables that are part of the OMOP
+#' CDM and present in the database are counted.
+#'
+#' @param db A [DBI::DBIConnection-class] object, as returned by [DBI::dbConnect()].
+#' @param schema_public Name of the schema holding the public OMOP tables
+#' @param schema_private Name of the schema holding the private OMOP-ES
+#'   `_links` tables
+#' @returns A tibble with columns `table`, `plugin` and `row_count`, with one
+#'   row per table and plugin.
+#' @family row counts
+#' @keywords internal
 #' @importFrom purrr map
 #' @importFrom dplyr bind_rows tibble
 #' @importFrom cli cli_progress_step

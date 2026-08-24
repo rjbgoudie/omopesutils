@@ -6,6 +6,44 @@
 \usage{
 omop_metadata_table_level()
 }
-\description{
-Load the OMOP CDM table level definition table
+\value{
+A tibble with one row per OMOP CDM table, as returned by
+\code{\link[readr:read_csv]{readr::read_csv()}}.
 }
+\description{
+Reads the OMOP CDM v5.4 table-level specification that is shipped with this
+package in \code{inst/OMOP_CDMv5.4_Table_Level.csv}. This is the
+\code{OMOP_CDMv5.4_Table_Level.csv} file published as part of the OHDSI
+CommonDataModel specification, and it describes one OMOP table per row.
+}
+\details{
+The columns of the returned table are those of the published
+specification, and include:
+\itemize{
+\item \code{cdmTableName} --- the table name, e.g. \code{"condition_occurrence"}
+\item \code{schema} --- which part of the CDM the table belongs to; one of \code{"CDM"},
+\code{"VOCAB"} or \code{"RESULTS"}
+\item \code{isRequired} --- whether the table is required, \code{"Yes"} or \code{"No"}
+\item \code{tableDescription}, \code{userGuidance}, \code{etlConventions} --- the prose
+documentation for the table
+}
+}
+\examples{
+omop_metadata_table_level()
+}
+\seealso{
+\code{\link[=omop_all_tables]{omop_all_tables()}} and \code{\link[=omop_cdm_tables]{omop_cdm_tables()}} for just the table
+names.
+
+Other OMOP CDM metadata:
+\code{\link[=omop_all_tables]{omop_all_tables()}},
+\code{\link[=omop_cdm_tables]{omop_cdm_tables()}},
+\code{\link[=omop_metadata_field_level]{omop_metadata_field_level()}},
+\code{\link[=omop_source_tables_for_foreign_key_columns]{omop_source_tables_for_foreign_key_columns()}},
+\code{\link[=omop_table_all_key_columns]{omop_table_all_key_columns()}},
+\code{\link[=omop_table_columns]{omop_table_columns()}},
+\code{\link[=omop_table_common_columns]{omop_table_common_columns()}},
+\code{\link[=omop_table_primary_key]{omop_table_primary_key()}},
+\code{\link[=omop_vocab_tables]{omop_vocab_tables()}}
+}
+\concept{OMOP CDM metadata}

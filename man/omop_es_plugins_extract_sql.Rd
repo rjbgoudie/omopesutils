@@ -21,13 +21,52 @@ of the included patients have an imaging results)}
 }
 \value{
 A named nested list of character SQL queries. The outer named list
-  contains one element for each OMOP table. Within each table-level element,
-  there is a named list containing one element per plugin.
+contains one element for each OMOP table. Within each table-level element,
+there is a named list containing one element per plugin.
 }
 \description{
-For every plug-in in the supplied OMOP-ES directory (`omop_es_path`), this
+For every plug-in in the supplied OMOP-ES directory (\code{omop_es_path}), this
 function runs the plugin on the supplied cohort, but overrides the
-relevant R functions that query the database (`collect()` and
-`dbGetQuery()`) so that we can extract the SQL queries that the plug-in
+relevant R functions that query the database (\code{collect()} and
+\code{dbGetQuery()}) so that we can extract the SQL queries that the plug-in
 uses.
 }
+\details{
+This is a way of documenting what OMOP-ES actually asks the source database
+for, without having to modify OMOP-ES itself.
+
+The OMOP-ES environment is set up exactly as it would be for a pipeline
+run: \code{setup_environment.R} is sourced, the source database connections are
+opened, the cohort is built and downsampled to \code{cohort_limit} patients, and
+\code{mapping/framework/map_omop.R} is sourced to define the \code{omop_plugins}
+object. The plugins are then run by \code{\link[=plugins_extract_sql]{plugins_extract_sql()}}. The database
+connections are closed when this function returns.
+
+A small \code{cohort_limit} keeps this fast, but it must be large enough that
+every plugin has some data to work with, since a plugin that short-circuits
+on an empty input will not issue the queries we are trying to capture.
+}
+\examples{
+\dontrun{
+queries <- omop_es_plugins_extract_sql("~/omop_es")
+queries$condition_occurrence
+}
+}
+\seealso{
+\code{\link[=omop_es_plugins_extract_tables]{omop_es_plugins_extract_tables()}} for the source tables rather
+than the queries.
+
+Other OMOP-ES plugin introspection:
+\code{\link[=check_type]{check_type()}},
+\code{\link[=enabled_by_settings]{enabled_by_settings()}},
+\code{\link[=omop_es_plugins_extract_docs_private]{omop_es_plugins_extract_docs_private()}},
+\code{\link[=omop_es_plugins_extract_docs_public]{omop_es_plugins_extract_docs_public()}},
+\code{\link[=omop_es_plugins_extract_tables]{omop_es_plugins_extract_tables()}},
+\code{\link[=plugin_extract_sql]{plugin_extract_sql()}},
+\code{\link[=plugin_extract_tables]{plugin_extract_tables()}},
+\code{\link[=plugins_extract_sql]{plugins_extract_sql()}},
+\code{\link[=plugins_extract_tables]{plugins_extract_tables()}},
+\code{\link[=read_table_level_md]{read_table_level_md()}},
+\code{\link[=read_table_level_private_md]{read_table_level_private_md()}}
+}
+\concept{OMOP-ES plugin introspection}

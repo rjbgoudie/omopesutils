@@ -21,10 +21,33 @@ of the included patients have an imaging results)}
 }
 \value{
 A named list, with one element per OMOP table. Each element of the
-  list contains the corresponding Markdown code
+list contains the corresponding Markdown code
 }
 \description{
-Loads the documentation stored in `docs/CUH/{table_name}_private.md`
-within the OMOP-ES directory `omop_es_path` for every OMOP table with a
+Loads the documentation stored in \verb{docs/CUH/\{table_name\}_private.md}
+within the OMOP-ES directory \code{omop_es_path} for every OMOP table with a
 mapper specified.
 }
+\details{
+As \code{\link[=omop_es_plugins_extract_docs_public]{omop_es_plugins_extract_docs_public()}}, but for the documentation that
+is not publishable --- for instance because it names source-system tables or
+columns. Tables that are mapped but have no private documentation file
+appear in the result with a value of \code{NULL}.
+}
+\seealso{
+\code{\link[=read_table_level_private_md]{read_table_level_private_md()}}, which reads a single file.
+
+Other OMOP-ES plugin introspection:
+\code{\link[=check_type]{check_type()}},
+\code{\link[=enabled_by_settings]{enabled_by_settings()}},
+\code{\link[=omop_es_plugins_extract_docs_public]{omop_es_plugins_extract_docs_public()}},
+\code{\link[=omop_es_plugins_extract_sql]{omop_es_plugins_extract_sql()}},
+\code{\link[=omop_es_plugins_extract_tables]{omop_es_plugins_extract_tables()}},
+\code{\link[=plugin_extract_sql]{plugin_extract_sql()}},
+\code{\link[=plugin_extract_tables]{plugin_extract_tables()}},
+\code{\link[=plugins_extract_sql]{plugins_extract_sql()}},
+\code{\link[=plugins_extract_tables]{plugins_extract_tables()}},
+\code{\link[=read_table_level_md]{read_table_level_md()}},
+\code{\link[=read_table_level_private_md]{read_table_level_private_md()}}
+}
+\concept{OMOP-ES plugin introspection}

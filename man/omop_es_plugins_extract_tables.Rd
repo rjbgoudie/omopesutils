@@ -21,13 +21,47 @@ of the included patients have an imaging results)}
 }
 \value{
 A named nested list of character database table names The outer
-  named list contains one element for each OMOP table. Within each
-  table-level element, there is a named list containing one element per
-  plugin.
+named list contains one element for each OMOP table. Within each
+table-level element, there is a named list containing one element per
+plugin.
 }
 \description{
-For every plug-in in the supplied OMOP-ES directory (`omop_es_path`), this
+For every plug-in in the supplied OMOP-ES directory (\code{omop_es_path}), this
 function runs the plugin on the supplied cohort, but overrides the
-relevant R functions that query the database (`tbl()`) so that we can
+relevant R functions that query the database (\code{tbl()}) so that we can
 extract the database tables that the plug-in uses.
 }
+\details{
+This answers the question "which source-system tables does OMOP-ES depend
+on?" --- useful for impact analysis when a source system changes, and for
+documenting data lineage.
+
+The OMOP-ES environment is set up exactly as for
+\code{\link[=omop_es_plugins_extract_sql]{omop_es_plugins_extract_sql()}}; only the function that is stubbed out
+differs. The plugins are then run by \code{\link[=plugins_extract_tables]{plugins_extract_tables()}}. The
+database connections are closed when this function returns.
+}
+\examples{
+\dontrun{
+tables <- omop_es_plugins_extract_tables("~/omop_es")
+tables$condition_occurrence
+}
+}
+\seealso{
+\code{\link[=omop_es_plugins_extract_sql]{omop_es_plugins_extract_sql()}} for the queries rather than the
+tables.
+
+Other OMOP-ES plugin introspection:
+\code{\link[=check_type]{check_type()}},
+\code{\link[=enabled_by_settings]{enabled_by_settings()}},
+\code{\link[=omop_es_plugins_extract_docs_private]{omop_es_plugins_extract_docs_private()}},
+\code{\link[=omop_es_plugins_extract_docs_public]{omop_es_plugins_extract_docs_public()}},
+\code{\link[=omop_es_plugins_extract_sql]{omop_es_plugins_extract_sql()}},
+\code{\link[=plugin_extract_sql]{plugin_extract_sql()}},
+\code{\link[=plugin_extract_tables]{plugin_extract_tables()}},
+\code{\link[=plugins_extract_sql]{plugins_extract_sql()}},
+\code{\link[=plugins_extract_tables]{plugins_extract_tables()}},
+\code{\link[=read_table_level_md]{read_table_level_md()}},
+\code{\link[=read_table_level_private_md]{read_table_level_private_md()}}
+}
+\concept{OMOP-ES plugin introspection}

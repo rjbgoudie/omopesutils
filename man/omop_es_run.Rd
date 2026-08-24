@@ -21,15 +21,52 @@ omop_es_run(
 
 \item{cohort_limit}{The max number of patients to use.}
 
+\item{output_parquet}{Whether to force parquet output, overriding the
+format in the OMOP-ES settings. \code{NA} leaves the settings untouched.}
+
 \item{zip_output}{Whether to zip output}
 
-\item{custom_dir}{A custom directory}
+\item{custom_dir}{A custom directory to write the extract to, overriding the
+output directory in the OMOP-ES settings. \code{NULL} uses the settings.}
 
 \item{envvar}{A list of environment variables to set in the child process
 prior to running the pipeline. This can be used to pass e.g. database
 connection details to OMOP-ES}
 }
+\value{
+Whatever the pipeline's output step returns, as passed back from
+the subprocess by \code{\link[callr:r]{callr::r()}}.
+}
 \description{
 Runs an OMOP-ES pipeline in a separate process so that it isolated from the
 the current state of the R environment.
 }
+\details{
+The subprocess is started with \code{\link[callr:r]{callr::r()}} and calls
+\code{\link[=omop_es_main_cuh_interactive]{omop_es_main_cuh_interactive()}} with the arguments given here. Running in
+a subprocess matters because the pipeline \code{source()}s a number of OMOP-ES
+scripts, which assign into the global environment; a fresh process means
+the result cannot be affected by --- or leak into --- the calling session.
+It also means the pipeline can be run repeatedly, for instance at two
+different git commits, without restarting R.
+
+Output from the subprocess is streamed to the console as it runs
+(\code{show = TRUE}).
+}
+\examples{
+\dontrun{
+omop_es_run(
+  omop_es_path = "~/omop_es",
+  settings_id = "CUH_EPIC_small_cohort",
+  cohort_limit = 100
+)
+}
+}
+\seealso{
+\code{\link[=omop_es_run_git_sha]{omop_es_run_git_sha()}} to run a particular git branch or commit.
+
+Other running OMOP-ES:
+\code{\link[=omop_es_main_cuh_interactive]{omop_es_main_cuh_interactive()}},
+\code{\link[=omop_es_run_git_sha]{omop_es_run_git_sha()}}
+}
+\concept{running OMOP-ES}

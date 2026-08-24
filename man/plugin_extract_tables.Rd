@@ -11,15 +11,39 @@ plugin_extract_tables(plugin, name, conns, cohort)
 
 \item{name}{The name of the OMOP-ES plugin}
 
-\item{conns}{The OMOP-ES `conns` object (a list of database connections)}
+\item{conns}{The OMOP-ES \code{conns} object (a list of database connections)}
 
-\item{cohort}{The OMOP-ES `cohort` tibble}
+\item{cohort}{The OMOP-ES \code{cohort} tibble}
 }
 \value{
 A list of character database table names
 }
 \description{
 The function runs the plugin on the supplied cohort, but overrides the
-relevant R functions that query the database (`tbl()`) so that we can
+relevant R functions that query the database (\code{tbl()}) so that we can
 extract the database tables that the plug-in uses.
 }
+\details{
+As \code{\link[=plugin_extract_sql]{plugin_extract_sql()}}, but rebinding \code{tbl()} rather than \code{collect()}
+and \code{dbGetQuery()}. The table is recorded as a string, whether it was given
+as a character name, a \code{\link[DBI:Id]{DBI::Id()}} (in which case it is quoted for the
+connection) or wrapped in \code{\link[base:I]{base::I()}}.
+}
+\seealso{
+\code{\link[=plugins_extract_tables]{plugins_extract_tables()}}, which calls this for every plugin.
+
+Other OMOP-ES plugin introspection:
+\code{\link[=check_type]{check_type()}},
+\code{\link[=enabled_by_settings]{enabled_by_settings()}},
+\code{\link[=omop_es_plugins_extract_docs_private]{omop_es_plugins_extract_docs_private()}},
+\code{\link[=omop_es_plugins_extract_docs_public]{omop_es_plugins_extract_docs_public()}},
+\code{\link[=omop_es_plugins_extract_sql]{omop_es_plugins_extract_sql()}},
+\code{\link[=omop_es_plugins_extract_tables]{omop_es_plugins_extract_tables()}},
+\code{\link[=plugin_extract_sql]{plugin_extract_sql()}},
+\code{\link[=plugins_extract_sql]{plugins_extract_sql()}},
+\code{\link[=plugins_extract_tables]{plugins_extract_tables()}},
+\code{\link[=read_table_level_md]{read_table_level_md()}},
+\code{\link[=read_table_level_private_md]{read_table_level_private_md()}}
+}
+\concept{OMOP-ES plugin introspection}
+\keyword{internal}
