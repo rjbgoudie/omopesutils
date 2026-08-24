@@ -77,6 +77,15 @@ domain, vocabulary and standard-concept status, and
 report.
 }
 
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://rjbgoudie.github.io/omopesutils/}
+  \item \url{https://github.com/rjbgoudie/omopesutils}
+  \item Report bugs at \url{https://github.com/rjbgoudie/omopesutils/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Robert Goudie \email{rjbgoudie@gmail.com}
 
