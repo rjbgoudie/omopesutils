@@ -6,6 +6,9 @@ Authors@R:
     person("Robert", "Goudie", , "rjbgoudie@gmail.com", role = c("aut", "cre"))
 Description: Utilities for working OMOP-ES, particularly output
 License: GPL (>= 3)
+URL: https://rjbgoudie.github.io/omopesutils/,
+    https://github.com/rjbgoudie/omopesutils
+BugReports: https://github.com/rjbgoudie/omopesutils/issues
 Imports: 
     bslib,
     callr,
@@ -30,6 +33,7 @@ Imports:
     tidyr,
     withr
 Roxygen: list(markdown = TRUE)
+Config/Needs/website: pkgdown
 Config/roxygen2/version: 8.1.0
 Encoding: UTF-8
 LazyData: true
