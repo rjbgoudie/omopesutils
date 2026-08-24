@@ -66,8 +66,8 @@ omop_diff_plugins_row_count <- function(
   db,
   schema_public_left = "dbo",
   schema_private_left = "priv",
-  schema_public_right = "dbo",
-  schema_private_right = "priv"
+  schema_public_right = "dbo2",
+  schema_private_right = "priv2"
 ) {
   left <- omop_plugin_row_count(
     db,
