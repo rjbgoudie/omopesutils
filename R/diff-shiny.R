@@ -210,7 +210,7 @@ omop_es_diff_viewer <- function(
     data_right_filtered <- reactive({
       right <- data_right()
       if (
-        links_patient_id_sym %in%
+        links_patient_id_column %in%
           colnames(right) &&
           !is.null(input$links_patient_ids)
       ) {
