@@ -239,7 +239,7 @@ omop_es_diff_viewer <- function(
 
     observeEvent(input$table_sel, {
       if (
-        "links_patient_id_sym" %in%
+        links_patient_id_column %in%
           colnames(data_setdiff_both_directions())
       ) {
         table_diff <- data_setdiff_both_directions() |>
