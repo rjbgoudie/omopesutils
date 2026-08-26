@@ -38,31 +38,68 @@
 #' queries$condition_occurrence
 #' }
 #' @importFrom withr with_dir
+#' @importFrom callr r
 #' @export
 omop_es_plugins_extract_sql <- function(
   omop_es_path,
   settings_id = "CUH_EPIC_small_cohort",
   cohort_limit = 10
 ) {
-  withr::with_dir(omop_es_path, {
-    # --------- Setup Environment ---------
-    source(here::here("setup_environment.R"))
-    setup_environment(settings_id, log_level = "ERROR")
+  callr::r(
+    func = function(omop_es_path,
+                    settings_id,
+                    cohort_limit) {
+      withr::with_dir(omop_es_path, {
+        # --------- Setup Environment ---------
+        source(here::here("setup_environment.R"))
+        setup_environment(settings_id, log_level = "ERROR")
 
-    # --------- Setup Connections ---------
-    conns <- project$setup_connections()
-    withr::defer(project$disconnect(conns))
+        # --------- Setup Connections ---------
+        conns <- project$setup_connections()
+        withr::defer(project$disconnect(conns))
 
-    # ----------- Build Cohort ------------
-    cohort <- project$build_cohort(settings, conns) |>
-      pipe_if(!is.null(cohort_limit), \(x) {
-        dplyr::slice_sample(x, n = cohort_limit)
+        # ----------- Build Cohort ------------
+        cohort <- project$build_cohort(settings, conns) |>
+          pipe_if(!is.null(cohort_limit), \(x) {
+            dplyr::slice_sample(x, n = cohort_limit)
+          })
+
+        # ----------- Temporary Remote Tables ------------
+        if (fs::file_exists(here("utils/create_temp_caboodle_tables.R"))) {
+          cli::cli_alert_info("Setting up omop temp tables")
+          source(here("utils/create_temp_caboodle_tables.R"))
+          start <- Sys.time()
+          create_omop_metadata_temp_concept_table(conns)
+          create_omop_metadata_temp_con_rel_table(conns)
+          glue("Time elapsed to setup temp tables: {Sys.time() - start}.")
+
+          omop_concepts <- tbl(conns$caboodle, "##omop_concepts")
+          omop_relationships <- tbl(conns$caboodle, "##omop_concept_relationship")
+
+          # Force assignment in global env
+          assign("omop_concepts", omop_concepts, globalenv())
+          assign("omop_relationships", omop_relationships, globalenv())
+
+          cli::cli_alert_info(glue(
+            "Time elapsed to setup temp tables: {Sys.time() - start}."
+          ))
+        } else {
+          cli::cli_alert_info("Skipping setting up omop temp tables")
+        }
+
+        # ---------------- Map ----------------
+        source(here::here("mapping/framework/map_omop.R"))
       })
-
-    # ---------------- Map ----------------
-    source(here::here("mapping/framework/map_omop.R"))
-  })
-  plugins_extract_sql(omop_plugins, conns, cohort)
+      omopesutils:::plugins_extract_sql(omop_plugins, conns, cohort)
+    },
+    args = list(
+      omop_es_path = omop_es_path,
+      settings_id = settings_id,
+      cohort_limit = cohort_limit
+    ),
+    show = TRUE,
+    spinner = FALSE
+  )
 }
 
 #' Extract database tables used by each OMOP-ES plugin
@@ -100,31 +137,70 @@ omop_es_plugins_extract_sql <- function(
 #' tables$condition_occurrence
 #' }
 #' @importFrom withr with_dir
+#' @importFrom callr r
 #' @export
 omop_es_plugins_extract_tables <- function(
   omop_es_path,
   settings_id = "CUH_EPIC_small_cohort",
   cohort_limit = 10
 ) {
-  withr::with_dir(omop_es_path, {
-    # --------- Setup Environment ---------
-    source(here::here("setup_environment.R"))
-    setup_environment(settings_id, log_level = "ERROR")
+  callr::r(
+    func = function(
+      omop_es_path,
+      settings_id,
+      cohort_limit
+    ) {
+      withr::with_dir(omop_es_path, {
+        # --------- Setup Environment ---------
+        source(here::here("setup_environment.R"))
+        setup_environment(settings_id, log_level = "ERROR")
 
-    # --------- Setup Connections ---------
-    conns <- project$setup_connections()
-    withr::defer(project$disconnect(conns))
+        # --------- Setup Connections ---------
+        conns <- project$setup_connections()
+        withr::defer(project$disconnect(conns))
 
-    # ----------- Build Cohort ------------
-    cohort <- project$build_cohort(settings, conns) |>
-      pipe_if(!is.null(cohort_limit), \(x) {
-        dplyr::slice_sample(x, n = cohort_limit)
+        # ----------- Build Cohort ------------
+        cohort <- project$build_cohort(settings, conns) |>
+          pipe_if(!is.null(cohort_limit), \(x) {
+            dplyr::slice_sample(x, n = cohort_limit)
+          })
+
+        # ----------- Temporary Remote Tables ------------
+        if (fs::file_exists(here("utils/create_temp_caboodle_tables.R"))) {
+          cli::cli_alert_info("Setting up omop temp tables")
+          source(here("utils/create_temp_caboodle_tables.R"))
+          start <- Sys.time()
+          create_omop_metadata_temp_concept_table(conns)
+          create_omop_metadata_temp_con_rel_table(conns)
+          glue("Time elapsed to setup temp tables: {Sys.time() - start}.")
+
+          omop_concepts <- tbl(conns$caboodle, "##omop_concepts")
+          omop_relationships <- tbl(conns$caboodle, "##omop_concept_relationship")
+
+          # Force assignment in global env
+          assign("omop_concepts", omop_concepts, globalenv())
+          assign("omop_relationships", omop_relationships, globalenv())
+
+          cli::cli_alert_info(glue(
+            "Time elapsed to setup temp tables: {Sys.time() - start}."
+          ))
+        } else {
+          cli::cli_alert_info("Skipping setting up omop temp tables")
+        }
+
+        # ---------------- Map ----------------
+        source(here::here("mapping/framework/map_omop.R"))
       })
-
-    # ---------------- Map ----------------
-    source(here::here("mapping/framework/map_omop.R"))
-  })
-  plugins_extract_tables(omop_plugins, conns, cohort)
+      omopesutils:::plugins_extract_tables(omop_plugins, conns, cohort)
+    },
+    args = list(
+      omop_es_path = omop_es_path,
+      settings_id = settings_id,
+      cohort_limit = cohort_limit
+    ),
+    show = TRUE,
+    spinner = FALSE
+  )
 }
 
 #' Load all table-level public documentation Markdown files
@@ -154,34 +230,50 @@ omop_es_plugins_extract_tables <- function(
 #' @family OMOP-ES plugin introspection
 #' @seealso [read_table_level_md()], which reads a single file.
 #' @importFrom withr with_dir
+#' @importFrom callr r
 #' @export
 omop_es_plugins_extract_docs_public <- function(
   omop_es_path,
   settings_id = "CUH_EPIC_small_cohort",
   cohort_limit = 10
 ) {
-  withr::with_dir(omop_es_path, {
-    # --------- Setup Environment ---------
-    source(here::here("setup_environment.R"))
-    setup_environment(settings_id, log_level = "ERROR")
+  callr::r(
+    func = function(
+      omop_es_path,
+      settings_id,
+      cohort_limit
+    ) {
+      withr::with_dir(omop_es_path, {
+        # --------- Setup Environment ---------
+        source(here::here("setup_environment.R"))
+        setup_environment(settings_id, log_level = "ERROR")
 
-    # --------- Setup Connections ---------
-    conns <- project$setup_connections()
-    withr::defer(project$disconnect(conns))
+        # --------- Setup Connections ---------
+        conns <- project$setup_connections()
+        withr::defer(project$disconnect(conns))
 
-    # ----------- Build Cohort ------------
-    cohort <- project$build_cohort(settings, conns) |>
-      pipe_if(!is.null(cohort_limit), \(x) {
-        dplyr::slice_sample(x, n = cohort_limit)
+        # ----------- Build Cohort ------------
+        cohort <- project$build_cohort(settings, conns) |>
+          pipe_if(!is.null(cohort_limit), \(x) {
+            dplyr::slice_sample(x, n = cohort_limit)
+          })
+
+        # ---------------- Map ----------------
+        source(here::here("mapping/framework/map_omop.R"))
       })
 
-    # ---------------- Map ----------------
-    source(here::here("mapping/framework/map_omop.R"))
-  })
-
-  names(omop_plugins) |>
-    map(\(table_name) read_table_level_md(table_name, omop_es_path)) |>
-    setNames(names(omop_plugins))
+      names(omop_plugins) |>
+        map(\(table_name) omopesutils:::read_table_level_md(table_name, omop_es_path)) |>
+        setNames(names(omop_plugins))
+    },
+    args = list(
+      omop_es_path = omop_es_path,
+      settings_id = settings_id,
+      cohort_limit = cohort_limit
+    ),
+    show = TRUE,
+    spinner = FALSE
+  )
 }
 
 #' Load all table-level private documentation Markdown files
@@ -206,32 +298,50 @@ omop_es_plugins_extract_docs_public <- function(
 #' @family OMOP-ES plugin introspection
 #' @seealso [read_table_level_private_md()], which reads a single file.
 #' @importFrom withr with_dir
+#' @importFrom callr r
 #' @export
 omop_es_plugins_extract_docs_private <- function(
   omop_es_path,
   settings_id = "CUH_EPIC_small_cohort",
   cohort_limit = 10
 ) {
-  withr::with_dir(omop_es_path, {
-    # --------- Setup Environment ---------
-    source(here::here("setup_environment.R"))
-    setup_environment(settings_id, log_level = "ERROR")
+  callr::r(
+    func = function(
+      omop_es_path,
+      settings_id,
+      cohort_limit
+    ) {
+      withr::with_dir(omop_es_path, {
+        # --------- Setup Environment ---------
+        source(here::here("setup_environment.R"))
+        setup_environment(settings_id, log_level = "ERROR")
 
-    # --------- Setup Connections ---------
-    conns <- project$setup_connections()
-    withr::defer(project$disconnect(conns))
+        # --------- Setup Connections ---------
+        conns <- project$setup_connections()
+        withr::defer(project$disconnect(conns))
 
-    # ----------- Build Cohort ------------
-    cohort <- project$build_cohort(settings, conns) |>
-      pipe_if(!is.null(cohort_limit), \(x) {
-        dplyr::slice_sample(x, n = cohort_limit)
+        # ----------- Build Cohort ------------
+        cohort <- project$build_cohort(settings, conns) |>
+          pipe_if(!is.null(cohort_limit), \(x) {
+            dplyr::slice_sample(x, n = cohort_limit)
+          })
+
+        # ---------------- Map ----------------
+        source(here::here("mapping/framework/map_omop.R"))
+
+        names(omop_plugins) |>
+          map(\(table_name) {
+            omopesutils:::read_table_level_private_md(table_name, omop_es_path)
+          }) |>
+          setNames(names(omop_plugins))
       })
-
-    # ---------------- Map ----------------
-    source(here::here("mapping/framework/map_omop.R"))
-  })
-
-  names(omop_plugins) |>
-    map(\(table_name) read_table_level_private_md(table_name, omop_es_path)) |>
-    setNames(names(omop_plugins))
+    },
+    args = list(
+      omop_es_path = omop_es_path,
+      settings_id = settings_id,
+      cohort_limit = cohort_limit
+    ),
+    show = TRUE,
+    spinner = FALSE
+  )
 }
