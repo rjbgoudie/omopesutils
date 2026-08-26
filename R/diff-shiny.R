@@ -76,9 +76,10 @@ omop_es_diff_viewer <- function(
 ) {
   # Construct link column name to avoid including private column names in
   # open source code
-  links_patient_id_sym <- sym(glue::glue(
+  links_patient_id_column_with_links <- glue::glue(
     "links__person__{links_patient_id_column}"
-  ))
+  )
+  links_patient_id_sym <- sym(links_patient_id_column_with_links)
 
   all_tables <- omop_es_tables_in_either_db(
     conn,
@@ -194,7 +195,7 @@ omop_es_diff_viewer <- function(
     data_left_filtered <- reactive({
       left <- data_left()
       if (
-        links_patient_id_column %in%
+        links_patient_id_column_with_links %in%
           colnames(left) &&
           !is.null(input$links_patient_ids)
       ) {
@@ -210,7 +211,7 @@ omop_es_diff_viewer <- function(
     data_right_filtered <- reactive({
       right <- data_right()
       if (
-        links_patient_id_column %in%
+        links_patient_id_column_with_links %in%
           colnames(right) &&
           !is.null(input$links_patient_ids)
       ) {
@@ -239,7 +240,7 @@ omop_es_diff_viewer <- function(
 
     observeEvent(input$table_sel, {
       if (
-        links_patient_id_column %in%
+        links_patient_id_column_with_links %in%
           colnames(data_setdiff_both_directions())
       ) {
         table_diff <- data_setdiff_both_directions() |>
@@ -266,8 +267,9 @@ omop_es_diff_viewer <- function(
           arrange(links_patient_id_sym) |>
           collect() |>
           mutate(
+            label = !!links_patient_id_sym,
             label = glue(
-              "{links_patient_id_sym} (-{left_only}, +{right_only})"
+              "{label} (-{left_only}, +{right_only})"
             )
           ) |>
           pull(label)
