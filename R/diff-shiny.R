@@ -152,11 +152,6 @@ omop_es_diff_viewer <- function(
         ))) |>
         select(any_of(omop_table_columns(input$table_sel)), everything())
 
-      if (isTRUE(input$omop_columns_only)) {
-        left <- left |>
-          select(any_of(omop_table_columns(input$table_sel)))
-      }
-
       # If using duckdb, materialise to a temporary table,
       # since otherwise it runs out of memory in the setdiff()
       if (class(attr(conn, "driver")) == "duckdb_driver") {
@@ -179,10 +174,6 @@ omop_es_diff_viewer <- function(
           contains("Key")
         ))) |>
         select(any_of(omop_table_columns(input$table_sel)), everything())
-      if (isTRUE(input$omop_columns_only)) {
-        right <- right |>
-          select(any_of(omop_table_columns(input$table_sel)))
-      }
 
       # If using duckdb, materialise to a temporary table,
       # since otherwise it runs out of memory in the setdiff()
@@ -205,6 +196,12 @@ omop_es_diff_viewer <- function(
         left <- left |>
           head(0)
       }
+
+      if (isTRUE(input$omop_columns_only)) {
+        left <- left |>
+          select(any_of(omop_table_columns(input$table_sel)))
+      }
+
       left
     })
 
@@ -221,6 +218,12 @@ omop_es_diff_viewer <- function(
         right <- right |>
           head(0)
       }
+
+      if (isTRUE(input$omop_columns_only)) {
+        right <- right |>
+          select(any_of(omop_table_columns(input$table_sel)))
+      }
+
       right
     })
 
