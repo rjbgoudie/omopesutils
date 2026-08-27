@@ -1,6 +1,6 @@
 #' Run OMOP-ES in a separate process
 #'
-#' Runs an OMOP-ES pipeline in a separate process so that it isolated from the
+#' Runs an OMOP-ES pipeline in a separate process so that it is isolated from
 #' the current state of the R environment.
 #'
 #' @details
@@ -15,19 +15,33 @@
 #' Output from the subprocess is streamed to the console as it runs
 #' (`show = TRUE`).
 #'
-#' @param omop_es_path Path to OMOP-ES directory
-#' @param settings_id The OMOP-ES settings to use
+#' @param omop_es_path Path to OMOP-ES directory.
+#' @param settings_id The OMOP-ES settings to use.
 #' @param cohort_limit The max number of patients to use.
 #' @param output_parquet Whether to force parquet output, overriding the
 #'   format in the OMOP-ES settings. `NA` leaves the settings untouched.
-#' @param zip_output Whether to zip output
+#' @param zip_output Whether to zip output.
 #' @param custom_dir A custom directory to write the extract to, overriding the
 #'   output directory in the OMOP-ES settings. `NULL` uses the settings.
 #' @param envvar A list of environment variables to set in the child process
-#'  prior to running the pipeline. This can be used to pass e.g. database
-#'  connection details to OMOP-ES
-#' @returns Whatever the pipeline's output step returns, as passed back from
-#'   the subprocess by [callr::r()].
+#'   prior to running the pipeline. This can be used to pass e.g. database
+#'   connection details to OMOP-ES.
+#' @param run_setup,run_mapping,run_linking,run_projection,run_output Logical;
+#'   whether to run each respective pipeline stage. Default to `TRUE`.
+#' @param pre_setup_fn,post_setup_fn Functions evaluated inside the execution
+#'   environment immediately before and after the setup stage.
+#' @param pre_mapping_fn,post_mapping_fn Functions evaluated inside the execution
+#'   environment immediately before and after the mapping stage.
+#' @param pre_linking_fn,post_linking_fn Functions evaluated inside the execution
+#'   environment immediately before and after the linking stage.
+#' @param pre_projection_fn,post_projection_fn Functions evaluated inside the execution
+#'   environment immediately before and after the projection stage.
+#' @param pre_output_fn,post_output_fn Functions evaluated inside the execution
+#'   environment immediately before and after the output stage.
+#' @param return_fn Function evaluated at the end, enabling return of custom
+#'   values.
+#' @return Returns the return value of the body of `return_fn`, and may
+#'   produce OMOP output in the extract directory
 #' @family running OMOP-ES
 #' @seealso [omop_es_run_git_sha()] to run a particular git branch or commit.
 #' @examples
@@ -41,41 +55,107 @@
 #' @importFrom callr r rcmd_safe_env
 #' @export
 omop_es_run <- function(
-  omop_es_path,
-  settings_id = "CUH_EPIC_small_cohort",
-  cohort_limit = 5000,
-  output_parquet = NA,
-  zip_output = FALSE,
-  custom_dir = NULL,
-  envvar = callr::rcmd_safe_env()
+    omop_es_path,
+    settings_id = "CUH_EPIC_small_cohort",
+    cohort_limit = 5000,
+    output_parquet = NA,
+    zip_output = FALSE,
+    custom_dir = NULL,
+    envvar = callr::rcmd_safe_env(),
+    run_setup = TRUE,
+    run_mapping = TRUE,
+    run_linking = TRUE,
+    run_projection = TRUE,
+    run_output = TRUE,
+    pre_setup_fn = function() {},
+    post_setup_fn = function() {},
+    pre_mapping_fn = function() {},
+    post_mapping_fn = function() {},
+    pre_linking_fn = function() {},
+    post_linking_fn = function() {},
+    pre_projection_fn = function() {},
+    post_projection_fn = function() {},
+    pre_output_fn = function() {},
+    post_output_fn = function() {},
+    return_fn = function() {}
 ) {
   r_subprocess_fn <- function(
+    subprocess_fn = omop_es_main_cuh_interactive,
     omop_es_path = omop_es_path,
     settings_id = settings_id,
     cohort_limit = cohort_limit,
     output_parquet = output_parquet,
     zip_output = zip_output,
-    custom_dir = custom_dir
+    custom_dir = custom_dir,
+    run_setup = run_setup,
+    run_mapping = run_mapping,
+    run_linking = run_linking,
+    run_projection = run_projection,
+    run_output = run_output,
+    pre_setup_fn = pre_setup_fn,
+    post_setup_fn = post_setup_fn,
+    pre_mapping_fn = pre_mapping_fn,
+    post_mapping_fn = post_mapping_fn,
+    pre_linking_fn = pre_linking_fn,
+    post_linking_fn = post_linking_fn,
+    pre_projection_fn = pre_projection_fn,
+    post_projection_fn = post_projection_fn,
+    pre_output_fn = pre_output_fn,
+    post_output_fn = post_output_fn,
+    return_fn = return_fn
   ) {
-    omopesutils::omop_es_main_cuh_interactive(
+    subprocess_fn(
       omop_es_path = omop_es_path,
       settings_id = settings_id,
       cohort_limit = cohort_limit,
       output_parquet = output_parquet,
       zip_output = zip_output,
-      custom_dir = custom_dir
+      custom_dir = custom_dir,
+      run_setup = run_setup,
+      run_mapping = run_mapping,
+      run_linking = run_linking,
+      run_projection = run_projection,
+      run_output = run_output,
+      pre_setup_fn = pre_setup_fn,
+      post_setup_fn = post_setup_fn,
+      pre_mapping_fn = pre_mapping_fn,
+      post_mapping_fn = post_mapping_fn,
+      pre_linking_fn = pre_linking_fn,
+      post_linking_fn = post_linking_fn,
+      pre_projection_fn = pre_projection_fn,
+      post_projection_fn = post_projection_fn,
+      pre_output_fn = pre_output_fn,
+      post_output_fn = post_output_fn,
+      return_fn = return_fn
     )
   }
 
   callr::r(
     func = r_subprocess_fn,
     args = list(
+      subprocess_fn = omop_es_main_cuh_interactive,
       omop_es_path = omop_es_path,
       settings_id = settings_id,
       cohort_limit = cohort_limit,
       output_parquet = output_parquet,
       zip_output = zip_output,
-      custom_dir = custom_dir
+      custom_dir = custom_dir,
+      run_setup = run_setup,
+      run_mapping = run_mapping,
+      run_linking = run_linking,
+      run_projection = run_projection,
+      run_output = run_output,
+      pre_setup_fn = pre_setup_fn,
+      post_setup_fn = post_setup_fn,
+      pre_mapping_fn = pre_mapping_fn,
+      post_mapping_fn = post_mapping_fn,
+      pre_linking_fn = pre_linking_fn,
+      post_linking_fn = post_linking_fn,
+      pre_projection_fn = pre_projection_fn,
+      post_projection_fn = post_projection_fn,
+      pre_output_fn = pre_output_fn,
+      post_output_fn = post_output_fn,
+      return_fn = return_fn
     ),
     show = TRUE,
     spinner = FALSE,
@@ -120,99 +200,151 @@ omop_es_run <- function(
 #' Because the OMOP-ES scripts assign into the global environment, calling
 #' this directly will modify the calling session.
 #'
-#' @param omop_es_path Path to OMOP-ES directory
-#' @param settings_id The OMOP-ES settings to use
+#' @param omop_es_path Path to OMOP-ES directory.
+#' @param settings_id The OMOP-ES settings to use.
 #' @param cohort_limit The max number of patients to use. `NULL` uses the
 #'   whole cohort.
 #' @param output_parquet Whether to force parquet output, overriding the
 #'   format in the OMOP-ES settings. Only `TRUE` has an effect; `NA` and
 #'   `FALSE` leave the settings untouched.
-#' @param zip_output Whether to zip output
+#' @param zip_output Whether to zip output.
 #' @param custom_dir A custom directory to write the extract to, overriding the
 #'   output directory in the OMOP-ES settings. `NULL` uses the settings.
-#' @returns Whatever the OMOP-ES `output_omop()` function returns.
+#' @param run_setup,run_mapping,run_linking,run_projection,run_output Logical;
+#'   whether to run each respective pipeline stage. Default to `TRUE`.
+#' @param pre_setup_fn,post_setup_fn Functions evaluated inside the execution
+#'   environment immediately before and after the setup stage.
+#' @param pre_mapping_fn,post_mapping_fn Functions evaluated inside the execution
+#'   environment immediately before and after the mapping stage.
+#' @param pre_linking_fn,post_linking_fn Functions evaluated inside the execution
+#'   environment immediately before and after the linking stage.
+#' @param pre_projection_fn,post_projection_fn Functions evaluated inside the execution
+#'   environment immediately before and after the projection stage.
+#' @param pre_output_fn,post_output_fn Functions evaluated inside the execution
+#'   environment immediately before and after the output stage.
+#' @param return_fn Function evaluated at the end, enabling return of custom
+#'   values.
+#' @return Returns the return value of the body of `return_fn`, and may
+#'   produce OMOP output in the extract directory
 #' @family running OMOP-ES
 #' @seealso [omop_es_run()], which is the intended entry point.
-#' @importFrom withr with_dir
+#' @importFrom withr with_dir defer
 #' @export
 omop_es_main_cuh_interactive <- function(
-  omop_es_path,
-  settings_id = "CUH_EPIC_small_cohort",
-  cohort_limit = 5000,
-  output_parquet = NA,
-  zip_output = FALSE,
-  custom_dir = NULL
+    omop_es_path,
+    settings_id = "CUH_EPIC_small_cohort",
+    cohort_limit = 5000,
+    output_parquet = NA,
+    zip_output = FALSE,
+    custom_dir = NULL,
+    run_setup = TRUE,
+    run_mapping = TRUE,
+    run_linking = TRUE,
+    run_projection = TRUE,
+    run_output = TRUE,
+    pre_setup_fn = function() {},
+    post_setup_fn = function() {},
+    pre_mapping_fn = function() {},
+    post_mapping_fn = function() {},
+    pre_linking_fn = function() {},
+    post_linking_fn = function() {},
+    pre_projection_fn = function() {},
+    post_projection_fn = function() {},
+    pre_output_fn = function() {},
+    post_output_fn = function() {},
+    return_fn = function() {}
 ) {
   withr::with_dir(omop_es_path, {
-    # --------- Setup Environment ---------
-    source(here::here("setup_environment.R"))
-    setup_environment(settings_id, log_level = "ERROR")
+    eval(body(pre_setup_fn), envir = environment())
+    if (run_setup) {
+      # --------- Setup Environment ---------
+      source(here::here("setup_environment.R"))
+      setup_environment(settings_id, log_level = "ERROR")
 
-    ## Overwrites max extract window to whatever todays date is.
-    settings$extract_windows_max_date <- as.integer(format(
-      Sys.Date(),
-      "%Y%m%d"
-    ))
-
-    # --------- Setup Connections ---------
-    conns <- project$setup_connections()
-    withr::defer(project$disconnect(conns))
-
-    # ----------- Build Cohort ------------
-    cohort <- project$build_cohort(settings, conns) |>
-      pipe_if(!is.null(cohort_limit), \(x) {
-        dplyr::slice_sample(x, n = cohort_limit)
-      })
-
-    # ----------- Temporary Remote Tables ------------
-    if (fs::file_exists(here("utils/create_temp_caboodle_tables.R"))) {
-      cli::cli_alert_info("Setting up omop temp tables")
-      source(here("utils/create_temp_caboodle_tables.R"))
-      start <- Sys.time()
-      create_omop_metadata_temp_concept_table(conns)
-      create_omop_metadata_temp_con_rel_table(conns)
-      glue("Time elapsed to setup temp tables: {Sys.time() - start}.")
-
-      omop_concepts <- tbl(conns$caboodle, "##omop_concepts")
-      omop_relationships <- tbl(conns$caboodle, "##omop_concept_relationship")
-
-      # Force assignment in global env
-      assign("omop_concepts", omop_concepts, globalenv())
-      assign("omop_relationships", omop_relationships, globalenv())
-
-      cli::cli_alert_info(glue(
-        "Time elapsed to setup temp tables: {Sys.time() - start}."
+      ## Overwrites max extract window to whatever todays date is.
+      settings$extract_windows_max_date <- as.integer(format(
+        Sys.Date(),
+        "%Y%m%d"
       ))
-    } else {
-      cli::cli_alert_info("Skipping setting up omop temp tables")
+
+      # --------- Setup Connections ---------
+      conns <- project$setup_connections()
+      withr::defer(project$disconnect(conns))
+
+      # ----------- Build Cohort ------------
+      cohort <- project$build_cohort(settings, conns) |>
+        pipe_if(!is.null(cohort_limit), \(x) {
+          dplyr::slice_sample(x, n = cohort_limit)
+        })
+
+      # ----------- Temporary Remote Tables ------------
+      if (fs::file_exists(here("utils/create_temp_caboodle_tables.R"))) {
+        cli::cli_alert_info("Setting up omop temp tables")
+        source(here("utils/create_temp_caboodle_tables.R"))
+        start <- Sys.time()
+        create_omop_metadata_temp_concept_table(conns)
+        create_omop_metadata_temp_con_rel_table(conns)
+        glue("Time elapsed to setup temp tables: {Sys.time() - start}.")
+
+        omop_concepts <- tbl(conns$caboodle, "##omop_concepts")
+        omop_relationships <- tbl(conns$caboodle, "##omop_concept_relationship")
+
+        # Force assignment in global env
+        assign("omop_concepts", omop_concepts, globalenv())
+        assign("omop_relationships", omop_relationships, globalenv())
+
+        cli::cli_alert_info(glue(
+          "Time elapsed to setup temp tables: {Sys.time() - start}."
+        ))
+      } else {
+        cli::cli_alert_info("Skipping setting up omop temp tables")
+      }
+      eval(body(post_setup_fn), envir = environment())
     }
 
     # ---------------- Map ----------------
     source(here::here("mapping/framework/map_omop.R"))
-    mapped_omop <- map_omop(conns, cohort)
+    eval(body(pre_mapping_fn), envir = environment())
+    if (run_mapping) {
+      mapped_omop <- map_omop(conns, cohort)
+      eval(body(post_mapping_fn), envir = environment())
+    }
 
     # --------------- Link ----------------
     source(here::here("linking/framework/link_omop.R"))
-    linked_omop <- link_omop(mapped_omop)
+    eval(body(pre_linking_fn), envir = environment())
+    if (run_linking) {
+      linked_omop <- link_omop(mapped_omop)
+      eval(body(post_linking_fn), envir = environment())
+    }
 
     # -------------- Project --------------
     source(here::here("projection/project_omop.R"))
-    projected_omop <- project_omop(linked_omop)
-
-    # ----------- Post Process ------------
-    post_processed <- project$post_process(projected_omop, cohort, conns)
-
-    if (isTRUE(output_parquet)){
-      cli::cli_alert_info("Forcing parquet output")
-      settings[["output"]][["format"]] <- "parquet"
+    eval(body(pre_projection_fn), envir = environment())
+    if (run_projection) {
+      projected_omop <- project_omop(linked_omop)
+      eval(body(post_projection_fn), envir = environment())
     }
 
-    # -------------- Output ---------------
-    source(here("output/output_omop.R"))
-    out_path <- file.path(
-      dplyr::coalesce(custom_dir, settings$output$dir),
-      glue::glue("{settings_id}_{Sys.Date()}")
-    )
-    output_omop(post_processed, settings, out_path, zip_output = zip_output)
+    # ----------- Post Process ------------
+    eval(body(pre_output_fn), envir = environment())
+    if (run_output) {
+      post_processed <- project$post_process(projected_omop, cohort, conns)
+
+      if (isTRUE(output_parquet)) {
+        cli::cli_alert_info("Forcing parquet output")
+        settings[["output"]][["format"]] <- "parquet"
+      }
+
+      # -------------- Output ---------------
+      source(here("output/output_omop.R"))
+      out_path <- file.path(
+        dplyr::coalesce(custom_dir, settings$output$dir),
+        glue::glue("{settings_id}_{Sys.Date()}")
+      )
+      output_omop(post_processed, settings, out_path, zip_output = zip_output)
+      eval(body(post_output_fn), envir = environment())
+    }
+    eval(body(return_fn), envir = environment())
   })
 }
