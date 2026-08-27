@@ -44,6 +44,7 @@ importFrom(DBI,
   dbExistsTable,
   dbListFields,
   dbListTables,
+  dbQuoteIdentifier,
   dbQuoteString
 )
 importFrom(callr,
@@ -55,7 +56,11 @@ importFrom(cli,
   cli_progress_done,
   cli_progress_step
 )
-importFrom(dbplyr,window_order)
+importFrom(dbplyr,
+  sql_options,
+  sql_render,
+  window_order
+)
 importFrom(dplyr,
   bind_rows,
   case_when,
@@ -90,12 +95,16 @@ importFrom(gt,
   fmt_markdown,
   gt
 )
+importFrom(here,here)
 importFrom(purrr,
-  list_transpose,
+  imap,
+  keep,
   map,
-  map_lgl
+  reduce,
+  walk
 )
 importFrom(readr,read_csv)
+importFrom(rlang,":=")
 importFrom(rmarkdown,render)
 importFrom(rstudioapi,viewer)
 importFrom(scales,label_comma)
@@ -104,7 +113,10 @@ importFrom(stringr,
   str_to_lower,
   str_to_upper
 )
-importFrom(tidyr,pivot_wider)
+importFrom(tidyr,
+  pivot_longer,
+  pivot_wider
+)
 importFrom(withr,
   defer,
   with_dir

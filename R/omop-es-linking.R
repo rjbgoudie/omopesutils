@@ -64,7 +64,6 @@ omop_es_link_tables_for_foreign_key_columns <- function(table) {
 #'   this.
 #' @keywords internal
 #' @import glue
-#' @importFrom purrr map_lgl
 #' @importFrom DBI dbExistsTable dbListFields
 omop_es_tbl_with_links <- function(
   conn,

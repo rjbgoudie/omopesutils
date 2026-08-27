@@ -19,6 +19,8 @@
 #'   `column` and `all_na_or_null`.
 #' @family OMOP-ES extract summary report
 #' @keywords internal
+#' @importFrom purrr imap reduce
+#' @importFrom tidyr pivot_longer
 omop_column_empty <- function(db) {
   queries <- imap(dbListOmopTables(db), function(table, name) {
     tbl_omop(db, table) |>
@@ -100,6 +102,7 @@ omop_es_extract_summary_all_tables <- function(
 #'   [purrr::list_transpose()], so that it is named by OMOP table.
 #' @returns A list of [htmltools::tagList()]s, named by OMOP table.
 #' @family OMOP-ES extract summary report
+#' @importFrom purrr imap
 #' @export
 omop_es_all_tables_headings_html <- function(
   cross_tabulations,
@@ -143,6 +146,7 @@ omop_es_all_tables_headings_html <- function(
 #'   is expected to have `tables` and `sql` entries, each named by plugin.
 #' @returns A list of [htmltools::tagList()]s, named by OMOP table.
 #' @family OMOP-ES extract summary report
+#' @importFrom purrr imap map
 #' @export
 omop_es_data_provenance_html <- function(plugin_metadata) {
   plugin_metadata |>
@@ -195,6 +199,7 @@ omop_es_data_provenance_html <- function(plugin_metadata) {
 #'   is expected to have `docs_public` and `docs_private` entries.
 #' @returns A list of [htmltools::tagList()]s, named by OMOP table.
 #' @family OMOP-ES extract summary report
+#' @importFrom purrr imap
 #' @export
 omop_es_markdown_docs_html <- function(plugin_metadata) {
   plugin_metadata |>
@@ -225,18 +230,11 @@ omop_es_markdown_docs_html <- function(plugin_metadata) {
 #' 1000 most frequent rows, since the full tabulation of a large table is
 #' neither readable nor worth loading into a browser.
 #'
-#' @section Known limitations:
-#'
-#' Within each table the rows are grouped by splitting on `table` a second
-#' time rather than on `column`. Since the outer split has already reduced the
-#' data to one table, that inner split yields a single group named after the
-#' table, so a table's concept columns all appear under one heading showing
-#' the table name, rather than one heading per column.
-#'
 #' @param cross_tabulations A collected cross-tabulation, as returned by
 #'   [omop_cross_tabulation()].
 #' @returns A list of [htmltools::tagList()]s, named by OMOP table.
 #' @family OMOP-ES extract summary report
+#' @importFrom purrr imap
 #' @export
 omop_es_cross_tabulations_html <- function(cross_tabulations) {
   cross_tabulations |>
@@ -293,6 +291,7 @@ omop_es_cross_tabulations_html <- function(cross_tabulations) {
 #' @returns A list of [htmltools::tagList()]s, named by OMOP table, each
 #'   containing a \pkg{gt} table.
 #' @family OMOP-ES extract summary report
+#' @importFrom purrr imap
 #' @importFrom scales label_comma
 #' @export
 omop_es_field_level_summary_html <- function(cross_tabulations) {

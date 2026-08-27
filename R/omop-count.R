@@ -16,7 +16,6 @@
 #'   counted table.
 #' @family row counts
 #' @keywords internal
-#' @importFrom purrr map
 #' @importFrom DBI dbListTables
 omop_tables_row_count <- function(db, schema = "dbo") {
   cli::cli_progress_step("Starting row counts")
@@ -64,7 +63,6 @@ omop_tables_row_count <- function(db, schema = "dbo") {
 #'   row per table and plugin.
 #' @family row counts
 #' @keywords internal
-#' @importFrom purrr map
 #' @importFrom dplyr bind_rows tibble
 #' @importFrom cli cli_progress_step
 omop_plugin_row_count <- function(

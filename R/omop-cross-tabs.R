@@ -92,6 +92,7 @@ omop_concept_summary_all <- function(db) {
 #' @returns A lazy `tbl` with the columns described in
 #'   [omop_table_cross_tabulation()].
 #' @family concept cross-tabulation
+#' @importFrom purrr map
 #' @seealso [omop_es_extract_summary_report()], which renders this.
 #' @examples
 #' \dontrun{

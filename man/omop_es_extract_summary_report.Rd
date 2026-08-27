@@ -13,7 +13,7 @@ omop_es_extract_summary_report(
   output_dir = getwd(),
   plugin_metadata = omop_es_plugins_extract_metadata(omop_es_path = omop_es_path,
     settings_id = settings_id, cohort_limit = cohort_limit),
-  cross_tabulations = collect(omop_cross_tab_all(conn)),
+  cross_tabulations = collect(omop_cross_tabulation(conn)),
   view = TRUE
 )
 }
@@ -37,9 +37,7 @@ Defaults to the active working directory via \code{\link[=getwd]{getwd()}}.}
 automatically calling \code{\link[=omop_es_plugins_extract_metadata]{omop_es_plugins_extract_metadata()}}.}
 
 \item{cross_tabulations}{A collected cross-tabulation of the concept
-columns of the extract, with one row per concept per column. Note that
-the default calls \code{omop_cross_tab_all()}, which does not exist; pass this
-argument explicitly, from \code{\link[=omop_cross_tabulation]{omop_cross_tabulation()}}.}
+columns of the extract, with one row per concept per column.}
 
 \item{view}{Logical; if \code{TRUE}, opens the compiled HTML report in the
 RStudio Viewer pane using \code{\link[rstudioapi:viewer]{rstudioapi::viewer()}}. Defaults to \code{TRUE}.}
