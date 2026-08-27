@@ -82,32 +82,34 @@ omop_es_main_cuh_interactive(
 
 - pre_setup_fn, post_setup_fn:
 
-  Functions evaluated inside the execution environment immediately
-  before and after the setup stage.
+  Hooks run immediately before and after the setup stage. The `pre_`
+  hook runs even if the stage is skipped.
 
 - pre_mapping_fn, post_mapping_fn:
 
-  Functions evaluated inside the execution environment immediately
-  before and after the mapping stage.
+  Hooks run immediately before and after the mapping stage. The `pre_`
+  hook runs even if the stage is skipped, and runs after `map_omop.R`
+  has been sourced.
 
 - pre_linking_fn, post_linking_fn:
 
-  Functions evaluated inside the execution environment immediately
-  before and after the linking stage.
+  Hooks run immediately before and after the linking stage. The `pre_`
+  hook runs even if the stage is skipped.
 
 - pre_projection_fn, post_projection_fn:
 
-  Functions evaluated inside the execution environment immediately
-  before and after the projection stage.
+  Hooks run immediately before and after the projection stage. The
+  `pre_` hook runs even if the stage is skipped.
 
 - pre_output_fn, post_output_fn:
 
-  Functions evaluated inside the execution environment immediately
-  before and after the output stage.
+  Hooks run immediately before and after the output stage. The `pre_`
+  hook runs even if the stage is skipped.
 
 - return_fn:
 
-  Function evaluated at the end, enabling return of custom values.
+  Hook run at the very end, whose value becomes the value of this
+  function. This is how a result is returned from the pipeline.
 
 ## Value
 
@@ -118,40 +120,76 @@ OMOP output in the extract directory
 
 The whole function runs with the working directory set to
 `omop_es_path`, and the pipeline stages are the OMOP-ES scripts
-themselves, sourced in turn:
+themselves, sourced in turn. There are five stages, each of which can be
+skipped with its own `run_*` argument:
 
-1.  **Set up environment.** `setup_environment.R` is sourced and
+1.  **Setup** (`run_setup`). `setup_environment.R` is sourced and
     `setup_environment(settings_id)` called, which creates the `project`
-    and `settings` objects the rest of the pipeline uses. The settings'
-    `extract_windows_max_date` is then overwritten with today's date.
-
-2.  **Set up connections.** `project$setup_connections()` opens the
-    source database connections; these are closed on exit.
-
-3.  **Build cohort.** `project$build_cohort()` builds the cohort, which
-    is then randomly downsampled to `cohort_limit` patients unless
-    `cohort_limit` is `NULL`.
-
-4.  **Temporary remote tables.** If the checkout has
+    and `settings` objects the rest of the pipeline uses; the settings'
+    `extract_windows_max_date` is overwritten with today's date;
+    `project$setup_connections()` opens the source database connections,
+    which are closed when this function exits; and
+    `project$build_cohort()` builds the cohort, which is then randomly
+    downsampled to `cohort_limit` patients unless `cohort_limit` is
+    `NULL`. Finally, if the checkout has
     `utils/create_temp_caboodle_tables.R`, it is sourced and used to
     create temporary concept and concept-relationship tables, which are
     assigned into the global environment as `omop_concepts` and
-    `omop_relationships` for the mappers to use. Skipped if that file is
-    absent.
+    `omop_relationships` for the mappers to use; this part is skipped if
+    that file is absent.
 
-5.  **Map, link, project.** `mapping/framework/map_omop.R`,
-    `linking/framework/link_omop.R` and `projection/project_omop.R` are
-    sourced and their entry points called in turn.
+2.  **Mapping** (`run_mapping`). `map_omop()` is called on the
+    connections and the cohort.
 
-6.  **Post process.** `project$post_process()` is called.
+3.  **Linking** (`run_linking`). `link_omop()` is called on the mapped
+    data.
 
-7.  **Output.** `output/output_omop.R` is sourced and `output_omop()`
-    writes the extract to `<dir>/<settings_id>_<date>`, where `<dir>` is
-    `custom_dir` if supplied and the settings' output directory
-    otherwise.
+4.  **Projection** (`run_projection`). `project_omop()` is called on the
+    linked data.
+
+5.  **Output** (`run_output`). `project$post_process()` is called, the
+    output format is forced to parquet if `output_parquet` is `TRUE`,
+    and `output_omop()` writes the extract to
+    `<dir>/<settings_id>_<date>`, where `<dir>` is `custom_dir` if
+    supplied and the settings' output directory otherwise.
+
+`mapping/framework/map_omop.R`, `linking/framework/link_omop.R` and
+`projection/project_omop.R` are sourced whether or not their stage is
+going to run, so the functions and objects they define — `omop_plugins`
+in particular — are available to a hook even when the stage itself is
+skipped.
 
 Because the OMOP-ES scripts assign into the global environment, calling
 this directly will modify the calling session.
+
+## Stage hooks
+
+Each stage takes a `pre_*_fn` and a `post_*_fn`, and `return_fn` runs at
+the very end. These are not *called* as functions: their body is
+evaluated in the pipeline's own environment, as
+`eval(body(fn), envir = environment())`. Two consequences matter:
+
+- a hook can refer to the pipeline's objects — `conns`, `cohort`,
+  `omop_plugins`, `mapped_omop` and so on — directly by name, and
+  anything it assigns is visible to later stages and to `return_fn`.
+  This is how a value is got out of the pipeline.
+
+- arguments to the hook functions are never supplied, so a hook cannot
+  be parameterised in the usual way. Anything it needs must either
+  already be in the pipeline environment or appear literally in its
+  body.
+
+The `pre_*_fn` hooks run before their stage's `run_*` check, so they run
+even when the stage is skipped. The `post_*_fn` hooks run inside it, so
+they run only when the stage actually ran.
+
+Each stage consumes what the one before it produced, so skipping a stage
+in the middle leaves the next one without its input. Either disable a
+suffix of the stages, or use a hook to supply the missing object.
+[`omop_es_plugins_extract_sql()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_sql.md)
+is an example of the first pattern: it disables everything from the
+mapping stage onwards and does its work in `pre_mapping_fn`, by which
+point `omop_plugins` has been defined.
 
 ## See also
 

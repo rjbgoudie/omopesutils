@@ -85,32 +85,34 @@ omop_es_run(
 
 - pre_setup_fn, post_setup_fn:
 
-  Functions evaluated inside the execution environment immediately
-  before and after the setup stage.
+  Hooks run immediately before and after the setup stage. The `pre_`
+  hook runs even if the stage is skipped.
 
 - pre_mapping_fn, post_mapping_fn:
 
-  Functions evaluated inside the execution environment immediately
-  before and after the mapping stage.
+  Hooks run immediately before and after the mapping stage. The `pre_`
+  hook runs even if the stage is skipped, and runs after `map_omop.R`
+  has been sourced.
 
 - pre_linking_fn, post_linking_fn:
 
-  Functions evaluated inside the execution environment immediately
-  before and after the linking stage.
+  Hooks run immediately before and after the linking stage. The `pre_`
+  hook runs even if the stage is skipped.
 
 - pre_projection_fn, post_projection_fn:
 
-  Functions evaluated inside the execution environment immediately
-  before and after the projection stage.
+  Hooks run immediately before and after the projection stage. The
+  `pre_` hook runs even if the stage is skipped.
 
 - pre_output_fn, post_output_fn:
 
-  Functions evaluated inside the execution environment immediately
-  before and after the output stage.
+  Hooks run immediately before and after the output stage. The `pre_`
+  hook runs even if the stage is skipped.
 
 - return_fn:
 
-  Function evaluated at the end, enabling return of custom values.
+  Hook run at the very end, whose value becomes the value of this
+  function. This is how a result is returned from the pipeline.
 
 ## Value
 
@@ -131,6 +133,13 @@ instance at two different git commits, without restarting R.
 
 Output from the subprocess is streamed to the console as it runs
 (`show = TRUE`).
+
+Every argument other than `envvar` is passed straight through to
+[`omop_es_main_cuh_interactive()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_main_cuh_interactive.md)
+inside the subprocess, including the `run_*` flags that select which
+pipeline stages to run and the `pre_*_fn` and `post_*_fn` hooks. See
+that function for what the stages are, and for how the hooks are
+evaluated.
 
 ## See also
 

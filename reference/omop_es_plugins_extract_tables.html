@@ -88,10 +88,10 @@ plugin.</p>
     <p>This answers the question "which source-system tables does OMOP-ES depend
 on?" — useful for impact analysis when a source system changes, and for
 documenting data lineage.</p>
-<p>The OMOP-ES environment is set up exactly as for
-<code><a href="omop_es_plugins_extract_sql.html">omop_es_plugins_extract_sql()</a></code>; only the function that is stubbed out
-differs. The plugins are then run by <code><a href="plugins_extract_tables.html">plugins_extract_tables()</a></code>. The
-database connections are closed when this function returns.</p>
+<p>The mechanics are those of <code><a href="omop_es_plugins_extract_sql.html">omop_es_plugins_extract_sql()</a></code> — a separate R
+process driven by <code><a href="omop_es_run.html">omop_es_run()</a></code>, with the plugins run from a
+<code>pre_mapping_fn</code> hook — and only the function that is stubbed out
+differs. The plugins are run by <code><a href="plugins_extract_tables.html">plugins_extract_tables()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

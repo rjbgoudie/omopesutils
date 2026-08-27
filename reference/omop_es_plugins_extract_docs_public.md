@@ -43,9 +43,13 @@ actually maps are included. Tables that are mapped but have no
 documentation file appear in the result with a value of `NULL`, which
 makes it straightforward to spot undocumented tables.
 
-Setting up the OMOP-ES environment requires the source database
-connections and a cohort, even though only the plugin names are used,
-hence the `settings_id` and `cohort_limit` arguments.
+The OMOP-ES environment is set up in a separate R process by
+[`omop_es_run()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_run.md),
+as for
+[`omop_es_plugins_extract_sql()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_sql.md).
+That requires the source database connections and a cohort even though
+only the plugin names are used here, which is why `settings_id` and
+`cohort_limit` are still arguments.
 
 ## See also
 

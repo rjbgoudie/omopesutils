@@ -89,12 +89,16 @@ there is a named list containing one element per plugin.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This is a way of documenting what OMOP-ES actually asks the source database
 for, without having to modify OMOP-ES itself.</p>
-<p>The OMOP-ES environment is set up exactly as it would be for a pipeline
-run: <code>setup_environment.R</code> is sourced, the source database connections are
-opened, the cohort is built and downsampled to <code>cohort_limit</code> patients, and
-<code>mapping/framework/map_omop.R</code> is sourced to define the <code>omop_plugins</code>
-object. The plugins are then run by <code><a href="plugins_extract_sql.html">plugins_extract_sql()</a></code>. The database
-connections are closed when this function returns.</p>
+<p>The work happens in a separate R process, via <code><a href="omop_es_run.html">omop_es_run()</a></code>. The
+pipeline's mapping, linking, projection and output stages are all disabled,
+so no OMOP data is built and nothing is written; what does run is the setup
+stage — which sources <code>setup_environment.R</code>, opens the source database
+connections, and builds and downsamples the cohort to <code>cohort_limit</code>
+patients — followed by the sourcing of <code>mapping/framework/map_omop.R</code>,
+which defines the <code>omop_plugins</code> object. The plugins are then run by
+<code><a href="plugins_extract_sql.html">plugins_extract_sql()</a></code> from a <code>pre_mapping_fn</code> hook, and the queries are
+passed back out of the subprocess by <code>return_fn</code>. The database connections
+are closed when the subprocess exits.</p>
 <p>A small <code>cohort_limit</code> keeps this fast, but it must be large enough that
 every plugin has some data to work with, since a plugin that short-circuits
 on an empty input will not issue the queries we are trying to capture.</p>

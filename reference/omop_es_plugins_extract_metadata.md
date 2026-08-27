@@ -42,7 +42,16 @@ Combines the extraction logic of
 [`omop_es_plugins_extract_docs_public()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_docs_public.md),
 and
 [`omop_es_plugins_extract_docs_private()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_docs_private.md)
-to avoid running multiple pipeline initialization steps.
+into a single
+[`omop_es_run()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_run.md)
+call, so that the expensive part — opening the source database
+connections and building the cohort — happens once rather than four
+times. All four extractions run in one `pre_mapping_fn` hook and are
+returned together by `return_fn`.
+
+This is what
+[`extract_summary_report()`](https://rjbgoudie.github.io/omopesutils/reference/extract_summary_report.md)
+uses to gather its material.
 
 ## See also
 

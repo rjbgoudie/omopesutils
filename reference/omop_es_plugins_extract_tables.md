@@ -43,12 +43,13 @@ This answers the question "which source-system tables does OMOP-ES
 depend on?" — useful for impact analysis when a source system changes,
 and for documenting data lineage.
 
-The OMOP-ES environment is set up exactly as for
-[`omop_es_plugins_extract_sql()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_sql.md);
-only the function that is stubbed out differs. The plugins are then run
-by
+The mechanics are those of
+[`omop_es_plugins_extract_sql()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_sql.md)
+— a separate R process driven by
+[`omop_es_run()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_run.md),
+with the plugins run from a `pre_mapping_fn` hook — and only the
+function that is stubbed out differs. The plugins are run by
 [`plugins_extract_tables()`](https://rjbgoudie.github.io/omopesutils/reference/plugins_extract_tables.md).
-The database connections are closed when this function returns.
 
 ## See also
 

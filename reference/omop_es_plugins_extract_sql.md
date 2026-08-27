@@ -43,13 +43,19 @@ element, there is a named list containing one element per plugin.
 This is a way of documenting what OMOP-ES actually asks the source
 database for, without having to modify OMOP-ES itself.
 
-The OMOP-ES environment is set up exactly as it would be for a pipeline
-run: `setup_environment.R` is sourced, the source database connections
-are opened, the cohort is built and downsampled to `cohort_limit`
-patients, and `mapping/framework/map_omop.R` is sourced to define the
-`omop_plugins` object. The plugins are then run by
-[`plugins_extract_sql()`](https://rjbgoudie.github.io/omopesutils/reference/plugins_extract_sql.md).
-The database connections are closed when this function returns.
+The work happens in a separate R process, via
+[`omop_es_run()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_run.md).
+The pipeline's mapping, linking, projection and output stages are all
+disabled, so no OMOP data is built and nothing is written; what does run
+is the setup stage — which sources `setup_environment.R`, opens the
+source database connections, and builds and downsamples the cohort to
+`cohort_limit` patients — followed by the sourcing of
+`mapping/framework/map_omop.R`, which defines the `omop_plugins` object.
+The plugins are then run by
+[`plugins_extract_sql()`](https://rjbgoudie.github.io/omopesutils/reference/plugins_extract_sql.md)
+from a `pre_mapping_fn` hook, and the queries are passed back out of the
+subprocess by `return_fn`. The database connections are closed when the
+subprocess exits.
 
 A small `cohort_limit` keeps this fast, but it must be large enough that
 every plugin has some data to work with, since a plugin that

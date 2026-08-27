@@ -21,13 +21,13 @@ extract_summary_report(
 
 ## Arguments
 
-- conn:
+- conn, schema_public:
 
-  A database connection object.
-
-- schema_public:
-
-  Name of the public database schema. Defaults to `"dbo"`.
+  Currently unused. The report is built entirely from `plugin_metadata`,
+  and
+  [`omop_es_plugins_extract_metadata()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_metadata.md)
+  opens its own connections in a subprocess, so no connection is needed
+  here.
 
 - omop_es_path:
 
@@ -64,7 +64,10 @@ extract_summary_report(
 
 ## Value
 
-The path to the rendered HTML report output file (invisibly).
+Called for its side effect of writing the report to
+`extract_summary_report.html` in `output_dir`. The path returned by
+[`rmarkdown::render()`](https://pkgs.rstudio.com/rmarkdown/reference/render.html)
+is discarded rather than passed on, so do not rely on the return value.
 
 ## Details
 

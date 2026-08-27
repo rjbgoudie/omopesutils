@@ -126,33 +126,36 @@ whether to run each respective pipeline stage. Default to <code>TRUE</code>.</p>
 
 
 <dt id="arg-pre-setup-fn-post-setup-fn">pre_setup_fn, post_setup_fn<a class="anchor" aria-label="anchor" href="#arg-pre-setup-fn-post-setup-fn"></a></dt>
-<dd><p>Functions evaluated inside the execution
-environment immediately before and after the setup stage.</p></dd>
+<dd><p>Hooks run immediately before and after
+the setup stage. The <code>pre_</code> hook runs even if the stage is skipped.</p></dd>
 
 
 <dt id="arg-pre-mapping-fn-post-mapping-fn">pre_mapping_fn, post_mapping_fn<a class="anchor" aria-label="anchor" href="#arg-pre-mapping-fn-post-mapping-fn"></a></dt>
-<dd><p>Functions evaluated inside the execution
-environment immediately before and after the mapping stage.</p></dd>
+<dd><p>Hooks run immediately before and
+after the mapping stage. The <code>pre_</code> hook runs even if the stage is
+skipped, and runs after <code>map_omop.R</code> has been sourced.</p></dd>
 
 
 <dt id="arg-pre-linking-fn-post-linking-fn">pre_linking_fn, post_linking_fn<a class="anchor" aria-label="anchor" href="#arg-pre-linking-fn-post-linking-fn"></a></dt>
-<dd><p>Functions evaluated inside the execution
-environment immediately before and after the linking stage.</p></dd>
+<dd><p>Hooks run immediately before and
+after the linking stage. The <code>pre_</code> hook runs even if the stage is
+skipped.</p></dd>
 
 
 <dt id="arg-pre-projection-fn-post-projection-fn">pre_projection_fn, post_projection_fn<a class="anchor" aria-label="anchor" href="#arg-pre-projection-fn-post-projection-fn"></a></dt>
-<dd><p>Functions evaluated inside the execution
-environment immediately before and after the projection stage.</p></dd>
+<dd><p>Hooks run immediately before
+and after the projection stage. The <code>pre_</code> hook runs even if the stage is
+skipped.</p></dd>
 
 
 <dt id="arg-pre-output-fn-post-output-fn">pre_output_fn, post_output_fn<a class="anchor" aria-label="anchor" href="#arg-pre-output-fn-post-output-fn"></a></dt>
-<dd><p>Functions evaluated inside the execution
-environment immediately before and after the output stage.</p></dd>
+<dd><p>Hooks run immediately before and after
+the output stage. The <code>pre_</code> hook runs even if the stage is skipped.</p></dd>
 
 
 <dt id="arg-return-fn">return_fn<a class="anchor" aria-label="anchor" href="#arg-return-fn"></a></dt>
-<dd><p>Function evaluated at the end, enabling return of custom
-values.</p></dd>
+<dd><p>Hook run at the very end, whose value becomes the value of
+this function. This is how a result is returned from the pipeline.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -164,29 +167,62 @@ produce OMOP output in the extract directory</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The whole function runs with the working directory set to <code>omop_es_path</code>,
 and the pipeline stages are the OMOP-ES scripts themselves, sourced in
-turn:</p><ol><li><p><strong>Set up environment.</strong> <code>setup_environment.R</code> is sourced and
+turn. There are five stages, each of which can be skipped with its own
+<code>run_*</code> argument:</p><ol><li><p><strong>Setup</strong> (<code>run_setup</code>). <code>setup_environment.R</code> is sourced and
 <code>setup_environment(settings_id)</code> called, which creates the <code>project</code> and
-<code>settings</code> objects the rest of the pipeline uses. The settings'
-<code>extract_windows_max_date</code> is then overwritten with today's date.</p></li>
-<li><p><strong>Set up connections.</strong> <code>project$setup_connections()</code> opens the source
-database connections; these are closed on exit.</p></li>
-<li><p><strong>Build cohort.</strong> <code>project$build_cohort()</code> builds the cohort, which is
-then randomly downsampled to <code>cohort_limit</code> patients unless
-<code>cohort_limit</code> is <code>NULL</code>.</p></li>
-<li><p><strong>Temporary remote tables.</strong> If the checkout has
-<code>utils/create_temp_caboodle_tables.R</code>, it is sourced and used to create
-temporary concept and concept-relationship tables, which are assigned
-into the global environment as <code>omop_concepts</code> and <code>omop_relationships</code>
-for the mappers to use. Skipped if that file is absent.</p></li>
-<li><p><strong>Map, link, project.</strong> <code>mapping/framework/map_omop.R</code>,
-<code>linking/framework/link_omop.R</code> and <code>projection/project_omop.R</code> are
-sourced and their entry points called in turn.</p></li>
-<li><p><strong>Post process.</strong> <code>project$post_process()</code> is called.</p></li>
-<li><p><strong>Output.</strong> <code>output/output_omop.R</code> is sourced and <code>output_omop()</code> writes
-the extract to <code>&lt;dir&gt;/&lt;settings_id&gt;_&lt;date&gt;</code>, where <code>&lt;dir&gt;</code> is
-<code>custom_dir</code> if supplied and the settings' output directory otherwise.</p></li>
-</ol><p>Because the OMOP-ES scripts assign into the global environment, calling
+<code>settings</code> objects the rest of the pipeline uses; the settings'
+<code>extract_windows_max_date</code> is overwritten with today's date;
+<code>project$setup_connections()</code> opens the source database connections,
+which are closed when this function exits; and
+<code>project$build_cohort()</code> builds the cohort, which is then randomly
+downsampled to <code>cohort_limit</code> patients unless <code>cohort_limit</code> is <code>NULL</code>.
+Finally, if the checkout has <code>utils/create_temp_caboodle_tables.R</code>, it
+is sourced and used to create temporary concept and
+concept-relationship tables, which are assigned into the global
+environment as <code>omop_concepts</code> and <code>omop_relationships</code> for the mappers
+to use; this part is skipped if that file is absent.</p></li>
+<li><p><strong>Mapping</strong> (<code>run_mapping</code>). <code>map_omop()</code> is called on the connections
+and the cohort.</p></li>
+<li><p><strong>Linking</strong> (<code>run_linking</code>). <code>link_omop()</code> is called on the mapped data.</p></li>
+<li><p><strong>Projection</strong> (<code>run_projection</code>). <code>project_omop()</code> is called on the
+linked data.</p></li>
+<li><p><strong>Output</strong> (<code>run_output</code>). <code>project$post_process()</code> is called, the
+output format is forced to parquet if <code>output_parquet</code> is <code>TRUE</code>, and
+<code>output_omop()</code> writes the extract to <code>&lt;dir&gt;/&lt;settings_id&gt;_&lt;date&gt;</code>,
+where <code>&lt;dir&gt;</code> is <code>custom_dir</code> if supplied and the settings' output
+directory otherwise.</p></li>
+</ol><p><code>mapping/framework/map_omop.R</code>, <code>linking/framework/link_omop.R</code> and
+<code>projection/project_omop.R</code> are sourced whether or not their stage is going
+to run, so the functions and objects they define — <code>omop_plugins</code> in
+particular — are available to a hook even when the stage itself is
+skipped.</p>
+<p>Because the OMOP-ES scripts assign into the global environment, calling
 this directly will modify the calling session.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="stage-hooks">Stage hooks<a class="anchor" aria-label="anchor" href="#stage-hooks"></a></h2>
+
+
+
+<p>Each stage takes a <code>pre_*_fn</code> and a <code>post_*_fn</code>, and <code>return_fn</code> runs at
+the very end. These are not <em>called</em> as functions: their body is evaluated
+in the pipeline's own environment, as
+<code>eval(body(fn), envir = environment())</code>. Two consequences matter:</p><ul><li><p>a hook can refer to the pipeline's objects — <code>conns</code>, <code>cohort</code>,
+<code>omop_plugins</code>, <code>mapped_omop</code> and so on — directly by name, and
+anything it assigns is visible to later stages and to <code>return_fn</code>. This
+is how a value is got out of the pipeline.</p></li>
+<li><p>arguments to the hook functions are never supplied, so a hook cannot be
+parameterised in the usual way. Anything it needs must either already be
+in the pipeline environment or appear literally in its body.</p></li>
+</ul><p>The <code>pre_*_fn</code> hooks run before their stage's <code>run_*</code> check, so they run
+even when the stage is skipped. The <code>post_*_fn</code> hooks run inside it, so
+they run only when the stage actually ran.</p>
+<p>Each stage consumes what the one before it produced, so skipping a stage in
+the middle leaves the next one without its input. Either disable a suffix
+of the stages, or use a hook to supply the missing object.
+<code><a href="omop_es_plugins_extract_sql.html">omop_es_plugins_extract_sql()</a></code> is an example of the first pattern: it
+disables everything from the mapping stage onwards and does its work in
+<code>pre_mapping_fn</code>, by which point <code>omop_plugins</code> has been defined.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

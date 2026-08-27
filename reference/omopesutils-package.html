@@ -59,6 +59,11 @@ loosely-coupled groups of functions.</p>
 <span class="pkg">callr</span>), which isolates the run from the state of the calling R
 session. <code><a href="omop_es_run_git_sha.html">omop_es_run_git_sha()</a></code> wraps this to check out a particular git
 branch or commit of the OMOP-ES repository first.</p>
+<p>Individual pipeline stages can also be skipped, and each stage has a hook
+that runs before and after it, evaluated inside the pipeline's own
+environment. That turns the runner into a general way of reaching into a
+partly-run pipeline, which is how the plugin introspection functions below
+work. See <code><a href="omop_es_main_cuh_interactive.html">omop_es_main_cuh_interactive()</a></code> for the stages and the hooks.</p>
     </div>
     <div class="section level2">
     <h2 id="loading-extracts-into-duckdb">Loading extracts into duckdb<a class="anchor" aria-label="anchor" href="#loading-extracts-into-duckdb"></a></h2>
@@ -109,6 +114,10 @@ access functions stubbed out, in order to recover the SQL queries
 needing to modify OMOP-ES itself. The <code>omop_es_plugins_extract_docs_*()</code>
 functions collect the hand-written Markdown documentation for each mapped
 table.</p>
+<p>Each of those starts a pipeline of its own, so
+<code><a href="omop_es_plugins_extract_metadata.html">omop_es_plugins_extract_metadata()</a></code> gathers all four in a single run
+instead. <code><a href="extract_summary_report.html">extract_summary_report()</a></code> renders the result as a standalone
+HTML report describing what the extract contains and where it came from.</p>
     </div>
     <div class="section level2">
     <h2 id="mapping-table-reports">Mapping table reports<a class="anchor" aria-label="anchor" href="#mapping-table-reports"></a></h2>

@@ -79,8 +79,12 @@ of the included patients have imaging results).</p></dd>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Combines the extraction logic of <code><a href="omop_es_plugins_extract_sql.html">omop_es_plugins_extract_sql()</a></code>,
 <code><a href="omop_es_plugins_extract_tables.html">omop_es_plugins_extract_tables()</a></code>, <code><a href="omop_es_plugins_extract_docs_public.html">omop_es_plugins_extract_docs_public()</a></code>,
-and <code><a href="omop_es_plugins_extract_docs_private.html">omop_es_plugins_extract_docs_private()</a></code> to avoid running multiple
-pipeline initialization steps.</p>
+and <code><a href="omop_es_plugins_extract_docs_private.html">omop_es_plugins_extract_docs_private()</a></code> into a single <code><a href="omop_es_run.html">omop_es_run()</a></code>
+call, so that the expensive part — opening the source database
+connections and building the cohort — happens once rather than four
+times. All four extractions run in one <code>pre_mapping_fn</code> hook and are
+returned together by <code>return_fn</code>.</p>
+<p>This is what <code><a href="extract_summary_report.html">extract_summary_report()</a></code> uses to gather its material.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

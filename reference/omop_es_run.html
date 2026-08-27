@@ -125,33 +125,36 @@ whether to run each respective pipeline stage. Default to <code>TRUE</code>.</p>
 
 
 <dt id="arg-pre-setup-fn-post-setup-fn">pre_setup_fn, post_setup_fn<a class="anchor" aria-label="anchor" href="#arg-pre-setup-fn-post-setup-fn"></a></dt>
-<dd><p>Functions evaluated inside the execution
-environment immediately before and after the setup stage.</p></dd>
+<dd><p>Hooks run immediately before and after
+the setup stage. The <code>pre_</code> hook runs even if the stage is skipped.</p></dd>
 
 
 <dt id="arg-pre-mapping-fn-post-mapping-fn">pre_mapping_fn, post_mapping_fn<a class="anchor" aria-label="anchor" href="#arg-pre-mapping-fn-post-mapping-fn"></a></dt>
-<dd><p>Functions evaluated inside the execution
-environment immediately before and after the mapping stage.</p></dd>
+<dd><p>Hooks run immediately before and
+after the mapping stage. The <code>pre_</code> hook runs even if the stage is
+skipped, and runs after <code>map_omop.R</code> has been sourced.</p></dd>
 
 
 <dt id="arg-pre-linking-fn-post-linking-fn">pre_linking_fn, post_linking_fn<a class="anchor" aria-label="anchor" href="#arg-pre-linking-fn-post-linking-fn"></a></dt>
-<dd><p>Functions evaluated inside the execution
-environment immediately before and after the linking stage.</p></dd>
+<dd><p>Hooks run immediately before and
+after the linking stage. The <code>pre_</code> hook runs even if the stage is
+skipped.</p></dd>
 
 
 <dt id="arg-pre-projection-fn-post-projection-fn">pre_projection_fn, post_projection_fn<a class="anchor" aria-label="anchor" href="#arg-pre-projection-fn-post-projection-fn"></a></dt>
-<dd><p>Functions evaluated inside the execution
-environment immediately before and after the projection stage.</p></dd>
+<dd><p>Hooks run immediately before
+and after the projection stage. The <code>pre_</code> hook runs even if the stage is
+skipped.</p></dd>
 
 
 <dt id="arg-pre-output-fn-post-output-fn">pre_output_fn, post_output_fn<a class="anchor" aria-label="anchor" href="#arg-pre-output-fn-post-output-fn"></a></dt>
-<dd><p>Functions evaluated inside the execution
-environment immediately before and after the output stage.</p></dd>
+<dd><p>Hooks run immediately before and after
+the output stage. The <code>pre_</code> hook runs even if the stage is skipped.</p></dd>
 
 
 <dt id="arg-return-fn">return_fn<a class="anchor" aria-label="anchor" href="#arg-return-fn"></a></dt>
-<dd><p>Function evaluated at the end, enabling return of custom
-values.</p></dd>
+<dd><p>Hook run at the very end, whose value becomes the value of
+this function. This is how a result is returned from the pipeline.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -170,6 +173,11 @@ It also means the pipeline can be run repeatedly, for instance at two
 different git commits, without restarting R.</p>
 <p>Output from the subprocess is streamed to the console as it runs
 (<code>show = TRUE</code>).</p>
+<p>Every argument other than <code>envvar</code> is passed straight through to
+<code><a href="omop_es_main_cuh_interactive.html">omop_es_main_cuh_interactive()</a></code> inside the subprocess, including the
+<code>run_*</code> flags that select which pipeline stages to run and the <code>pre_*_fn</code>
+and <code>post_*_fn</code> hooks. See that function for what the stages are, and for
+how the hooks are evaluated.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

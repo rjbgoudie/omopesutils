@@ -62,12 +62,10 @@ metadata using a bundled R Markdown template.</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-conn">conn<a class="anchor" aria-label="anchor" href="#arg-conn"></a></dt>
-<dd><p>A database connection object.</p></dd>
-
-
-<dt id="arg-schema-public">schema_public<a class="anchor" aria-label="anchor" href="#arg-schema-public"></a></dt>
-<dd><p>Name of the public database schema. Defaults to <code>"dbo"</code>.</p></dd>
+<dl><dt id="arg-conn-schema-public">conn, schema_public<a class="anchor" aria-label="anchor" href="#arg-conn-schema-public"></a></dt>
+<dd><p>Currently unused. The report is built entirely
+from <code>plugin_metadata</code>, and <code><a href="omop_es_plugins_extract_metadata.html">omop_es_plugins_extract_metadata()</a></code> opens
+its own connections in a subprocess, so no connection is needed here.</p></dd>
 
 
 <dt id="arg-omop-es-path">omop_es_path<a class="anchor" aria-label="anchor" href="#arg-omop-es-path"></a></dt>
@@ -101,7 +99,10 @@ RStudio Viewer pane using <code><a href="https://rstudio.github.io/rstudioapi/re
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The path to the rendered HTML report output file (invisibly).</p>
+    <p>Called for its side effect of writing the report to
+<code>extract_summary_report.html</code> in <code>output_dir</code>. The path returned by
+<code><a href="https://pkgs.rstudio.com/rmarkdown/reference/render.html" class="external-link">rmarkdown::render()</a></code> is discarded rather than passed on, so do not rely
+on the return value.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

@@ -69,17 +69,15 @@ row counts per table and per plugin, plus a row-level diff.
 omop_es_diff_viewer_local_git(
   omop_es_path = "~/omop_es",
   left_branch = "main",
-  right_branch = "my-feature-branch"
+  right_branch = "my-feature-branch",
+  links_patient_id_column = "my_patient_id_column"
 )
 ```
 
 If both extracts already exist on disk, register them under different
 schema names and call
 [`omop_es_diff_viewer()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_diff_viewer.md)
-directly — which is currently also the way to reach the viewer with a
-patient identifier column, since
-[`omop_es_diff_viewer_local_git()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_diff_viewer_local_git.md)
-does not yet take one.
+directly.
 
 ## Documenting what the plugins do
 
@@ -100,6 +98,18 @@ tables <- omop_es_plugins_extract_tables("~/omop_es")
 
 This is useful for data lineage, and for working out what a change to a
 source system will affect.
+
+[`omop_es_plugins_extract_metadata()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_metadata.md)
+collects all of that in a single pipeline run rather than one per
+question, and
+[`extract_summary_report()`](https://rjbgoudie.github.io/omopesutils/reference/extract_summary_report.md)
+renders it as a standalone HTML report describing what an extract
+contains and where it came from.
+
+``` r
+
+extract_summary_report(omop_es_path = "~/omop_es")
+```
 
 ## Documentation
 
