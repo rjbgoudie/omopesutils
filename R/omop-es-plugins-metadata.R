@@ -19,8 +19,6 @@
 #' @family OMOP-ES plugin introspection
 #' @seealso [omop_es_plugins_extract_sql()], [omop_es_plugins_extract_tables()],
 #'   [omop_es_plugins_extract_docs_public()], [omop_es_plugins_extract_docs_private()]
-#' @importFrom withr with_dir
-#' @importFrom callr r
 #' @export
 omop_es_plugins_extract_metadata <- function(
   omop_es_path,
@@ -107,8 +105,6 @@ omop_es_plugins_extract_metadata <- function(
 #' queries <- omop_es_plugins_extract_sql("~/omop_es")
 #' queries$condition_occurrence
 #' }
-#' @importFrom withr with_dir
-#' @importFrom callr r
 #' @export
 omop_es_plugins_extract_sql <- function(
   omop_es_path,
@@ -166,8 +162,6 @@ omop_es_plugins_extract_sql <- function(
 #' tables <- omop_es_plugins_extract_tables("~/omop_es")
 #' tables$condition_occurrence
 #' }
-#' @importFrom withr with_dir
-#' @importFrom callr r
 #' @export
 omop_es_plugins_extract_tables <- function(
   omop_es_path,
@@ -221,8 +215,6 @@ omop_es_plugins_extract_tables <- function(
 #'   list contains the corresponding Markdown code.
 #' @family OMOP-ES plugin introspection
 #' @seealso [read_table_level_md()], which reads a single file.
-#' @importFrom withr with_dir
-#' @importFrom callr r
 #' @export
 omop_es_plugins_extract_docs_public <- function(
   omop_es_path,
@@ -271,8 +263,6 @@ omop_es_plugins_extract_docs_public <- function(
 #'   list contains the corresponding Markdown code.
 #' @family OMOP-ES plugin introspection
 #' @seealso [read_table_level_private_md()], which reads a single file.
-#' @importFrom withr with_dir
-#' @importFrom callr r
 #' @export
 omop_es_plugins_extract_docs_private <- function(
   omop_es_path,
