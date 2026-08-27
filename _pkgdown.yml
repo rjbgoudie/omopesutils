@@ -33,12 +33,13 @@ reference:
   - omop_es_diff_viewer
   - omop_es_diff_viewer_local_git
 
-- title: Plugin introspection
+- title: Generate documentation for an OMOP-ES extract
   desc: >
     Recover the SQL queries, source database tables and hand-written
     documentation belonging to each OMOP-ES plugin, by running the plugins
     with database access stubbed out.
   contents:
+  - extract_summary_report
   - omop_es_plugins_extract_sql
   - omop_es_plugins_extract_tables
   - omop_es_plugins_extract_docs_public
