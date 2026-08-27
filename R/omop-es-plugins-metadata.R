@@ -1,3 +1,73 @@
+#' Extract metadata about OMOP-ES plugins
+#'
+#' Runs extraction for SQL queries, database tables, and public/private
+#' documentation across all OMOP-ES plugins in a single run.
+#'
+#' @details
+#' Combines the extraction logic of [omop_es_plugins_extract_sql()],
+#' [omop_es_plugins_extract_tables()], [omop_es_plugins_extract_docs_public()],
+#' and [omop_es_plugins_extract_docs_private()] to avoid running multiple
+#' pipeline initialization steps.
+#'
+#' @param omop_es_path Path to OMOP-ES directory.
+#' @param settings_id The OMOP-ES settings to use.
+#' @param cohort_limit The max number of patients to use. This needs to be
+#'   small enough to be fast, but large enough to avoid odd quirks (e.g. none
+#'   of the included patients have imaging results).
+#' @return A list with four elements: `sql`, `tables`, `docs_public`, and
+#'   `docs_private`.
+#' @family OMOP-ES plugin introspection
+#' @seealso [omop_es_plugins_extract_sql()], [omop_es_plugins_extract_tables()],
+#'   [omop_es_plugins_extract_docs_public()], [omop_es_plugins_extract_docs_private()]
+#' @importFrom withr with_dir
+#' @importFrom callr r
+#' @export
+omop_es_plugins_extract_metadata <- function(
+  omop_es_path,
+  settings_id = "CUH_EPIC_small_cohort",
+  cohort_limit = 10
+) {
+  omop_es_run(
+    omop_es_path = omop_es_path,
+    settings_id = settings_id,
+    cohort_limit = cohort_limit,
+    run_mapping = FALSE,
+    run_linking = FALSE,
+    run_projection = FALSE,
+    run_output = FALSE,
+    pre_mapping_fn = function() {
+      sql <- omopesutils:::plugins_extract_sql(omop_plugins, conns, cohort)
+
+      tables <- omopesutils:::plugins_extract_tables(
+        omop_plugins,
+        conns,
+        cohort
+      )
+
+      docs_public <- names(omop_plugins) |>
+        map(\(table_name) {
+          omopesutils:::read_table_level_md(table_name, omop_es_path)
+        }) |>
+        setNames(names(omop_plugins))
+
+      docs_private <- names(omop_plugins) |>
+        map(\(table_name) {
+          omopesutils:::read_table_level_private_md(table_name, omop_es_path)
+        }) |>
+        setNames(names(omop_plugins))
+    },
+    return_fn = function() {
+      list(
+        sql = sql,
+        tables = tables,
+        docs_public = docs_public,
+        docs_private = docs_private
+      )
+    }
+  )
+}
+
+
 #' Extract SQL queries for all OMOP-ES plugins
 #'
 #' For every plug-in in the supplied OMOP-ES directory (`omop_es_path`), this
@@ -21,12 +91,12 @@
 #' every plugin has some data to work with, since a plugin that short-circuits
 #' on an empty input will not issue the queries we are trying to capture.
 #'
-#' @param omop_es_path Path to OMOP-ES directory
-#' @param settings_id The OMOP-ES settings to use
+#' @param omop_es_path Path to OMOP-ES directory.
+#' @param settings_id The OMOP-ES settings to use.
 #' @param cohort_limit The max number of patients to use. This needs to be
 #'   small enough to be fast, but large enough to avoid odd quirks (e.g. none
-#'   of the included patients have an imaging results)
-#' @returns A named nested list of character SQL queries. The outer named list
+#'   of the included patients have imaging results).
+#' @return A named nested list of character SQL queries. The outer named list
 #'   contains one element for each OMOP table. Within each table-level element,
 #'   there is a named list containing one element per plugin.
 #' @family OMOP-ES plugin introspection
@@ -45,60 +115,20 @@ omop_es_plugins_extract_sql <- function(
   settings_id = "CUH_EPIC_small_cohort",
   cohort_limit = 10
 ) {
-  callr::r(
-    func = function(omop_es_path,
-                    settings_id,
-                    cohort_limit) {
-      withr::with_dir(omop_es_path, {
-        # --------- Setup Environment ---------
-        source(here::here("setup_environment.R"))
-        setup_environment(settings_id, log_level = "ERROR")
-
-        # --------- Setup Connections ---------
-        conns <- project$setup_connections()
-        withr::defer(project$disconnect(conns))
-
-        # ----------- Build Cohort ------------
-        cohort <- project$build_cohort(settings, conns) |>
-          pipe_if(!is.null(cohort_limit), \(x) {
-            dplyr::slice_sample(x, n = cohort_limit)
-          })
-
-        # ----------- Temporary Remote Tables ------------
-        if (fs::file_exists(here("utils/create_temp_caboodle_tables.R"))) {
-          cli::cli_alert_info("Setting up omop temp tables")
-          source(here("utils/create_temp_caboodle_tables.R"))
-          start <- Sys.time()
-          create_omop_metadata_temp_concept_table(conns)
-          create_omop_metadata_temp_con_rel_table(conns)
-          glue("Time elapsed to setup temp tables: {Sys.time() - start}.")
-
-          omop_concepts <- tbl(conns$caboodle, "##omop_concepts")
-          omop_relationships <- tbl(conns$caboodle, "##omop_concept_relationship")
-
-          # Force assignment in global env
-          assign("omop_concepts", omop_concepts, globalenv())
-          assign("omop_relationships", omop_relationships, globalenv())
-
-          cli::cli_alert_info(glue(
-            "Time elapsed to setup temp tables: {Sys.time() - start}."
-          ))
-        } else {
-          cli::cli_alert_info("Skipping setting up omop temp tables")
-        }
-
-        # ---------------- Map ----------------
-        source(here::here("mapping/framework/map_omop.R"))
-      })
-      omopesutils:::plugins_extract_sql(omop_plugins, conns, cohort)
+  omop_es_run(
+    omop_es_path = omop_es_path,
+    settings_id = settings_id,
+    cohort_limit = cohort_limit,
+    run_mapping = FALSE,
+    run_linking = FALSE,
+    run_projection = FALSE,
+    run_output = FALSE,
+    pre_mapping_fn = function() {
+      sql <- omopesutils:::plugins_extract_sql(omop_plugins, conns, cohort)
     },
-    args = list(
-      omop_es_path = omop_es_path,
-      settings_id = settings_id,
-      cohort_limit = cohort_limit
-    ),
-    show = TRUE,
-    spinner = FALSE
+    return_fn = function() {
+      sql
+    }
   )
 }
 
@@ -119,12 +149,12 @@ omop_es_plugins_extract_sql <- function(
 #' differs. The plugins are then run by [plugins_extract_tables()]. The
 #' database connections are closed when this function returns.
 #'
-#' @param omop_es_path Path to OMOP-ES directory
-#' @param settings_id The OMOP-ES settings to use
+#' @param omop_es_path Path to OMOP-ES directory.
+#' @param settings_id The OMOP-ES settings to use.
 #' @param cohort_limit The max number of patients to use. This needs to be
 #'   small enough to be fast, but large enough to avoid odd quirks (e.g. none
-#'   of the included patients have an imaging results)
-#' @returns A named nested list of character database table names The outer
+#'   of the included patients have imaging results).
+#' @return A named nested list of character database table names. The outer
 #'   named list contains one element for each OMOP table. Within each
 #'   table-level element, there is a named list containing one element per
 #'   plugin.
@@ -144,62 +174,24 @@ omop_es_plugins_extract_tables <- function(
   settings_id = "CUH_EPIC_small_cohort",
   cohort_limit = 10
 ) {
-  callr::r(
-    func = function(
-      omop_es_path,
-      settings_id,
-      cohort_limit
-    ) {
-      withr::with_dir(omop_es_path, {
-        # --------- Setup Environment ---------
-        source(here::here("setup_environment.R"))
-        setup_environment(settings_id, log_level = "ERROR")
-
-        # --------- Setup Connections ---------
-        conns <- project$setup_connections()
-        withr::defer(project$disconnect(conns))
-
-        # ----------- Build Cohort ------------
-        cohort <- project$build_cohort(settings, conns) |>
-          pipe_if(!is.null(cohort_limit), \(x) {
-            dplyr::slice_sample(x, n = cohort_limit)
-          })
-
-        # ----------- Temporary Remote Tables ------------
-        if (fs::file_exists(here("utils/create_temp_caboodle_tables.R"))) {
-          cli::cli_alert_info("Setting up omop temp tables")
-          source(here("utils/create_temp_caboodle_tables.R"))
-          start <- Sys.time()
-          create_omop_metadata_temp_concept_table(conns)
-          create_omop_metadata_temp_con_rel_table(conns)
-          glue("Time elapsed to setup temp tables: {Sys.time() - start}.")
-
-          omop_concepts <- tbl(conns$caboodle, "##omop_concepts")
-          omop_relationships <- tbl(conns$caboodle, "##omop_concept_relationship")
-
-          # Force assignment in global env
-          assign("omop_concepts", omop_concepts, globalenv())
-          assign("omop_relationships", omop_relationships, globalenv())
-
-          cli::cli_alert_info(glue(
-            "Time elapsed to setup temp tables: {Sys.time() - start}."
-          ))
-        } else {
-          cli::cli_alert_info("Skipping setting up omop temp tables")
-        }
-
-        # ---------------- Map ----------------
-        source(here::here("mapping/framework/map_omop.R"))
-      })
-      omopesutils:::plugins_extract_tables(omop_plugins, conns, cohort)
+  omop_es_run(
+    omop_es_path = omop_es_path,
+    settings_id = settings_id,
+    cohort_limit = cohort_limit,
+    run_mapping = FALSE,
+    run_linking = FALSE,
+    run_projection = FALSE,
+    run_output = FALSE,
+    pre_mapping_fn = function() {
+      tables <- omopesutils:::plugins_extract_tables(
+        omop_plugins,
+        conns,
+        cohort
+      )
     },
-    args = list(
-      omop_es_path = omop_es_path,
-      settings_id = settings_id,
-      cohort_limit = cohort_limit
-    ),
-    show = TRUE,
-    spinner = FALSE
+    return_fn = function() {
+      tables
+    }
   )
 }
 
@@ -220,13 +212,13 @@ omop_es_plugins_extract_tables <- function(
 #' connections and a cohort, even though only the plugin names are used, hence
 #' the `settings_id` and `cohort_limit` arguments.
 #'
-#' @param omop_es_path Path to OMOP-ES directory
-#' @param settings_id The OMOP-ES settings to use
+#' @param omop_es_path Path to OMOP-ES directory.
+#' @param settings_id The OMOP-ES settings to use.
 #' @param cohort_limit The max number of patients to use. This needs to be
 #'   small enough to be fast, but large enough to avoid odd quirks (e.g. none
-#'   of the included patients have an imaging results)
-#' @returns A named list, with one element per OMOP table. Each element of the
-#'   list contains the corresponding Markdown code
+#'   of the included patients have imaging results).
+#' @return A named list, with one element per OMOP table. Each element of the
+#'   list contains the corresponding Markdown code.
 #' @family OMOP-ES plugin introspection
 #' @seealso [read_table_level_md()], which reads a single file.
 #' @importFrom withr with_dir
@@ -237,42 +229,24 @@ omop_es_plugins_extract_docs_public <- function(
   settings_id = "CUH_EPIC_small_cohort",
   cohort_limit = 10
 ) {
-  callr::r(
-    func = function(
-      omop_es_path,
-      settings_id,
-      cohort_limit
-    ) {
-      withr::with_dir(omop_es_path, {
-        # --------- Setup Environment ---------
-        source(here::here("setup_environment.R"))
-        setup_environment(settings_id, log_level = "ERROR")
-
-        # --------- Setup Connections ---------
-        conns <- project$setup_connections()
-        withr::defer(project$disconnect(conns))
-
-        # ----------- Build Cohort ------------
-        cohort <- project$build_cohort(settings, conns) |>
-          pipe_if(!is.null(cohort_limit), \(x) {
-            dplyr::slice_sample(x, n = cohort_limit)
-          })
-
-        # ---------------- Map ----------------
-        source(here::here("mapping/framework/map_omop.R"))
-      })
-
-      names(omop_plugins) |>
-        map(\(table_name) omopesutils:::read_table_level_md(table_name, omop_es_path)) |>
+  omop_es_run(
+    omop_es_path = omop_es_path,
+    settings_id = settings_id,
+    cohort_limit = cohort_limit,
+    run_mapping = FALSE,
+    run_linking = FALSE,
+    run_projection = FALSE,
+    run_output = FALSE,
+    pre_mapping_fn = function() {
+      docs_public <- names(omop_plugins) |>
+        map(\(table_name) {
+          omopesutils:::read_table_level_md(table_name, omop_es_path)
+        }) |>
         setNames(names(omop_plugins))
     },
-    args = list(
-      omop_es_path = omop_es_path,
-      settings_id = settings_id,
-      cohort_limit = cohort_limit
-    ),
-    show = TRUE,
-    spinner = FALSE
+    return_fn = function() {
+      docs_public
+    }
   )
 }
 
@@ -288,13 +262,13 @@ omop_es_plugins_extract_docs_public <- function(
 #' columns. Tables that are mapped but have no private documentation file
 #' appear in the result with a value of `NULL`.
 #'
-#' @param omop_es_path Path to OMOP-ES directory
-#' @param settings_id The OMOP-ES settings to use
+#' @param omop_es_path Path to OMOP-ES directory.
+#' @param settings_id The OMOP-ES settings to use.
 #' @param cohort_limit The max number of patients to use. This needs to be
 #'   small enough to be fast, but large enough to avoid odd quirks (e.g. none
-#'   of the included patients have an imaging results)
-#' @returns A named list, with one element per OMOP table. Each element of the
-#'   list contains the corresponding Markdown code
+#'   of the included patients have imaging results).
+#' @return A named list, with one element per OMOP table. Each element of the
+#'   list contains the corresponding Markdown code.
 #' @family OMOP-ES plugin introspection
 #' @seealso [read_table_level_private_md()], which reads a single file.
 #' @importFrom withr with_dir
@@ -305,43 +279,23 @@ omop_es_plugins_extract_docs_private <- function(
   settings_id = "CUH_EPIC_small_cohort",
   cohort_limit = 10
 ) {
-  callr::r(
-    func = function(
-      omop_es_path,
-      settings_id,
-      cohort_limit
-    ) {
-      withr::with_dir(omop_es_path, {
-        # --------- Setup Environment ---------
-        source(here::here("setup_environment.R"))
-        setup_environment(settings_id, log_level = "ERROR")
-
-        # --------- Setup Connections ---------
-        conns <- project$setup_connections()
-        withr::defer(project$disconnect(conns))
-
-        # ----------- Build Cohort ------------
-        cohort <- project$build_cohort(settings, conns) |>
-          pipe_if(!is.null(cohort_limit), \(x) {
-            dplyr::slice_sample(x, n = cohort_limit)
-          })
-
-        # ---------------- Map ----------------
-        source(here::here("mapping/framework/map_omop.R"))
-
-        names(omop_plugins) |>
-          map(\(table_name) {
-            omopesutils:::read_table_level_private_md(table_name, omop_es_path)
-          }) |>
-          setNames(names(omop_plugins))
-      })
+  omop_es_run(
+    omop_es_path = omop_es_path,
+    settings_id = settings_id,
+    cohort_limit = cohort_limit,
+    run_mapping = FALSE,
+    run_linking = FALSE,
+    run_projection = FALSE,
+    run_output = FALSE,
+    pre_mapping_fn = function() {
+      docs_private <- names(omop_plugins) |>
+        map(\(table_name) {
+          omopesutils:::read_table_level_private_md(table_name, omop_es_path)
+        }) |>
+        setNames(names(omop_plugins))
     },
-    args = list(
-      omop_es_path = omop_es_path,
-      settings_id = settings_id,
-      cohort_limit = cohort_limit
-    ),
-    show = TRUE,
-    spinner = FALSE
+    return_fn = function() {
+      docs_private
+    }
   )
 }
