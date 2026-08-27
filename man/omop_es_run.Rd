@@ -11,34 +11,82 @@ omop_es_run(
   output_parquet = NA,
   zip_output = FALSE,
   custom_dir = NULL,
-  envvar = callr::rcmd_safe_env()
+  envvar = callr::rcmd_safe_env(),
+  run_setup = TRUE,
+  run_mapping = TRUE,
+  run_linking = TRUE,
+  run_projection = TRUE,
+  run_output = TRUE,
+  pre_setup_fn = function() {
+ },
+  post_setup_fn = function() {
+ },
+  pre_mapping_fn = function() {
+ },
+  post_mapping_fn = function() {
+ },
+  pre_linking_fn = function() {
+ },
+  post_linking_fn = function() {
+ },
+  pre_projection_fn = function() {
+ },
+  post_projection_fn = function() {
+ },
+  pre_output_fn = function() {
+ },
+  post_output_fn = function() {
+ },
+  return_fn = function() {
+ }
 )
 }
 \arguments{
-\item{omop_es_path}{Path to OMOP-ES directory}
+\item{omop_es_path}{Path to OMOP-ES directory.}
 
-\item{settings_id}{The OMOP-ES settings to use}
+\item{settings_id}{The OMOP-ES settings to use.}
 
 \item{cohort_limit}{The max number of patients to use.}
 
 \item{output_parquet}{Whether to force parquet output, overriding the
 format in the OMOP-ES settings. \code{NA} leaves the settings untouched.}
 
-\item{zip_output}{Whether to zip output}
+\item{zip_output}{Whether to zip output.}
 
 \item{custom_dir}{A custom directory to write the extract to, overriding the
 output directory in the OMOP-ES settings. \code{NULL} uses the settings.}
 
 \item{envvar}{A list of environment variables to set in the child process
 prior to running the pipeline. This can be used to pass e.g. database
-connection details to OMOP-ES}
+connection details to OMOP-ES.}
+
+\item{run_setup, run_mapping, run_linking, run_projection, run_output}{Logical;
+whether to run each respective pipeline stage. Default to \code{TRUE}.}
+
+\item{pre_setup_fn, post_setup_fn}{Functions evaluated inside the execution
+environment immediately before and after the setup stage.}
+
+\item{pre_mapping_fn, post_mapping_fn}{Functions evaluated inside the execution
+environment immediately before and after the mapping stage.}
+
+\item{pre_linking_fn, post_linking_fn}{Functions evaluated inside the execution
+environment immediately before and after the linking stage.}
+
+\item{pre_projection_fn, post_projection_fn}{Functions evaluated inside the execution
+environment immediately before and after the projection stage.}
+
+\item{pre_output_fn, post_output_fn}{Functions evaluated inside the execution
+environment immediately before and after the output stage.}
+
+\item{return_fn}{Function evaluated at the end, enabling return of custom
+values.}
 }
 \value{
-Whatever the pipeline's output step returns, as passed back from
-the subprocess by \code{\link[callr:r]{callr::r()}}.
+Returns the return value of the body of \code{return_fn}, and may
+produce OMOP output in the extract directory
 }
 \description{
-Runs an OMOP-ES pipeline in a separate process so that it isolated from the
+Runs an OMOP-ES pipeline in a separate process so that it is isolated from
 the current state of the R environment.
 }
 \details{

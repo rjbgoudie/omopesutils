@@ -13,12 +13,14 @@ export(omop_es_diff_viewer_local_git)
 export(omop_es_main_cuh_interactive)
 export(omop_es_plugins_extract_docs_private)
 export(omop_es_plugins_extract_docs_public)
+export(omop_es_plugins_extract_metadata)
 export(omop_es_plugins_extract_sql)
 export(omop_es_plugins_extract_tables)
 export(omop_es_run)
 export(omop_es_run_git_sha)
 export(omop_es_viewer)
 export(omop_metadata_table_level)
+export(summarise_omop_table)
 import(bslib)
 import(daff)
 import(dplyr)
@@ -91,4 +93,7 @@ importFrom(stringr,
   str_to_upper
 )
 importFrom(tidyr,pivot_wider)
-importFrom(withr,with_dir)
+importFrom(withr,
+  defer,
+  with_dir
+)
