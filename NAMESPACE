@@ -98,6 +98,7 @@ importFrom(purrr,
 importFrom(readr,read_csv)
 importFrom(rmarkdown,render)
 importFrom(rstudioapi,viewer)
+importFrom(scales,label_comma)
 importFrom(stringr,
   str_detect,
   str_to_lower,

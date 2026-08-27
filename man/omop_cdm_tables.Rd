@@ -29,6 +29,7 @@ Other OMOP CDM metadata:
 \code{\link[=omop_table_all_key_columns]{omop_table_all_key_columns()}},
 \code{\link[=omop_table_columns]{omop_table_columns()}},
 \code{\link[=omop_table_common_columns]{omop_table_common_columns()}},
+\code{\link[=omop_table_concept_columns]{omop_table_concept_columns()}},
 \code{\link[=omop_table_primary_key]{omop_table_primary_key()}},
 \code{\link[=omop_vocab_tables]{omop_vocab_tables()}}
 }

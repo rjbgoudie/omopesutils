@@ -1,3 +1,26 @@
+#' Count concept values in every concept column of an OMOP table
+#'
+#' Pivots all of a table's columns whose name contains `concept` into long
+#' form, counts how often each value occurs, and joins the OMOP `concept`
+#' table so that each value is described.
+#'
+#' @details
+#' If the table has no concept columns the pivot fails, in which case a
+#' zero-row result is returned instead --- derived from `person`, purely so
+#' that the caller can still union it with the other tables in duckdb.
+#'
+#' Nothing in the package currently calls this;
+#' [omop_table_cross_tabulation()] is the routine the summary report uses,
+#' and it tabulates concept, source-value and source-concept columns together
+#' rather than each concept column on its own.
+#'
+#' @param db A [DBI::DBIConnection-class] object with an OMOP-ES extract
+#'   registered, as by [duckdb_register_omop_es_output()].
+#' @param table OMOP table name, e.g. `"condition_occurrence"`.
+#' @returns A lazy `tbl` with one row per column and value, with columns
+#'   `name`, `value`, `n`, the joined `concept` columns, and `table`.
+#' @family concept cross-tabulation
+#' @keywords internal
 omop_concept_summary <- function(db, table) {
   tryCatch(
     {
@@ -19,6 +42,24 @@ omop_concept_summary <- function(db, table) {
   )
 }
 
+#' Count concept values across every OMOP table
+#'
+#' Runs [omop_concept_summary()] over every OMOP table in the public schema
+#' and unions the results.
+#'
+#' @details
+#' `visit_occurrence_ext_fce` is excluded, because its concept tables are
+#' already joined on.
+#'
+#' Nothing in the package currently calls this. Note also that the two
+#' branches of [omop_concept_summary()] return different columns, so the union
+#' will only succeed if every table has at least one concept column.
+#'
+#' @param db A [DBI::DBIConnection-class] object with an OMOP-ES extract
+#'   registered, as by [duckdb_register_omop_es_output()].
+#' @returns A lazy `tbl`, the union of the per-table results.
+#' @family concept cross-tabulation
+#' @keywords internal
 omop_concept_summary_all <- function(db) {
   # visit_occurrence_ext_fce has concept tables attached already... needto fix
   tables <- setdiff(dbListOmopTables(db), "visit_occurrence_ext_fce")
@@ -31,6 +72,33 @@ omop_concept_summary_all <- function(db) {
   )
 }
 
+#' Cross-tabulate the concept columns of every OMOP table
+#'
+#' Runs [omop_table_cross_tabulation()] over every OMOP table in the public
+#' schema and stacks the results, giving one table that describes how every
+#' concept column in the extract has been populated. This is the input the
+#' extract summary report is built from.
+#'
+#' @details
+#' `visit_occurrence_ext_fce` is excluded, because its concept tables are
+#' already joined on.
+#'
+#' The result is a lazy `tbl`: it is a `UNION ALL` of one query per table, and
+#' is potentially expensive, so collect it once and reuse it rather than
+#' recomputing it per section of a report.
+#'
+#' @param db A [DBI::DBIConnection-class] object with an OMOP-ES extract
+#'   registered, as by [duckdb_register_omop_es_output()].
+#' @returns A lazy `tbl` with the columns described in
+#'   [omop_table_cross_tabulation()].
+#' @family concept cross-tabulation
+#' @seealso [omop_es_extract_summary_report()], which renders this.
+#' @examples
+#' \dontrun{
+#' db <- DBI::dbConnect(duckdb::duckdb())
+#' duckdb_register_omop_es_output(db, extract_path, omop_es_path)
+#' cross_tabulations <- dplyr::collect(omop_cross_tabulation(db))
+#' }
 #' @export
 omop_cross_tabulation <- function(db) {
   # visit_occurrence_ext_fce has concept tables attached already... needto fix
@@ -44,6 +112,39 @@ omop_cross_tabulation <- function(db) {
   )
 }
 
+#' Cross-tabulate the concept columns of one OMOP table
+#'
+#' Counts how often each combination of concept id, source value and source
+#' concept id occurs in an OMOP table, once for each of its concept columns,
+#' and describes each concept by joining the OMOP `concept` table.
+#'
+#' @details
+#' OMOP records a mapped concept as a group of columns sharing a stem: for the
+#' stem `condition`, the columns `condition_concept_id`,
+#' `condition_source_value` and `condition_source_concept_id`. The stems are
+#' found by [omop_table_concept_columns()], and each is tabulated in turn and
+#' the results stacked, so one row of the output says "this concept, from this
+#' source value, occurred this many times in this column of this table".
+#'
+#' The three columns are renamed to `concept_id`, `source_value` and
+#' `source_concept_id`, which is what makes results from different stems and
+#' different tables stackable; `column` records the stem they came from and
+#' `table` the table. Not every stem has a `_source_concept_id` column in
+#' OMOP, so that one is joined only where it exists, and its concept columns
+#' are prefixed `source_` to keep them apart from those of `concept_id`.
+#'
+#' A table with no concept columns at all yields a zero-row result with the
+#' same columns, so that it can still be stacked with the others.
+#'
+#' @param db A [DBI::DBIConnection-class] object with an OMOP-ES extract
+#'   registered, as by [duckdb_register_omop_es_output()].
+#' @param table OMOP table name, e.g. `"condition_occurrence"`.
+#' @returns A lazy `tbl` with one row per column stem and concept
+#'   combination, with columns `n`, `column`, `concept_id`, `source_value`,
+#'   `source_concept_id` and `table`, plus the columns of the `concept` table
+#'   joined on `concept_id` and, where the table has one, those of the
+#'   `concept` table joined on `source_concept_id` and prefixed `source_`.
+#' @family concept cross-tabulation
 #' @export
 omop_table_cross_tabulation <- function(db, table) {
   concepts_column_stubs <- omop_table_concept_columns(db, table)
@@ -99,6 +200,37 @@ omop_table_cross_tabulation <- function(db, table) {
 }
 
 
+#' Summarise how each concept column has been populated
+#'
+#' Reduces a cross-tabulation to one row per column, counting the rows, the
+#' distinct concepts, and the rows that are unmapped, and listing the
+#' vocabularies the concepts came from. This is what the column-level table of
+#' the summary report is built from.
+#'
+#' @details
+#' Each column stem in the cross-tabulation describes two real OMOP columns,
+#' so this summarises both: once for `<stem>_concept_id` and once for
+#' `<stem>_source_concept_id`, using the corresponding concept and vocabulary
+#' columns, and stacks the two.
+#'
+#' A row counts as unmapped when its concept id is `0` --- the OMOP convention
+#' for "no matching concept" --- or `NA`. Comparing `n_zero_or_na` with
+#' `n_row` therefore tells you whether a column is entirely unmapped, which is
+#' how [omop_es_field_level_summary_html()] decides to mark a column "Not
+#' implemented".
+#'
+#' The vocabularies are ordered by how many rows they account for, so the
+#' dominant vocabulary appears first, and each is rendered as an Athena link
+#' with its row count by [athena_vocab_link()].
+#'
+#' @param cross_tabulations A collected cross-tabulation, as returned by
+#'   [omop_cross_tabulation()].
+#' @returns A tibble with one row per `table` and `column`, and columns
+#'   `vocabularies` (a list of vocabulary ids), `vocabularies_text` (those
+#'   vocabularies as HTML links with row counts), `n_row`, `n_zero_or_na` and
+#'   `n_distinct_concepts`.
+#' @family concept cross-tabulation
+#' @keywords internal
 omop_concept_column_summaries <- function(cross_tabulations) {
   column_summary <- function(cross_tabulations, source = FALSE) {
     if (source) {

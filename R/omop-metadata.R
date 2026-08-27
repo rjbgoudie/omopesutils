@@ -278,7 +278,31 @@ omop_table_all_key_columns <- function(table) {
     pull(cdmFieldName)
 }
 
-#' Extract the stubs of *_concept_id columns
+#' Concept column stems of an OMOP table
+#'
+#' The stems of a table's concept columns, as they exist in the database: the
+#' part of a `<stem>_concept_id` column name before the suffix.
+#'
+#' @details
+#' `*_source_concept_id` columns are excluded, so `condition_concept_id` and
+#' `condition_type_concept_id` give `"condition"` and `"condition_type"`,
+#' while `condition_source_concept_id` gives nothing. Each stem therefore
+#' names a group of related columns --- `<stem>_concept_id`,
+#' `<stem>_source_value` and, where OMOP defines one,
+#' `<stem>_source_concept_id` --- which is the group
+#' [omop_table_cross_tabulation()] tabulates together.
+#'
+#' The columns are read from the table in the database rather than from the
+#' CDM specification, so concept columns that OMOP-ES adds beyond the CDM are
+#' included.
+#'
+#' @param db A [DBI::DBIConnection-class] object with an OMOP-ES extract
+#'   registered, as by [duckdb_register_omop_es_output()].
+#' @param table OMOP table name, e.g. `"condition_occurrence"`.
+#' @returns A character vector of column stems, without duplicates. Empty if
+#'   the table has no concept columns.
+#' @family OMOP CDM metadata
+#' @keywords internal
 omop_table_concept_columns <- function(db, table) {
   tbl_omop(db, table) |>
     colnames() |>

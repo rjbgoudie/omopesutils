@@ -36,7 +36,7 @@ connections and building the cohort --- happens once rather than four
 times. All four extractions run in one \code{pre_mapping_fn} hook and are
 returned together by \code{return_fn}.
 
-This is what \code{\link[=extract_summary_report]{extract_summary_report()}} uses to gather its material.
+This is what \code{\link[=omop_es_extract_summary_report]{omop_es_extract_summary_report()}} uses to gather its material.
 }
 \seealso{
 \code{\link[=omop_es_plugins_extract_sql]{omop_es_plugins_extract_sql()}}, \code{\link[=omop_es_plugins_extract_tables]{omop_es_plugins_extract_tables()}},
