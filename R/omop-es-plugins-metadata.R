@@ -14,7 +14,7 @@
 #' @param cohort_limit The max number of patients to use. This needs to be
 #'   small enough to be fast, but large enough to avoid odd quirks (e.g. none
 #'   of the included patients have imaging results).
-#' @return A list with four elements: `sql`, `tables`, `docs_public`, and
+#' @returns A list with four elements: `sql`, `tables`, `docs_public`, and
 #'   `docs_private`.
 #' @family OMOP-ES plugin introspection
 #' @seealso [omop_es_plugins_extract_sql()], [omop_es_plugins_extract_tables()],
@@ -96,7 +96,7 @@ omop_es_plugins_extract_metadata <- function(
 #' @param cohort_limit The max number of patients to use. This needs to be
 #'   small enough to be fast, but large enough to avoid odd quirks (e.g. none
 #'   of the included patients have imaging results).
-#' @return A named nested list of character SQL queries. The outer named list
+#' @returns A named nested list of character SQL queries. The outer named list
 #'   contains one element for each OMOP table. Within each table-level element,
 #'   there is a named list containing one element per plugin.
 #' @family OMOP-ES plugin introspection
@@ -154,7 +154,7 @@ omop_es_plugins_extract_sql <- function(
 #' @param cohort_limit The max number of patients to use. This needs to be
 #'   small enough to be fast, but large enough to avoid odd quirks (e.g. none
 #'   of the included patients have imaging results).
-#' @return A named nested list of character database table names. The outer
+#' @returns A named nested list of character database table names. The outer
 #'   named list contains one element for each OMOP table. Within each
 #'   table-level element, there is a named list containing one element per
 #'   plugin.
@@ -217,7 +217,7 @@ omop_es_plugins_extract_tables <- function(
 #' @param cohort_limit The max number of patients to use. This needs to be
 #'   small enough to be fast, but large enough to avoid odd quirks (e.g. none
 #'   of the included patients have imaging results).
-#' @return A named list, with one element per OMOP table. Each element of the
+#' @returns A named list, with one element per OMOP table. Each element of the
 #'   list contains the corresponding Markdown code.
 #' @family OMOP-ES plugin introspection
 #' @seealso [read_table_level_md()], which reads a single file.
@@ -267,7 +267,7 @@ omop_es_plugins_extract_docs_public <- function(
 #' @param cohort_limit The max number of patients to use. This needs to be
 #'   small enough to be fast, but large enough to avoid odd quirks (e.g. none
 #'   of the included patients have imaging results).
-#' @return A named list, with one element per OMOP table. Each element of the
+#' @returns A named list, with one element per OMOP table. Each element of the
 #'   list contains the corresponding Markdown code.
 #' @family OMOP-ES plugin introspection
 #' @seealso [read_table_level_private_md()], which reads a single file.

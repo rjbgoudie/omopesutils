@@ -40,7 +40,7 @@
 #'   environment immediately before and after the output stage.
 #' @param return_fn Function evaluated at the end, enabling return of custom
 #'   values.
-#' @return Returns the return value of the body of `return_fn`, and may
+#' @returns Returns the return value of the body of `return_fn`, and may
 #'   produce OMOP output in the extract directory
 #' @family running OMOP-ES
 #' @seealso [omop_es_run_git_sha()] to run a particular git branch or commit.
@@ -224,7 +224,7 @@ omop_es_run <- function(
 #'   environment immediately before and after the output stage.
 #' @param return_fn Function evaluated at the end, enabling return of custom
 #'   values.
-#' @return Returns the return value of the body of `return_fn`, and may
+#' @returns Returns the return value of the body of `return_fn`, and may
 #'   produce OMOP output in the extract directory
 #' @family running OMOP-ES
 #' @seealso [omop_es_run()], which is the intended entry point.
