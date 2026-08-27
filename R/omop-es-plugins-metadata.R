@@ -22,6 +22,7 @@
 #' @returns A list with four elements: `sql`, `tables`, `docs_public`, and
 #'   `docs_private`.
 #' @family OMOP-ES plugin introspection
+#' @importFrom purrr map
 #' @seealso [omop_es_plugins_extract_sql()], [omop_es_plugins_extract_tables()],
 #'   [omop_es_plugins_extract_docs_public()], [omop_es_plugins_extract_docs_private()]
 #' @export

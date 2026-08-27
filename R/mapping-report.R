@@ -201,6 +201,7 @@ pretty_concept_table <- function(concept_table, column) {
 #' @returns The table, with `column` replaced by HTML.
 #' @family concept mapping tables
 #' @keywords internal
+#' @importFrom rlang :=
 pretty_athena_link <- function(tab, column = "concept_id") {
   tab |>
     mutate(

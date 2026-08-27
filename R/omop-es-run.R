@@ -276,6 +276,7 @@ omop_es_run <- function(
 #' @family running OMOP-ES
 #' @seealso [omop_es_run()], which is the intended entry point.
 #' @importFrom withr with_dir defer
+#' @importFrom here here
 #' @export
 omop_es_main_cuh_interactive <- function(
     omop_es_path,

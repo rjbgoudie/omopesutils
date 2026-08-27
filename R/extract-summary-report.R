@@ -50,7 +50,6 @@
 #' @seealso [omop_cross_tabulation()] for one of its two inputs, and
 #'   [omop_es_plugins_extract_metadata()] for the other.
 #' @importFrom fs path_package path
-#' @importFrom purrr list_transpose
 #' @importFrom rmarkdown render
 #' @importFrom rstudioapi viewer
 #' @export

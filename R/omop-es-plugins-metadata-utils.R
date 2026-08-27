@@ -27,6 +27,7 @@
 #' @family OMOP-ES plugin introspection
 #' @seealso [plugins_extract_sql()], which calls this for every plugin.
 #' @keywords internal
+#' @importFrom dbplyr sql_render sql_options
 plugin_extract_sql <- function(plugin, name, conns, cohort) {
   cli::cli_progress_step("Extracting SQL queries for {name}")
 
@@ -105,6 +106,7 @@ plugin_extract_sql <- function(plugin, name, conns, cohort) {
 #' @seealso [omop_es_plugins_extract_sql()], which sets up the OMOP-ES
 #'   environment and then calls this.
 #' @keywords internal
+#' @importFrom purrr imap keep map walk
 plugins_extract_sql <- function(omop_plugins, conns, cohort) {
   names(omop_plugins) |>
     map(function(table) {
@@ -142,6 +144,7 @@ plugins_extract_sql <- function(omop_plugins, conns, cohort) {
 #' @family OMOP-ES plugin introspection
 #' @seealso [plugins_extract_tables()], which calls this for every plugin.
 #' @keywords internal
+#' @importFrom DBI dbQuoteIdentifier
 plugin_extract_tables <- function(plugin, name, conns, cohort) {
   cli::cli_progress_step("Extracting tables for {name}")
 
@@ -193,6 +196,7 @@ plugin_extract_tables <- function(plugin, name, conns, cohort) {
 #' @seealso [omop_es_plugins_extract_tables()], which sets up the OMOP-ES
 #'   environment and then calls this.
 #' @keywords internal
+#' @importFrom purrr imap keep map walk
 plugins_extract_tables <- function(omop_plugins, conns, cohort) {
   names(omop_plugins) |>
     map(function(table) {

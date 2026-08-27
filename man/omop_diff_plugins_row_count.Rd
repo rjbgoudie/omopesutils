@@ -34,7 +34,7 @@ that produced each row, so that a change can be attributed to a particular
 mapper rather than just to a table.
 }
 \details{
-The two sets of counts are combined with a \code{\link[dplyr:full_join]{dplyr::full_join()}} on both
+The two sets of counts are combined with a \code{\link[dplyr:mutate-joins]{dplyr::full_join()}} on both
 table and plugin, so a table/plugin combination present in only one of the
 extracts appears with an \code{NA} count for the other. This is what surfaces a
 plugin that has started, or stopped, contributing rows.

@@ -25,16 +25,6 @@ formatted with thousands separators. Each tabulation is capped at the
 1000 most frequent rows, since the full tabulation of a large table is
 neither readable nor worth loading into a browser.
 }
-\section{Known limitations}{
-
-
-Within each table the rows are grouped by splitting on \code{table} a second
-time rather than on \code{column}. Since the outer split has already reduced the
-data to one table, that inner split yields a single group named after the
-table, so a table's concept columns all appear under one heading showing
-the table name, rather than one heading per column.
-}
-
 \seealso{
 Other OMOP-ES extract summary report:
 \code{\link[=omop_column_empty]{omop_column_empty()}},

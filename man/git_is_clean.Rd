@@ -13,7 +13,7 @@ git_is_clean(repo)
 \code{TRUE} if the repository is clean, otherwise \code{FALSE}.
 }
 \description{
-Whether a git repository has no changes reported by \code{\link[gert:git_status]{gert::git_status()}},
+Whether a git repository has no changes reported by \code{\link[gert:git_commit]{gert::git_status()}},
 i.e. no staged, unstaged or untracked changes.
 }
 \keyword{internal}
