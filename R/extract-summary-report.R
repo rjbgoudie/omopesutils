@@ -70,7 +70,6 @@ omop_es_extract_summary_report <- function(
 ) {
   rmd_file <- fs::path_package(
     package = "omopesutils",
-    "inst",
     "templates",
     "omop_es_extract_summary.Rmd"
   )
