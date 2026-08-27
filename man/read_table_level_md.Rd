@@ -34,6 +34,7 @@ Other OMOP-ES plugin introspection:
 \code{\link[=enabled_by_settings]{enabled_by_settings()}},
 \code{\link[=omop_es_plugins_extract_docs_private]{omop_es_plugins_extract_docs_private()}},
 \code{\link[=omop_es_plugins_extract_docs_public]{omop_es_plugins_extract_docs_public()}},
+\code{\link[=omop_es_plugins_extract_metadata]{omop_es_plugins_extract_metadata()}},
 \code{\link[=omop_es_plugins_extract_sql]{omop_es_plugins_extract_sql()}},
 \code{\link[=omop_es_plugins_extract_tables]{omop_es_plugins_extract_tables()}},
 \code{\link[=plugin_extract_sql]{plugin_extract_sql()}},
