@@ -1,13 +1,12 @@
-# Load all table-level private documentation Markdown files
+# Extract metadata about OMOP-ES plugins
 
-Loads the documentation stored in `docs/CUH/{table_name}_private.md`
-within the OMOP-ES directory `omop_es_path` for every OMOP table with a
-mapper specified.
+Runs extraction for SQL queries, database tables, and public/private
+documentation across all OMOP-ES plugins in a single run.
 
 ## Usage
 
 ``` r
-omop_es_plugins_extract_docs_private(
+omop_es_plugins_extract_metadata(
   omop_es_path,
   settings_id = "CUH_EPIC_small_cohort",
   cohort_limit = 10
@@ -32,28 +31,31 @@ omop_es_plugins_extract_docs_private(
 
 ## Value
 
-A named list, with one element per OMOP table. Each element of the list
-contains the corresponding Markdown code.
+A list with four elements: `sql`, `tables`, `docs_public`, and
+`docs_private`.
 
 ## Details
 
-As
+Combines the extraction logic of
+[`omop_es_plugins_extract_sql()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_sql.md),
+[`omop_es_plugins_extract_tables()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_tables.md),
 [`omop_es_plugins_extract_docs_public()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_docs_public.md),
-but for the documentation that is not publishable — for instance because
-it names source-system tables or columns. Tables that are mapped but
-have no private documentation file appear in the result with a value of
-`NULL`.
+and
+[`omop_es_plugins_extract_docs_private()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_docs_private.md)
+to avoid running multiple pipeline initialization steps.
 
 ## See also
 
-[`read_table_level_private_md()`](https://rjbgoudie.github.io/omopesutils/reference/read_table_level_private_md.md),
-which reads a single file.
+[`omop_es_plugins_extract_sql()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_sql.md),
+[`omop_es_plugins_extract_tables()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_tables.md),
+[`omop_es_plugins_extract_docs_public()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_docs_public.md),
+[`omop_es_plugins_extract_docs_private()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_docs_private.md)
 
 Other OMOP-ES plugin introspection:
 [`check_type()`](https://rjbgoudie.github.io/omopesutils/reference/check_type.md),
 [`enabled_by_settings()`](https://rjbgoudie.github.io/omopesutils/reference/enabled_by_settings.md),
+[`omop_es_plugins_extract_docs_private()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_docs_private.md),
 [`omop_es_plugins_extract_docs_public()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_docs_public.md),
-[`omop_es_plugins_extract_metadata()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_metadata.md),
 [`omop_es_plugins_extract_sql()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_sql.md),
 [`omop_es_plugins_extract_tables()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_tables.md),
 [`plugin_extract_sql()`](https://rjbgoudie.github.io/omopesutils/reference/plugin_extract_sql.md),

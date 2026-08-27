@@ -19,21 +19,21 @@ omop_es_plugins_extract_tables(
 
 - omop_es_path:
 
-  Path to OMOP-ES directory
+  Path to OMOP-ES directory.
 
 - settings_id:
 
-  The OMOP-ES settings to use
+  The OMOP-ES settings to use.
 
 - cohort_limit:
 
   The max number of patients to use. This needs to be small enough to be
   fast, but large enough to avoid odd quirks (e.g. none of the included
-  patients have an imaging results)
+  patients have imaging results).
 
 ## Value
 
-A named nested list of character database table names The outer named
+A named nested list of character database table names. The outer named
 list contains one element for each OMOP table. Within each table-level
 element, there is a named list containing one element per plugin.
 
@@ -60,6 +60,7 @@ Other OMOP-ES plugin introspection:
 [`enabled_by_settings()`](https://rjbgoudie.github.io/omopesutils/reference/enabled_by_settings.md),
 [`omop_es_plugins_extract_docs_private()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_docs_private.md),
 [`omop_es_plugins_extract_docs_public()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_docs_public.md),
+[`omop_es_plugins_extract_metadata()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_metadata.md),
 [`omop_es_plugins_extract_sql()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_sql.md),
 [`plugin_extract_sql()`](https://rjbgoudie.github.io/omopesutils/reference/plugin_extract_sql.md),
 [`plugin_extract_tables()`](https://rjbgoudie.github.io/omopesutils/reference/plugin_extract_tables.md),

@@ -57,7 +57,34 @@ subprocess.</p>
 <span>  cohort_limit <span class="op">=</span> <span class="fl">5000</span>,</span>
 <span>  output_parquet <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  zip_output <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  custom_dir <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  custom_dir <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  run_setup <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  run_mapping <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  run_linking <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  run_projection <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  run_output <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  pre_setup_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
+<span> <span class="op">}</span>,</span>
+<span>  post_setup_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
+<span> <span class="op">}</span>,</span>
+<span>  pre_mapping_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
+<span> <span class="op">}</span>,</span>
+<span>  post_mapping_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
+<span> <span class="op">}</span>,</span>
+<span>  pre_linking_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
+<span> <span class="op">}</span>,</span>
+<span>  post_linking_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
+<span> <span class="op">}</span>,</span>
+<span>  pre_projection_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
+<span> <span class="op">}</span>,</span>
+<span>  post_projection_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
+<span> <span class="op">}</span>,</span>
+<span>  pre_output_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
+<span> <span class="op">}</span>,</span>
+<span>  post_output_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
+<span> <span class="op">}</span>,</span>
+<span>  return_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
+<span> <span class="op">}</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -66,11 +93,11 @@ subprocess.</p>
 
 
 <dl><dt id="arg-omop-es-path">omop_es_path<a class="anchor" aria-label="anchor" href="#arg-omop-es-path"></a></dt>
-<dd><p>Path to OMOP-ES directory</p></dd>
+<dd><p>Path to OMOP-ES directory.</p></dd>
 
 
 <dt id="arg-settings-id">settings_id<a class="anchor" aria-label="anchor" href="#arg-settings-id"></a></dt>
-<dd><p>The OMOP-ES settings to use</p></dd>
+<dd><p>The OMOP-ES settings to use.</p></dd>
 
 
 <dt id="arg-cohort-limit">cohort_limit<a class="anchor" aria-label="anchor" href="#arg-cohort-limit"></a></dt>
@@ -85,17 +112,53 @@ format in the OMOP-ES settings. Only <code>TRUE</code> has an effect; <code>NA</
 
 
 <dt id="arg-zip-output">zip_output<a class="anchor" aria-label="anchor" href="#arg-zip-output"></a></dt>
-<dd><p>Whether to zip output</p></dd>
+<dd><p>Whether to zip output.</p></dd>
 
 
 <dt id="arg-custom-dir">custom_dir<a class="anchor" aria-label="anchor" href="#arg-custom-dir"></a></dt>
 <dd><p>A custom directory to write the extract to, overriding the
 output directory in the OMOP-ES settings. <code>NULL</code> uses the settings.</p></dd>
 
+
+<dt id="arg-run-setup-run-mapping-run-linking-run-projection-run-output">run_setup, run_mapping, run_linking, run_projection, run_output<a class="anchor" aria-label="anchor" href="#arg-run-setup-run-mapping-run-linking-run-projection-run-output"></a></dt>
+<dd><p>Logical;
+whether to run each respective pipeline stage. Default to <code>TRUE</code>.</p></dd>
+
+
+<dt id="arg-pre-setup-fn-post-setup-fn">pre_setup_fn, post_setup_fn<a class="anchor" aria-label="anchor" href="#arg-pre-setup-fn-post-setup-fn"></a></dt>
+<dd><p>Functions evaluated inside the execution
+environment immediately before and after the setup stage.</p></dd>
+
+
+<dt id="arg-pre-mapping-fn-post-mapping-fn">pre_mapping_fn, post_mapping_fn<a class="anchor" aria-label="anchor" href="#arg-pre-mapping-fn-post-mapping-fn"></a></dt>
+<dd><p>Functions evaluated inside the execution
+environment immediately before and after the mapping stage.</p></dd>
+
+
+<dt id="arg-pre-linking-fn-post-linking-fn">pre_linking_fn, post_linking_fn<a class="anchor" aria-label="anchor" href="#arg-pre-linking-fn-post-linking-fn"></a></dt>
+<dd><p>Functions evaluated inside the execution
+environment immediately before and after the linking stage.</p></dd>
+
+
+<dt id="arg-pre-projection-fn-post-projection-fn">pre_projection_fn, post_projection_fn<a class="anchor" aria-label="anchor" href="#arg-pre-projection-fn-post-projection-fn"></a></dt>
+<dd><p>Functions evaluated inside the execution
+environment immediately before and after the projection stage.</p></dd>
+
+
+<dt id="arg-pre-output-fn-post-output-fn">pre_output_fn, post_output_fn<a class="anchor" aria-label="anchor" href="#arg-pre-output-fn-post-output-fn"></a></dt>
+<dd><p>Functions evaluated inside the execution
+environment immediately before and after the output stage.</p></dd>
+
+
+<dt id="arg-return-fn">return_fn<a class="anchor" aria-label="anchor" href="#arg-return-fn"></a></dt>
+<dd><p>Function evaluated at the end, enabling return of custom
+values.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Whatever the OMOP-ES <code>output_omop()</code> function returns.</p>
+    <p>Returns the return value of the body of <code>return_fn</code>, and may
+produce OMOP output in the extract directory</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

@@ -15,7 +15,34 @@ omop_es_main_cuh_interactive(
   cohort_limit = 5000,
   output_parquet = NA,
   zip_output = FALSE,
-  custom_dir = NULL
+  custom_dir = NULL,
+  run_setup = TRUE,
+  run_mapping = TRUE,
+  run_linking = TRUE,
+  run_projection = TRUE,
+  run_output = TRUE,
+  pre_setup_fn = function() {
+ },
+  post_setup_fn = function() {
+ },
+  pre_mapping_fn = function() {
+ },
+  post_mapping_fn = function() {
+ },
+  pre_linking_fn = function() {
+ },
+  post_linking_fn = function() {
+ },
+  pre_projection_fn = function() {
+ },
+  post_projection_fn = function() {
+ },
+  pre_output_fn = function() {
+ },
+  post_output_fn = function() {
+ },
+  return_fn = function() {
+ }
 )
 ```
 
@@ -23,11 +50,11 @@ omop_es_main_cuh_interactive(
 
 - omop_es_path:
 
-  Path to OMOP-ES directory
+  Path to OMOP-ES directory.
 
 - settings_id:
 
-  The OMOP-ES settings to use
+  The OMOP-ES settings to use.
 
 - cohort_limit:
 
@@ -41,16 +68,51 @@ omop_es_main_cuh_interactive(
 
 - zip_output:
 
-  Whether to zip output
+  Whether to zip output.
 
 - custom_dir:
 
   A custom directory to write the extract to, overriding the output
   directory in the OMOP-ES settings. `NULL` uses the settings.
 
+- run_setup, run_mapping, run_linking, run_projection, run_output:
+
+  Logical; whether to run each respective pipeline stage. Default to
+  `TRUE`.
+
+- pre_setup_fn, post_setup_fn:
+
+  Functions evaluated inside the execution environment immediately
+  before and after the setup stage.
+
+- pre_mapping_fn, post_mapping_fn:
+
+  Functions evaluated inside the execution environment immediately
+  before and after the mapping stage.
+
+- pre_linking_fn, post_linking_fn:
+
+  Functions evaluated inside the execution environment immediately
+  before and after the linking stage.
+
+- pre_projection_fn, post_projection_fn:
+
+  Functions evaluated inside the execution environment immediately
+  before and after the projection stage.
+
+- pre_output_fn, post_output_fn:
+
+  Functions evaluated inside the execution environment immediately
+  before and after the output stage.
+
+- return_fn:
+
+  Function evaluated at the end, enabling return of custom values.
+
 ## Value
 
-Whatever the OMOP-ES `output_omop()` function returns.
+Returns the return value of the body of `return_fn`, and may produce
+OMOP output in the extract directory
 
 ## Details
 

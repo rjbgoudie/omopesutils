@@ -50,6 +50,8 @@ with database access stubbed out.
   : Load all table-level public documentation Markdown files
 - [`omop_es_plugins_extract_docs_private()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_docs_private.md)
   : Load all table-level private documentation Markdown files
+- [`omop_es_plugins_extract_metadata()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_metadata.md)
+  : Extract metadata about OMOP-ES plugins
 
 ## Concept mapping tables
 
