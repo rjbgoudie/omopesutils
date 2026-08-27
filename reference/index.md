@@ -36,12 +36,14 @@ comparing two extracts row by row.
 - [`omop_es_diff_viewer_local_git()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_diff_viewer_local_git.md)
   : Run OMOP-ES for two git SHAs and compare
 
-## Plugin introspection
+## Generate documentation for an OMOP-ES extract
 
 Recover the SQL queries, source database tables and hand-written
 documentation belonging to each OMOP-ES plugin, by running the plugins
 with database access stubbed out.
 
+- [`extract_summary_report()`](https://rjbgoudie.github.io/omopesutils/reference/extract_summary_report.md)
+  : Render an OMOP-ES extract summary report
 - [`omop_es_plugins_extract_sql()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_sql.md)
   : Extract SQL queries for all OMOP-ES plugins
 - [`omop_es_plugins_extract_tables()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_tables.md)
