@@ -12,7 +12,7 @@
 #' times. All four extractions run in one `pre_mapping_fn` hook and are
 #' returned together by `return_fn`.
 #'
-#' This is what [extract_summary_report()] uses to gather its material.
+#' This is what [omop_es_extract_summary_report()] uses to gather its material.
 #'
 #' @param omop_es_path Path to OMOP-ES directory.
 #' @param settings_id The OMOP-ES settings to use.

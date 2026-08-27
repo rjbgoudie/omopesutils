@@ -13,7 +13,7 @@ omop_es_extract_summary_report(
   output_dir = getwd(),
   plugin_metadata = omop_es_plugins_extract_metadata(omop_es_path = omop_es_path,
     settings_id = settings_id, cohort_limit = cohort_limit),
-  cross_tabulations = collect(omop_cross_tabulation(conn)),
+  cross_tabulations = collect(omop_cross_tab_all(conn)),
   view = TRUE
 )
 }
@@ -36,6 +36,11 @@ Defaults to the active working directory via \code{\link[=getwd]{getwd()}}.}
 \item{plugin_metadata}{Named list containing plugin metadata. Defaults to
 automatically calling \code{\link[=omop_es_plugins_extract_metadata]{omop_es_plugins_extract_metadata()}}.}
 
+\item{cross_tabulations}{A collected cross-tabulation of the concept
+columns of the extract, with one row per concept per column. Note that
+the default calls \code{omop_cross_tab_all()}, which does not exist; pass this
+argument explicitly, from \code{\link[=omop_cross_tabulation]{omop_cross_tabulation()}}.}
+
 \item{view}{Logical; if \code{TRUE}, opens the compiled HTML report in the
 RStudio Viewer pane using \code{\link[rstudioapi:viewer]{rstudioapi::viewer()}}. Defaults to \code{TRUE}.}
 }
@@ -50,9 +55,37 @@ Generates and renders an HTML summary report documenting OMOP-ES plugin
 metadata using a bundled R Markdown template.
 }
 \details{
-The function fetches or accepts plugin metadata via \code{\link[=omop_es_plugins_extract_metadata]{omop_es_plugins_extract_metadata()}},
-restructures it with \code{\link[purrr:list_transpose]{purrr::list_transpose()}}, and passes it as parameters
-to the bundled \code{omop_es_extract_summary.Rmd} template via \code{\link[rmarkdown:render]{rmarkdown::render()}}.
-The resulting HTML report is saved to \code{output_dir} and can optionally be
-previewed directly in the RStudio Viewer pane.
+The report describes, for every OMOP table, what the extract contains and
+where it came from: the hand-written documentation for the table, a
+column-level summary against the OMOP CDM specification, a tabulation of
+the concepts found in each concept column, and the source tables and SQL
+each plugin used.
+
+The two inputs are gathered by \code{\link[=omop_es_plugins_extract_metadata]{omop_es_plugins_extract_metadata()}}, which
+runs the OMOP-ES plugins in a subprocess, and \code{\link[=omop_cross_tabulation]{omop_cross_tabulation()}},
+which queries the registered extract. Both are arguments, so an already
+computed value can be passed in instead --- worth doing, since gathering
+either is expensive.
+
+They are passed as parameters to the bundled
+\code{omop_es_extract_summary.Rmd} template, which is rendered by
+\code{\link[rmarkdown:render]{rmarkdown::render()}}. The template transposes the plugin metadata into
+table-major form and then calls the \verb{omop_es_*_html()} builders, one per
+section of the report; see \code{\link[=omop_es_all_tables_headings_html]{omop_es_all_tables_headings_html()}} for how the
+sections are interleaved. The report is written to \code{output_dir} and can
+optionally be previewed in the RStudio Viewer pane.
 }
+\seealso{
+\code{\link[=omop_cross_tabulation]{omop_cross_tabulation()}} for one of its two inputs, and
+\code{\link[=omop_es_plugins_extract_metadata]{omop_es_plugins_extract_metadata()}} for the other.
+
+Other OMOP-ES extract summary report:
+\code{\link[=omop_column_empty]{omop_column_empty()}},
+\code{\link[=omop_es_all_tables_headings_html]{omop_es_all_tables_headings_html()}},
+\code{\link[=omop_es_cross_tabulations_html]{omop_es_cross_tabulations_html()}},
+\code{\link[=omop_es_data_provenance_html]{omop_es_data_provenance_html()}},
+\code{\link[=omop_es_extract_summary_all_tables]{omop_es_extract_summary_all_tables()}},
+\code{\link[=omop_es_field_level_summary_html]{omop_es_field_level_summary_html()}},
+\code{\link[=omop_es_markdown_docs_html]{omop_es_markdown_docs_html()}}
+}
+\concept{OMOP-ES extract summary report}

@@ -58,7 +58,7 @@
 #'
 #' Each of those starts a pipeline of its own, so
 #' [omop_es_plugins_extract_metadata()] gathers all four in a single run
-#' instead. [extract_summary_report()] renders the result as a standalone
+#' instead. [omop_es_extract_summary_report()] renders the result as a standalone
 #' HTML report describing what the extract contains and where it came from.
 #'
 #' @section Mapping table reports:

@@ -2,10 +2,49 @@
 % Please edit documentation in R/omop-metadata.R
 \name{omop_table_concept_columns}
 \alias{omop_table_concept_columns}
-\title{Extract the stubs of *_concept_id columns}
+\title{Concept column stems of an OMOP table}
 \usage{
 omop_table_concept_columns(db, table)
 }
-\description{
-Extract the stubs of *_concept_id columns
+\arguments{
+\item{db}{A \link[DBI:DBIConnection-class]{DBI::DBIConnection} object with an OMOP-ES extract
+registered, as by \code{\link[=duckdb_register_omop_es_output]{duckdb_register_omop_es_output()}}.}
+
+\item{table}{OMOP table name, e.g. \code{"condition_occurrence"}.}
 }
+\value{
+A character vector of column stems, without duplicates. Empty if
+the table has no concept columns.
+}
+\description{
+The stems of a table's concept columns, as they exist in the database: the
+part of a \verb{<stem>_concept_id} column name before the suffix.
+}
+\details{
+\verb{*_source_concept_id} columns are excluded, so \code{condition_concept_id} and
+\code{condition_type_concept_id} give \code{"condition"} and \code{"condition_type"},
+while \code{condition_source_concept_id} gives nothing. Each stem therefore
+names a group of related columns --- \verb{<stem>_concept_id},
+\verb{<stem>_source_value} and, where OMOP defines one,
+\verb{<stem>_source_concept_id} --- which is the group
+\code{\link[=omop_table_cross_tabulation]{omop_table_cross_tabulation()}} tabulates together.
+
+The columns are read from the table in the database rather than from the
+CDM specification, so concept columns that OMOP-ES adds beyond the CDM are
+included.
+}
+\seealso{
+Other OMOP CDM metadata:
+\code{\link[=omop_all_tables]{omop_all_tables()}},
+\code{\link[=omop_cdm_tables]{omop_cdm_tables()}},
+\code{\link[=omop_metadata_field_level]{omop_metadata_field_level()}},
+\code{\link[=omop_metadata_table_level]{omop_metadata_table_level()}},
+\code{\link[=omop_source_tables_for_foreign_key_columns]{omop_source_tables_for_foreign_key_columns()}},
+\code{\link[=omop_table_all_key_columns]{omop_table_all_key_columns()}},
+\code{\link[=omop_table_columns]{omop_table_columns()}},
+\code{\link[=omop_table_common_columns]{omop_table_common_columns()}},
+\code{\link[=omop_table_primary_key]{omop_table_primary_key()}},
+\code{\link[=omop_vocab_tables]{omop_vocab_tables()}}
+}
+\concept{OMOP CDM metadata}
+\keyword{internal}

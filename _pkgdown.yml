@@ -37,14 +37,38 @@ reference:
   desc: >
     Recover the SQL queries, source database tables and hand-written
     documentation belonging to each OMOP-ES plugin, by running the plugins
-    with database access stubbed out.
+    with database access stubbed out, and render the result as a report
+    describing what an extract contains and where it came from.
   contents:
-  - extract_summary_report
+  - omop_es_extract_summary_report
   - omop_es_plugins_extract_sql
   - omop_es_plugins_extract_tables
   - omop_es_plugins_extract_docs_public
   - omop_es_plugins_extract_docs_private
   - omop_es_plugins_extract_metadata
+
+- title: Cross-tabulating concept columns
+  desc: >
+    Count how each concept column of an extract has been populated, which
+    concepts were used and which rows are unmapped. This is the material the
+    extract summary report is built from.
+  contents:
+  - omop_cross_tabulation
+  - omop_table_cross_tabulation
+
+- title: Extract summary report sections
+  desc: >
+    The building blocks of the extract summary report. Each returns a list of
+    HTML named by OMOP table, which the report template interleaves into
+    per-table sections. They are exported because the bundled R Markdown
+    template calls them.
+  contents:
+  - omop_es_extract_summary_all_tables
+  - omop_es_all_tables_headings_html
+  - omop_es_markdown_docs_html
+  - omop_es_field_level_summary_html
+  - omop_es_cross_tabulations_html
+  - omop_es_data_provenance_html
 
 - title: Concept mapping tables
   desc: >

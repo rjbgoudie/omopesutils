@@ -4,11 +4,25 @@
 #' metadata using a bundled R Markdown template.
 #'
 #' @details
-#' The function fetches or accepts plugin metadata via [omop_es_plugins_extract_metadata()],
-#' restructures it with [purrr::list_transpose()], and passes it as parameters
-#' to the bundled `omop_es_extract_summary.Rmd` template via [rmarkdown::render()].
-#' The resulting HTML report is saved to `output_dir` and can optionally be
-#' previewed directly in the RStudio Viewer pane.
+#' The report describes, for every OMOP table, what the extract contains and
+#' where it came from: the hand-written documentation for the table, a
+#' column-level summary against the OMOP CDM specification, a tabulation of
+#' the concepts found in each concept column, and the source tables and SQL
+#' each plugin used.
+#'
+#' The two inputs are gathered by [omop_es_plugins_extract_metadata()], which
+#' runs the OMOP-ES plugins in a subprocess, and [omop_cross_tabulation()],
+#' which queries the registered extract. Both are arguments, so an already
+#' computed value can be passed in instead --- worth doing, since gathering
+#' either is expensive.
+#'
+#' They are passed as parameters to the bundled
+#' `omop_es_extract_summary.Rmd` template, which is rendered by
+#' [rmarkdown::render()]. The template transposes the plugin metadata into
+#' table-major form and then calls the `omop_es_*_html()` builders, one per
+#' section of the report; see [omop_es_all_tables_headings_html()] for how the
+#' sections are interleaved. The report is written to `output_dir` and can
+#' optionally be previewed in the RStudio Viewer pane.
 #'
 #' @param conn,schema_public Currently unused. The report is built entirely
 #'   from `plugin_metadata`, and [omop_es_plugins_extract_metadata()] opens
@@ -22,6 +36,8 @@
 #'   Defaults to the active working directory via [getwd()].
 #' @param plugin_metadata Named list containing plugin metadata. Defaults to
 #'   automatically calling [omop_es_plugins_extract_metadata()].
+#' @param cross_tabulations A collected cross-tabulation of the concept
+#'   columns of the extract, with one row per concept per column.
 #' @param view Logical; if `TRUE`, opens the compiled HTML report in the
 #'   RStudio Viewer pane using [rstudioapi::viewer()]. Defaults to `TRUE`.
 #'
@@ -30,6 +46,9 @@
 #'   [rmarkdown::render()] is discarded rather than passed on, so do not rely
 #'   on the return value.
 #'
+#' @family OMOP-ES extract summary report
+#' @seealso [omop_cross_tabulation()] for one of its two inputs, and
+#'   [omop_es_plugins_extract_metadata()] for the other.
 #' @importFrom fs path_package path
 #' @importFrom purrr list_transpose
 #' @importFrom rmarkdown render
@@ -47,7 +66,7 @@ omop_es_extract_summary_report <- function(
     settings_id = settings_id,
     cohort_limit = cohort_limit
   ),
-  cross_tabulations = collect(omop_cross_tab_all(conn)),
+  cross_tabulations = collect(omop_cross_tabulation(conn)),
   view = TRUE
 ) {
   rmd_file <- fs::path_package(

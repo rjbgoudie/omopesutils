@@ -92,12 +92,12 @@ This is useful for data lineage, and for working out what a change to a
 source system will affect.
 
 `omop_es_plugins_extract_metadata()` collects all of that in a single pipeline
-run rather than one per question, and `extract_summary_report()` renders it as
+run rather than one per question, and `omop_es_extract_summary_report()` renders it as
 a standalone HTML report describing what an extract contains and where it came
 from.
 
 ```r
-extract_summary_report(omop_es_path = "~/omop_es")
+omop_es_extract_summary_report(omop_es_path = "~/omop_es")
 ```
 
 ## Documentation
