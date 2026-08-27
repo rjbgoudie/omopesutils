@@ -43,6 +43,7 @@ reference:
   - omop_es_plugins_extract_tables
   - omop_es_plugins_extract_docs_public
   - omop_es_plugins_extract_docs_private
+  - omop_es_plugins_extract_metadata
 
 - title: Concept mapping tables
   desc: >
