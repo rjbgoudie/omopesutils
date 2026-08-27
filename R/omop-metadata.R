@@ -277,3 +277,14 @@ omop_table_all_key_columns <- function(table) {
     filter(fkTableName != "CONCEPT" | isPrimaryKey == "Yes") |>
     pull(cdmFieldName)
 }
+
+#' Extract the stubs of *_concept_id columns
+omop_table_concept_columns <- function(db, table) {
+  tbl_omop(db, table) |>
+    colnames() |>
+    str_extract("^([a-z_]+)_concept_id$", 1) |>
+    str_subset("source", negate = TRUE) |>
+    purrr::compact() |>
+    unique()
+}
+

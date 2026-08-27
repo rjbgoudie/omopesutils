@@ -35,7 +35,7 @@
 #' @importFrom rmarkdown render
 #' @importFrom rstudioapi viewer
 #' @export
-extract_summary_report <- function(
+omop_es_extract_summary_report <- function(
   conn,
   schema_public = "dbo",
   omop_es_path,
@@ -47,6 +47,7 @@ extract_summary_report <- function(
     settings_id = settings_id,
     cohort_limit = cohort_limit
   ),
+  cross_tabulations = collect(omop_cross_tab_all(conn)),
   view = TRUE
 ) {
   rmd_file <- fs::path_package(
@@ -57,12 +58,11 @@ extract_summary_report <- function(
   )
   output_file <- "extract_summary_report.html"
 
-  plugin_metadata <- purrr::list_transpose(plugin_metadata)
-
   rmarkdown::render(
     rmd_file,
     params = list(
-      plugin_metadata = plugin_metadata
+      plugin_metadata = plugin_metadata,
+      cross_tabulations = cross_tabulations
     ),
     output_file = output_file,
     output_dir = output_dir,

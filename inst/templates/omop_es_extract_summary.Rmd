@@ -11,96 +11,44 @@ output:
       bootswatch: cosmo
 params:
   plugin_metadata: null
+  cross_tabulations: null
 ---
 
 <style type="text/css">
 .main-container {
-  max-width: 1500px !important;
-  margin-left: auto;
-  margin-right: auto;
+max-width: 1500px !important;
+margin-left: auto;
+margin-right: auto;
 }
 </style>
 
 ```{r setup, include=FALSE}
-library(ggplot2)
-library(dplyr)
-library(gt)
-library(stringr)
-library(scales)
-library(glue)
-library(purrr)
+library(omopesutils)
 ```
 
-<!-- ```{r include=FALSE} -->
-<!-- # This invisible chunk forces RMarkdown to load the DT JavaScript dependencies -->
-<!-- # into the document so your later cat() strings actually render. -->
-<!-- library(DT) -->
-<!-- datatable(data.frame(x = 1)) -->
-<!-- ``` -->
+```{r include=FALSE}
+# This invisible chunk forces RMarkdown to load the DT JavaScript dependencies
+# into the document so your later cat() strings actually render.
+library(DT)
+DT::datatable(data.frame(x = 1))
+```
 
-# Database Overview
-
-Summary of the OMOP CDM tables with completeness alerts.
-
-## Overall summary
 ```{r, echo=FALSE, results='asis'}
 
-tag_collapse <- function(x, sep = ", ", last = " and ") {
-  n <- length(x)
-  if (n == 0) return(tagList())
-  if (n == 1) return(tagList(x[[1]]))
-  
-  # Build separators vector
-  seps <- c(rep(sep, max(0, n - 2)), last)
-  
-  # Interleave tags and separators matrix-style
-  interleaved <- c(rbind(x[1:(n - 1)], seps), list(x[[n]]))
-  
-  do.call(tagList, interleaved)
-}
+cross_tabulations <- params$cross_tabulations
+plugin_metadata <- params$plugin_metadata
 
-html_output <- purrr::imap(params$plugin_metadata, function(metadata, table){
-  tagList(
-    htmltools::tags$h1(table),
-    
-    imap(metadata$docs_public, function(docs, plugin_name){
-      htmltools::div(docs)
-    }),
-    
-    imap(metadata$docs_private, function(docs, plugin_name){
-      htmltools::div(
-        docs
-      )}),
-  
-    
-    htmltools::tags$h4("Plugin SQL"),
-    imap(metadata$sql, function(sql, plugin_name){
-      title <- glue::glue("Plugin: {plugin_name}")
-      code <- map(sql, function(sql) {
-        htmltools::tags$code(
-          htmltools::tags$pre(sql)
-        )
-      })
-      
-      htmltools::tags$details(
-        htmltools::tags$summary(title),
-        code
-      )
-    }),
-    
-    htmltools::tags$h4("Source tables"),
-    htmltools::tags$ul(
-      imap(metadata$tables, function(tables, plugin_name){
-        htmltools::tags$li(
-          htmltools::strong(glue("Plugin {plugin_name}:")),
-          tag_collapse(map(tables, htmltools::code))
-        )
-      })
-    )
-  )
-})
+plugin_metadata <- purrr::list_transpose(plugin_metadata)
 
-print(tagList(html_output))
-
+list(
+  omop_es_all_tables_headings_html(cross_tabulations, plugin_metadata),
+  omop_es_markdown_docs_html(plugin_metadata),
+  omop_es_field_level_summary_html(cross_tabulations),
+  omop_es_cross_tabulations_html(cross_tabulations),
+  omop_es_data_provenance_html(plugin_metadata)
+) |>
+  purrr::list_transpose() |>
+  htmltools::tagList() |>
+  print()
 ```
-
+ 
