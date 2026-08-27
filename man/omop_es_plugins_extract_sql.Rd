@@ -35,12 +35,16 @@ uses.
 This is a way of documenting what OMOP-ES actually asks the source database
 for, without having to modify OMOP-ES itself.
 
-The OMOP-ES environment is set up exactly as it would be for a pipeline
-run: \code{setup_environment.R} is sourced, the source database connections are
-opened, the cohort is built and downsampled to \code{cohort_limit} patients, and
-\code{mapping/framework/map_omop.R} is sourced to define the \code{omop_plugins}
-object. The plugins are then run by \code{\link[=plugins_extract_sql]{plugins_extract_sql()}}. The database
-connections are closed when this function returns.
+The work happens in a separate R process, via \code{\link[=omop_es_run]{omop_es_run()}}. The
+pipeline's mapping, linking, projection and output stages are all disabled,
+so no OMOP data is built and nothing is written; what does run is the setup
+stage --- which sources \code{setup_environment.R}, opens the source database
+connections, and builds and downsamples the cohort to \code{cohort_limit}
+patients --- followed by the sourcing of \code{mapping/framework/map_omop.R},
+which defines the \code{omop_plugins} object. The plugins are then run by
+\code{\link[=plugins_extract_sql]{plugins_extract_sql()}} from a \code{pre_mapping_fn} hook, and the queries are
+passed back out of the subprocess by \code{return_fn}. The database connections
+are closed when the subprocess exits.
 
 A small \code{cohort_limit} keeps this fast, but it must be large enough that
 every plugin has some data to work with, since a plugin that short-circuits

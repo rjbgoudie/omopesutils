@@ -18,6 +18,12 @@ loosely-coupled groups of functions.
 \pkg{callr}), which isolates the run from the state of the calling R
 session. \code{\link[=omop_es_run_git_sha]{omop_es_run_git_sha()}} wraps this to check out a particular git
 branch or commit of the OMOP-ES repository first.
+
+Individual pipeline stages can also be skipped, and each stage has a hook
+that runs before and after it, evaluated inside the pipeline's own
+environment. That turns the runner into a general way of reaching into a
+partly-run pipeline, which is how the plugin introspection functions below
+work. See \code{\link[=omop_es_main_cuh_interactive]{omop_es_main_cuh_interactive()}} for the stages and the hooks.
 }
 
 \section{Loading extracts into duckdb}{
@@ -64,6 +70,11 @@ access functions stubbed out, in order to recover the SQL queries
 needing to modify OMOP-ES itself. The \verb{omop_es_plugins_extract_docs_*()}
 functions collect the hand-written Markdown documentation for each mapped
 table.
+
+Each of those starts a pipeline of its own, so
+\code{\link[=omop_es_plugins_extract_metadata]{omop_es_plugins_extract_metadata()}} gathers all four in a single run
+instead. \code{\link[=extract_summary_report]{extract_summary_report()}} renders the result as a standalone
+HTML report describing what the extract contains and where it came from.
 }
 
 \section{Mapping table reports}{

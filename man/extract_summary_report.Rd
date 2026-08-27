@@ -17,9 +17,9 @@ extract_summary_report(
 )
 }
 \arguments{
-\item{conn}{A database connection object.}
-
-\item{schema_public}{Name of the public database schema. Defaults to \code{"dbo"}.}
+\item{conn, schema_public}{Currently unused. The report is built entirely
+from \code{plugin_metadata}, and \code{\link[=omop_es_plugins_extract_metadata]{omop_es_plugins_extract_metadata()}} opens
+its own connections in a subprocess, so no connection is needed here.}
 
 \item{omop_es_path}{Path to the OMOP-ES repository directory.}
 
@@ -39,7 +39,10 @@ automatically calling \code{\link[=omop_es_plugins_extract_metadata]{omop_es_plu
 RStudio Viewer pane using \code{\link[rstudioapi:viewer]{rstudioapi::viewer()}}. Defaults to \code{TRUE}.}
 }
 \value{
-The path to the rendered HTML report output file (invisibly).
+Called for its side effect of writing the report to
+\code{extract_summary_report.html} in \code{output_dir}. The path returned by
+\code{\link[rmarkdown:render]{rmarkdown::render()}} is discarded rather than passed on, so do not rely
+on the return value.
 }
 \description{
 Generates and renders an HTML summary report documenting OMOP-ES plugin

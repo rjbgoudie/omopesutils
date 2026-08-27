@@ -63,23 +63,26 @@ connection details to OMOP-ES.}
 \item{run_setup, run_mapping, run_linking, run_projection, run_output}{Logical;
 whether to run each respective pipeline stage. Default to \code{TRUE}.}
 
-\item{pre_setup_fn, post_setup_fn}{Functions evaluated inside the execution
-environment immediately before and after the setup stage.}
+\item{pre_setup_fn, post_setup_fn}{Hooks run immediately before and after
+the setup stage. The \code{pre_} hook runs even if the stage is skipped.}
 
-\item{pre_mapping_fn, post_mapping_fn}{Functions evaluated inside the execution
-environment immediately before and after the mapping stage.}
+\item{pre_mapping_fn, post_mapping_fn}{Hooks run immediately before and
+after the mapping stage. The \code{pre_} hook runs even if the stage is
+skipped, and runs after \code{map_omop.R} has been sourced.}
 
-\item{pre_linking_fn, post_linking_fn}{Functions evaluated inside the execution
-environment immediately before and after the linking stage.}
+\item{pre_linking_fn, post_linking_fn}{Hooks run immediately before and
+after the linking stage. The \code{pre_} hook runs even if the stage is
+skipped.}
 
-\item{pre_projection_fn, post_projection_fn}{Functions evaluated inside the execution
-environment immediately before and after the projection stage.}
+\item{pre_projection_fn, post_projection_fn}{Hooks run immediately before
+and after the projection stage. The \code{pre_} hook runs even if the stage is
+skipped.}
 
-\item{pre_output_fn, post_output_fn}{Functions evaluated inside the execution
-environment immediately before and after the output stage.}
+\item{pre_output_fn, post_output_fn}{Hooks run immediately before and after
+the output stage. The \code{pre_} hook runs even if the stage is skipped.}
 
-\item{return_fn}{Function evaluated at the end, enabling return of custom
-values.}
+\item{return_fn}{Hook run at the very end, whose value becomes the value of
+this function. This is how a result is returned from the pipeline.}
 }
 \value{
 Returns the return value of the body of \code{return_fn}, and may
@@ -100,6 +103,12 @@ different git commits, without restarting R.
 
 Output from the subprocess is streamed to the console as it runs
 (\code{show = TRUE}).
+
+Every argument other than \code{envvar} is passed straight through to
+\code{\link[=omop_es_main_cuh_interactive]{omop_es_main_cuh_interactive()}} inside the subprocess, including the
+\verb{run_*} flags that select which pipeline stages to run and the \verb{pre_*_fn}
+and \verb{post_*_fn} hooks. See that function for what the stages are, and for
+how the hooks are evaluated.
 }
 \examples{
 \dontrun{

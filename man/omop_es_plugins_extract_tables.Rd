@@ -36,10 +36,10 @@ This answers the question "which source-system tables does OMOP-ES depend
 on?" --- useful for impact analysis when a source system changes, and for
 documenting data lineage.
 
-The OMOP-ES environment is set up exactly as for
-\code{\link[=omop_es_plugins_extract_sql]{omop_es_plugins_extract_sql()}}; only the function that is stubbed out
-differs. The plugins are then run by \code{\link[=plugins_extract_tables]{plugins_extract_tables()}}. The
-database connections are closed when this function returns.
+The mechanics are those of \code{\link[=omop_es_plugins_extract_sql]{omop_es_plugins_extract_sql()}} --- a separate R
+process driven by \code{\link[=omop_es_run]{omop_es_run()}}, with the plugins run from a
+\code{pre_mapping_fn} hook --- and only the function that is stubbed out
+differs. The plugins are run by \code{\link[=plugins_extract_tables]{plugins_extract_tables()}}.
 }
 \examples{
 \dontrun{

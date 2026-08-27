@@ -35,9 +35,11 @@ actually maps are included. Tables that are mapped but have no
 documentation file appear in the result with a value of \code{NULL}, which makes
 it straightforward to spot undocumented tables.
 
-Setting up the OMOP-ES environment requires the source database
-connections and a cohort, even though only the plugin names are used, hence
-the \code{settings_id} and \code{cohort_limit} arguments.
+The OMOP-ES environment is set up in a separate R process by
+\code{\link[=omop_es_run]{omop_es_run()}}, as for \code{\link[=omop_es_plugins_extract_sql]{omop_es_plugins_extract_sql()}}. That requires the
+source database connections and a cohort even though only the plugin names
+are used here, which is why \code{settings_id} and \code{cohort_limit} are still
+arguments.
 }
 \seealso{
 \code{\link[=read_table_level_md]{read_table_level_md()}}, which reads a single file.

@@ -60,23 +60,26 @@ output directory in the OMOP-ES settings. \code{NULL} uses the settings.}
 \item{run_setup, run_mapping, run_linking, run_projection, run_output}{Logical;
 whether to run each respective pipeline stage. Default to \code{TRUE}.}
 
-\item{pre_setup_fn, post_setup_fn}{Functions evaluated inside the execution
-environment immediately before and after the setup stage.}
+\item{pre_setup_fn, post_setup_fn}{Hooks run immediately before and after
+the setup stage. The \code{pre_} hook runs even if the stage is skipped.}
 
-\item{pre_mapping_fn, post_mapping_fn}{Functions evaluated inside the execution
-environment immediately before and after the mapping stage.}
+\item{pre_mapping_fn, post_mapping_fn}{Hooks run immediately before and
+after the mapping stage. The \code{pre_} hook runs even if the stage is
+skipped, and runs after \code{map_omop.R} has been sourced.}
 
-\item{pre_linking_fn, post_linking_fn}{Functions evaluated inside the execution
-environment immediately before and after the linking stage.}
+\item{pre_linking_fn, post_linking_fn}{Hooks run immediately before and
+after the linking stage. The \code{pre_} hook runs even if the stage is
+skipped.}
 
-\item{pre_projection_fn, post_projection_fn}{Functions evaluated inside the execution
-environment immediately before and after the projection stage.}
+\item{pre_projection_fn, post_projection_fn}{Hooks run immediately before
+and after the projection stage. The \code{pre_} hook runs even if the stage is
+skipped.}
 
-\item{pre_output_fn, post_output_fn}{Functions evaluated inside the execution
-environment immediately before and after the output stage.}
+\item{pre_output_fn, post_output_fn}{Hooks run immediately before and after
+the output stage. The \code{pre_} hook runs even if the stage is skipped.}
 
-\item{return_fn}{Function evaluated at the end, enabling return of custom
-values.}
+\item{return_fn}{Hook run at the very end, whose value becomes the value of
+this function. This is how a result is returned from the pipeline.}
 }
 \value{
 Returns the return value of the body of \code{return_fn}, and may
@@ -91,34 +94,72 @@ subprocess.
 \details{
 The whole function runs with the working directory set to \code{omop_es_path},
 and the pipeline stages are the OMOP-ES scripts themselves, sourced in
-turn:
+turn. There are five stages, each of which can be skipped with its own
+\verb{run_*} argument:
 \enumerate{
-\item \strong{Set up environment.} \code{setup_environment.R} is sourced and
+\item \strong{Setup} (\code{run_setup}). \code{setup_environment.R} is sourced and
 \code{setup_environment(settings_id)} called, which creates the \code{project} and
-\code{settings} objects the rest of the pipeline uses. The settings'
-\code{extract_windows_max_date} is then overwritten with today's date.
-\item \strong{Set up connections.} \code{project$setup_connections()} opens the source
-database connections; these are closed on exit.
-\item \strong{Build cohort.} \code{project$build_cohort()} builds the cohort, which is
-then randomly downsampled to \code{cohort_limit} patients unless
-\code{cohort_limit} is \code{NULL}.
-\item \strong{Temporary remote tables.} If the checkout has
-\code{utils/create_temp_caboodle_tables.R}, it is sourced and used to create
-temporary concept and concept-relationship tables, which are assigned
-into the global environment as \code{omop_concepts} and \code{omop_relationships}
-for the mappers to use. Skipped if that file is absent.
-\item \strong{Map, link, project.} \code{mapping/framework/map_omop.R},
-\code{linking/framework/link_omop.R} and \code{projection/project_omop.R} are
-sourced and their entry points called in turn.
-\item \strong{Post process.} \code{project$post_process()} is called.
-\item \strong{Output.} \code{output/output_omop.R} is sourced and \code{output_omop()} writes
-the extract to \verb{<dir>/<settings_id>_<date>}, where \verb{<dir>} is
-\code{custom_dir} if supplied and the settings' output directory otherwise.
+\code{settings} objects the rest of the pipeline uses; the settings'
+\code{extract_windows_max_date} is overwritten with today's date;
+\code{project$setup_connections()} opens the source database connections,
+which are closed when this function exits; and
+\code{project$build_cohort()} builds the cohort, which is then randomly
+downsampled to \code{cohort_limit} patients unless \code{cohort_limit} is \code{NULL}.
+Finally, if the checkout has \code{utils/create_temp_caboodle_tables.R}, it
+is sourced and used to create temporary concept and
+concept-relationship tables, which are assigned into the global
+environment as \code{omop_concepts} and \code{omop_relationships} for the mappers
+to use; this part is skipped if that file is absent.
+\item \strong{Mapping} (\code{run_mapping}). \code{map_omop()} is called on the connections
+and the cohort.
+\item \strong{Linking} (\code{run_linking}). \code{link_omop()} is called on the mapped data.
+\item \strong{Projection} (\code{run_projection}). \code{project_omop()} is called on the
+linked data.
+\item \strong{Output} (\code{run_output}). \code{project$post_process()} is called, the
+output format is forced to parquet if \code{output_parquet} is \code{TRUE}, and
+\code{output_omop()} writes the extract to \verb{<dir>/<settings_id>_<date>},
+where \verb{<dir>} is \code{custom_dir} if supplied and the settings' output
+directory otherwise.
 }
+
+\code{mapping/framework/map_omop.R}, \code{linking/framework/link_omop.R} and
+\code{projection/project_omop.R} are sourced whether or not their stage is going
+to run, so the functions and objects they define --- \code{omop_plugins} in
+particular --- are available to a hook even when the stage itself is
+skipped.
 
 Because the OMOP-ES scripts assign into the global environment, calling
 this directly will modify the calling session.
 }
+\section{Stage hooks}{
+
+
+Each stage takes a \verb{pre_*_fn} and a \verb{post_*_fn}, and \code{return_fn} runs at
+the very end. These are not \emph{called} as functions: their body is evaluated
+in the pipeline's own environment, as
+\code{eval(body(fn), envir = environment())}. Two consequences matter:
+\itemize{
+\item a hook can refer to the pipeline's objects --- \code{conns}, \code{cohort},
+\code{omop_plugins}, \code{mapped_omop} and so on --- directly by name, and
+anything it assigns is visible to later stages and to \code{return_fn}. This
+is how a value is got out of the pipeline.
+\item arguments to the hook functions are never supplied, so a hook cannot be
+parameterised in the usual way. Anything it needs must either already be
+in the pipeline environment or appear literally in its body.
+}
+
+The \verb{pre_*_fn} hooks run before their stage's \verb{run_*} check, so they run
+even when the stage is skipped. The \verb{post_*_fn} hooks run inside it, so
+they run only when the stage actually ran.
+
+Each stage consumes what the one before it produced, so skipping a stage in
+the middle leaves the next one without its input. Either disable a suffix
+of the stages, or use a hook to supply the missing object.
+\code{\link[=omop_es_plugins_extract_sql]{omop_es_plugins_extract_sql()}} is an example of the first pattern: it
+disables everything from the mapping stage onwards and does its work in
+\code{pre_mapping_fn}, by which point \code{omop_plugins} has been defined.
+}
+
 \seealso{
 \code{\link[=omop_es_run]{omop_es_run()}}, which is the intended entry point.
 

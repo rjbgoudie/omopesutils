@@ -10,8 +10,9 @@
 #' The resulting HTML report is saved to `output_dir` and can optionally be
 #' previewed directly in the RStudio Viewer pane.
 #'
-#' @param conn A database connection object.
-#' @param schema_public Name of the public database schema. Defaults to `"dbo"`.
+#' @param conn,schema_public Currently unused. The report is built entirely
+#'   from `plugin_metadata`, and [omop_es_plugins_extract_metadata()] opens
+#'   its own connections in a subprocess, so no connection is needed here.
 #' @param omop_es_path Path to the OMOP-ES repository directory.
 #' @param settings_id Identifier for the OMOP-ES settings configuration to use.
 #'   Defaults to `"CUH_EPIC_small_cohort"`.
@@ -24,7 +25,10 @@
 #' @param view Logical; if `TRUE`, opens the compiled HTML report in the
 #'   RStudio Viewer pane using [rstudioapi::viewer()]. Defaults to `TRUE`.
 #'
-#' @returns The path to the rendered HTML report output file (invisibly).
+#' @returns Called for its side effect of writing the report to
+#'   `extract_summary_report.html` in `output_dir`. The path returned by
+#'   [rmarkdown::render()] is discarded rather than passed on, so do not rely
+#'   on the return value.
 #'
 #' @importFrom fs path_package path
 #' @importFrom purrr list_transpose

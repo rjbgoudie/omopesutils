@@ -28,17 +28,14 @@ library(omopesutils)
 omop_es_diff_viewer_local_git(
   omop_es_path = "~/omop_es",
   left_branch = "main",
-  right_branch = "my-feature-branch"
+  right_branch = "my-feature-branch",
+  links_patient_id_column = "my_patient_id_column"
 )
 ```
 
 That runs the pipeline twice, loads both extracts, and opens the diff viewer.
-
-Note that this entry point does not currently accept a
-`links_patient_id_column`, and calls `omop_es_diff_viewer()` without one, so
-for now the step-by-step route below is the way to get a working Details
-panel. The rest of this article takes the same thing apart, which is also
-what you want when a step fails or when the two extracts already exist.
+The rest of this article takes the same thing apart, which is what you want
+when a step fails, or when the two extracts already exist.
 
 ## Running the pipeline
 

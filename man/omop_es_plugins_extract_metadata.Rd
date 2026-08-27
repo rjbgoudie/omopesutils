@@ -30,8 +30,13 @@ documentation across all OMOP-ES plugins in a single run.
 \details{
 Combines the extraction logic of \code{\link[=omop_es_plugins_extract_sql]{omop_es_plugins_extract_sql()}},
 \code{\link[=omop_es_plugins_extract_tables]{omop_es_plugins_extract_tables()}}, \code{\link[=omop_es_plugins_extract_docs_public]{omop_es_plugins_extract_docs_public()}},
-and \code{\link[=omop_es_plugins_extract_docs_private]{omop_es_plugins_extract_docs_private()}} to avoid running multiple
-pipeline initialization steps.
+and \code{\link[=omop_es_plugins_extract_docs_private]{omop_es_plugins_extract_docs_private()}} into a single \code{\link[=omop_es_run]{omop_es_run()}}
+call, so that the expensive part --- opening the source database
+connections and building the cohort --- happens once rather than four
+times. All four extractions run in one \code{pre_mapping_fn} hook and are
+returned together by \code{return_fn}.
+
+This is what \code{\link[=extract_summary_report]{extract_summary_report()}} uses to gather its material.
 }
 \seealso{
 \code{\link[=omop_es_plugins_extract_sql]{omop_es_plugins_extract_sql()}}, \code{\link[=omop_es_plugins_extract_tables]{omop_es_plugins_extract_tables()}},

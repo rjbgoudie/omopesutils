@@ -12,6 +12,12 @@
 #' session. [omop_es_run_git_sha()] wraps this to check out a particular git
 #' branch or commit of the OMOP-ES repository first.
 #'
+#' Individual pipeline stages can also be skipped, and each stage has a hook
+#' that runs before and after it, evaluated inside the pipeline's own
+#' environment. That turns the runner into a general way of reaching into a
+#' partly-run pipeline, which is how the plugin introspection functions below
+#' work. See [omop_es_main_cuh_interactive()] for the stages and the hooks.
+#'
 #' @section Loading extracts into duckdb:
 #'
 #' OMOP-ES writes its output to disk as CSV or parquet.
@@ -49,6 +55,11 @@
 #' needing to modify OMOP-ES itself. The `omop_es_plugins_extract_docs_*()`
 #' functions collect the hand-written Markdown documentation for each mapped
 #' table.
+#'
+#' Each of those starts a pipeline of its own, so
+#' [omop_es_plugins_extract_metadata()] gathers all four in a single run
+#' instead. [extract_summary_report()] renders the result as a standalone
+#' HTML report describing what the extract contains and where it came from.
 #'
 #' @section Mapping table reports:
 #'

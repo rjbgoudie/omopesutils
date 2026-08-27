@@ -6,8 +6,13 @@
 #' @details
 #' Combines the extraction logic of [omop_es_plugins_extract_sql()],
 #' [omop_es_plugins_extract_tables()], [omop_es_plugins_extract_docs_public()],
-#' and [omop_es_plugins_extract_docs_private()] to avoid running multiple
-#' pipeline initialization steps.
+#' and [omop_es_plugins_extract_docs_private()] into a single [omop_es_run()]
+#' call, so that the expensive part --- opening the source database
+#' connections and building the cohort --- happens once rather than four
+#' times. All four extractions run in one `pre_mapping_fn` hook and are
+#' returned together by `return_fn`.
+#'
+#' This is what [extract_summary_report()] uses to gather its material.
 #'
 #' @param omop_es_path Path to OMOP-ES directory.
 #' @param settings_id The OMOP-ES settings to use.
@@ -78,12 +83,16 @@ omop_es_plugins_extract_metadata <- function(
 #' This is a way of documenting what OMOP-ES actually asks the source database
 #' for, without having to modify OMOP-ES itself.
 #'
-#' The OMOP-ES environment is set up exactly as it would be for a pipeline
-#' run: `setup_environment.R` is sourced, the source database connections are
-#' opened, the cohort is built and downsampled to `cohort_limit` patients, and
-#' `mapping/framework/map_omop.R` is sourced to define the `omop_plugins`
-#' object. The plugins are then run by [plugins_extract_sql()]. The database
-#' connections are closed when this function returns.
+#' The work happens in a separate R process, via [omop_es_run()]. The
+#' pipeline's mapping, linking, projection and output stages are all disabled,
+#' so no OMOP data is built and nothing is written; what does run is the setup
+#' stage --- which sources `setup_environment.R`, opens the source database
+#' connections, and builds and downsamples the cohort to `cohort_limit`
+#' patients --- followed by the sourcing of `mapping/framework/map_omop.R`,
+#' which defines the `omop_plugins` object. The plugins are then run by
+#' [plugins_extract_sql()] from a `pre_mapping_fn` hook, and the queries are
+#' passed back out of the subprocess by `return_fn`. The database connections
+#' are closed when the subprocess exits.
 #'
 #' A small `cohort_limit` keeps this fast, but it must be large enough that
 #' every plugin has some data to work with, since a plugin that short-circuits
@@ -140,10 +149,10 @@ omop_es_plugins_extract_sql <- function(
 #' on?" --- useful for impact analysis when a source system changes, and for
 #' documenting data lineage.
 #'
-#' The OMOP-ES environment is set up exactly as for
-#' [omop_es_plugins_extract_sql()]; only the function that is stubbed out
-#' differs. The plugins are then run by [plugins_extract_tables()]. The
-#' database connections are closed when this function returns.
+#' The mechanics are those of [omop_es_plugins_extract_sql()] --- a separate R
+#' process driven by [omop_es_run()], with the plugins run from a
+#' `pre_mapping_fn` hook --- and only the function that is stubbed out
+#' differs. The plugins are run by [plugins_extract_tables()].
 #'
 #' @param omop_es_path Path to OMOP-ES directory.
 #' @param settings_id The OMOP-ES settings to use.
@@ -202,9 +211,11 @@ omop_es_plugins_extract_tables <- function(
 #' documentation file appear in the result with a value of `NULL`, which makes
 #' it straightforward to spot undocumented tables.
 #'
-#' Setting up the OMOP-ES environment requires the source database
-#' connections and a cohort, even though only the plugin names are used, hence
-#' the `settings_id` and `cohort_limit` arguments.
+#' The OMOP-ES environment is set up in a separate R process by
+#' [omop_es_run()], as for [omop_es_plugins_extract_sql()]. That requires the
+#' source database connections and a cohort even though only the plugin names
+#' are used here, which is why `settings_id` and `cohort_limit` are still
+#' arguments.
 #'
 #' @param omop_es_path Path to OMOP-ES directory.
 #' @param settings_id The OMOP-ES settings to use.
