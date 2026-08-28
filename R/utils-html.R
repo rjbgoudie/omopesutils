@@ -12,10 +12,10 @@
 tag_collapse <- function(x, sep = ", ", last = " and ") {
   n <- length(x)
   if (n == 0) {
-    return(tagList())
+    return(htmltools::tagList())
   }
   if (n == 1) {
-    return(tagList(x[[1]]))
+    return(htmltools::tagList(x[[1]]))
   }
 
   # Build separators vector

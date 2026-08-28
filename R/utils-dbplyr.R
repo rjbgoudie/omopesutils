@@ -35,7 +35,7 @@ db_from_tbl <- function(tbl) {
 #' @keywords internal
 as_table <- function(x, table_name) {
   db_connection <- db_from_tbl(x)
-  sql_query <- glue(
+  sql_query <- glue::glue(
     "CREATE OR REPLACE TABLE {table_name} AS\n",
     "{dbplyr::db_sql_render(db_connection, x)}\n"
   )

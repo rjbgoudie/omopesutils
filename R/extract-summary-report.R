@@ -97,7 +97,7 @@ omop_es_extract_summary_report <- function(
     settings_id = settings_id,
     cohort_limit = cohort_limit
   ),
-  cross_tabulations = collect(omop_cross_tabulation(conn)),
+  cross_tabulations = dplyr::collect(omop_cross_tabulation(conn)),
   include_private = FALSE,
   curtail_cross_tabulation = 1000L,
   suppress_numbers_below = 10L,

@@ -29,5 +29,5 @@ omop_es_tables_in_either_db <- function(
     schema_public2,
     exclude_vocab = exclude_vocab
   )
-  union(table_names1, table_names2)
+  dplyr::union(table_names1, table_names2)
 }

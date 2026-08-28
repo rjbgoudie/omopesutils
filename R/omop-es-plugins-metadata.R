@@ -49,13 +49,13 @@ omop_es_plugins_extract_metadata <- function(
       )
 
       docs_public <- names(omop_plugins) |>
-        map(\(table_name) {
+        purrr::map(\(table_name) {
           omopesutils:::read_table_level_md(table_name, omop_es_path)
         }) |>
         setNames(names(omop_plugins))
 
       docs_private <- names(omop_plugins) |>
-        map(\(table_name) {
+        purrr::map(\(table_name) {
           omopesutils:::read_table_level_private_md(table_name, omop_es_path)
         }) |>
         setNames(names(omop_plugins))
@@ -243,7 +243,7 @@ omop_es_plugins_extract_docs_public <- function(
     run_output = FALSE,
     pre_mapping_fn = function() {
       docs_public <- names(omop_plugins) |>
-        map(\(table_name) {
+        purrr::map(\(table_name) {
           omopesutils:::read_table_level_md(table_name, omop_es_path)
         }) |>
         setNames(names(omop_plugins))
@@ -291,7 +291,7 @@ omop_es_plugins_extract_docs_private <- function(
     run_output = FALSE,
     pre_mapping_fn = function() {
       docs_private <- names(omop_plugins) |>
-        map(\(table_name) {
+        purrr::map(\(table_name) {
           omopesutils:::read_table_level_private_md(table_name, omop_es_path)
         }) |>
         setNames(names(omop_plugins))

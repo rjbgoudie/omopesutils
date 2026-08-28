@@ -19,7 +19,7 @@
 #' @keywords internal
 #' @importFrom fs path file_exists
 read_table_level_md <- function(table_name, omop_es_path) {
-  f <- fs::path(omop_es_path, "docs", "CUH", glue("{table_name}.md"))
+  f <- fs::path(omop_es_path, "docs", "CUH", glue::glue("{table_name}.md"))
   if (fs::file_exists(f)) {
     readLines(f) |>
       paste(collapse = "\n")
@@ -50,7 +50,7 @@ read_table_level_md <- function(table_name, omop_es_path) {
 #' @keywords internal
 #' @importFrom fs path file_exists
 read_table_level_private_md <- function(table_name, omop_es_path) {
-  f <- fs::path(omop_es_path, "docs", "CUH", glue("{table_name}_private.md"))
+  f <- fs::path(omop_es_path, "docs", "CUH", glue::glue("{table_name}_private.md"))
   if (fs::file_exists(f)) {
     readLines(f) |>
       paste(collapse = "\n")

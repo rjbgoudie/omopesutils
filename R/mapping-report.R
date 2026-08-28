@@ -92,7 +92,7 @@ decorate_mapping_table <- function(
   original_cols <- colnames(mapping_table)
 
   concept_table <- tbl_omop_concept(db) |>
-    select(
+    dplyr::select(
       concept_id,
       concept_name,
       domain_id,
@@ -102,14 +102,14 @@ decorate_mapping_table <- function(
     )
 
   mapping_table |>
-    compute() |>
-    left_join(
+    dplyr::compute() |>
+    dplyr::left_join(
       concept_table,
-      by = join_by(!!sym(concept_id_column) == "concept_id"),
+      by = dplyr::join_by(!!rlang::sym(concept_id_column) == "concept_id"),
       copy = TRUE
     ) |>
     pretty_concept_table(concept_id_column) |>
-    select(all_of(original_cols))
+    dplyr::select(dplyr::all_of(original_cols))
 }
 
 #' Annotate the concept ids of a mapping table, as a gt table
@@ -142,7 +142,7 @@ gt_decorate_mapping_table <- function(
     concept_id_column
   ) |>
     gt::gt() |>
-    gt::fmt_markdown(columns = all_of(concept_id_column))
+    gt::fmt_markdown(columns = dplyr::all_of(concept_id_column))
 }
 
 #' Guess which column of a table holds concept ids
@@ -160,8 +160,8 @@ gt_decorate_mapping_table <- function(
 guess_concept_id_column <- function(table) {
   table |>
     colnames() |>
-    str_subset("concept_id") |>
-    first()
+    stringr::str_subset("concept_id") |>
+    dplyr::first()
 }
 
 #' Rewrite a concept id column as an HTML description
@@ -204,12 +204,12 @@ pretty_concept_table <- function(concept_table, column) {
 #' @importFrom rlang :=
 pretty_athena_link <- function(tab, column = "concept_id") {
   tab |>
-    mutate(
+    dplyr::mutate(
       "{column}" := paste0(
         "<a href=\"https://athena.ohdsi.org/search-terms/terms/",
-        !!sym(column),
+        !!rlang::sym(column),
         "\" target=\"_blank\" rel=\"noopener\">",
-        !!sym(column),
+        !!rlang::sym(column),
         " \u2197</a><br>",
         concept_name,
         "<br>",
