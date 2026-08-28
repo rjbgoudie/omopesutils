@@ -54,7 +54,7 @@ metadata using a bundled R Markdown template.</p>
 <span>  output_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  plugin_metadata <span class="op">=</span> <span class="fu"><a href="omop_es_plugins_extract_metadata.html">omop_es_plugins_extract_metadata</a></span><span class="op">(</span>omop_es_path <span class="op">=</span> <span class="va">omop_es_path</span>,</span>
 <span>    settings_id <span class="op">=</span> <span class="va">settings_id</span>, cohort_limit <span class="op">=</span> <span class="va">cohort_limit</span><span class="op">)</span>,</span>
-<span>  cross_tabulations <span class="op">=</span> <span class="fu">collect</span><span class="op">(</span><span class="fu"><a href="omop_cross_tabulation.html">omop_cross_tabulation</a></span><span class="op">(</span><span class="va">conn</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  cross_tabulations <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/compute.html" class="external-link">collect</a></span><span class="op">(</span><span class="fu"><a href="omop_cross_tabulation.html">omop_cross_tabulation</a></span><span class="op">(</span><span class="va">conn</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  include_private <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  curtail_cross_tabulation <span class="op">=</span> <span class="fl">1000L</span>,</span>
 <span>  suppress_numbers_below <span class="op">=</span> <span class="fl">10L</span>,</span>
