@@ -301,6 +301,11 @@ omop_es_main_cuh_interactive <- function(
   post_output_fn = function() {},
   return_fn = function() {}
 ) {
+  # Calls to here::here() below must stay namespace-qualified. The `here`
+  # package fixes its project root when its namespace is loaded, so importing
+  # it with @importFrom would load it when omopesutils loads -- before
+  # with_dir() has moved into omop_es_path -- and every path would then be
+  # resolved against the wrong root.
   withr::with_dir(omop_es_path, {
     eval(body(pre_setup_fn), envir = environment())
     if (run_setup) {
@@ -325,9 +330,9 @@ omop_es_main_cuh_interactive <- function(
         })
 
       # ----------- Temporary Remote Tables ------------
-      if (fs::file_exists(here("utils/create_temp_caboodle_tables.R"))) {
+      if (fs::file_exists(here::here("utils/create_temp_caboodle_tables.R"))) {
         cli::cli_alert_info("Setting up omop temp tables")
-        source(here("utils/create_temp_caboodle_tables.R"))
+        source(here::here("utils/create_temp_caboodle_tables.R"))
         start <- Sys.time()
         create_omop_metadata_temp_concept_table(conns)
         create_omop_metadata_temp_con_rel_table(conns)
@@ -384,7 +389,7 @@ omop_es_main_cuh_interactive <- function(
       }
 
       # -------------- Output ---------------
-      source(here("output/output_omop.R"))
+      source(here::here("output/output_omop.R"))
       out_path <- file.path(
         dplyr::coalesce(custom_dir, settings$output$dir),
         glue::glue("{settings_id}_{Sys.Date()}")
