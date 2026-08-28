@@ -30,6 +30,10 @@ that each table's heading, documentation, column summary, tabulations and
 provenance appear together. Adding a section to the report therefore means
 adding another builder that is named by table in the same way.
 
+A builder may also contribute nothing: the template drops the sections that
+\code{include_private = FALSE} excludes before transposing, so a builder that is
+not called simply leaves its section out of every table.
+
 The tables covered are those given by
 \code{\link[=omop_es_extract_summary_all_tables]{omop_es_extract_summary_all_tables()}}.
 }
@@ -42,6 +46,7 @@ Other OMOP-ES extract summary report:
 \code{\link[=omop_es_extract_summary_report]{omop_es_extract_summary_report()}},
 \code{\link[=omop_es_field_level_summary_html]{omop_es_field_level_summary_html()}},
 \code{\link[=omop_es_markdown_docs_private_html]{omop_es_markdown_docs_private_html()}},
-\code{\link[=omop_es_markdown_docs_public_html]{omop_es_markdown_docs_public_html()}}
+\code{\link[=omop_es_markdown_docs_public_html]{omop_es_markdown_docs_public_html()}},
+\code{\link[=suppress_and_format_number]{suppress_and_format_number()}}
 }
 \concept{OMOP-ES extract summary report}

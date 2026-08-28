@@ -13,6 +13,12 @@ omop_es_cross_tabulations_html(
 \arguments{
 \item{cross_tabulations}{A collected cross-tabulation, as returned by
 \code{\link[=omop_cross_tabulation]{omop_cross_tabulation()}}.}
+
+\item{curtail_cross_tabulation}{The maximum number of rows to show per
+tabulation, keeping the most frequent.}
+
+\item{suppress_numbers_below}{Counts below this are shown as \code{"<n"} rather
+than as the count itself.}
 }
 \value{
 A list of \code{\link[htmltools:tagList]{htmltools::tagList()}}s, named by OMOP table.
@@ -24,10 +30,13 @@ ordered by how many rows each accounts for.
 }
 \details{
 Concept ids are rendered as Athena links by \code{\link[=pretty_athena_link]{pretty_athena_link()}}, so a
-concept can be looked up without leaving the report, and counts are
-formatted with thousands separators. Each tabulation is capped at the
-1000 most frequent rows, since the full tabulation of a large table is
-neither readable nor worth loading into a browser.
+concept can be looked up without leaving the report.
+
+Each tabulation is capped at the \code{curtail_cross_tabulation} most frequent
+rows, since the full tabulation of a large table is neither readable nor
+worth loading into a browser, and counts are put through
+\code{\link[=suppress_and_format_number]{suppress_and_format_number()}}, which withholds counts small enough to
+identify an individual.
 }
 \seealso{
 Other OMOP-ES extract summary report:
@@ -38,6 +47,7 @@ Other OMOP-ES extract summary report:
 \code{\link[=omop_es_extract_summary_report]{omop_es_extract_summary_report()}},
 \code{\link[=omop_es_field_level_summary_html]{omop_es_field_level_summary_html()}},
 \code{\link[=omop_es_markdown_docs_private_html]{omop_es_markdown_docs_private_html()}},
-\code{\link[=omop_es_markdown_docs_public_html]{omop_es_markdown_docs_public_html()}}
+\code{\link[=omop_es_markdown_docs_public_html]{omop_es_markdown_docs_public_html()}},
+\code{\link[=suppress_and_format_number]{suppress_and_format_number()}}
 }
 \concept{OMOP-ES extract summary report}

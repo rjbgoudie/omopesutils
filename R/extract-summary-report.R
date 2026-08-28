@@ -8,7 +8,8 @@
 #' where it came from: the hand-written documentation for the table, a
 #' column-level summary against the OMOP CDM specification, a tabulation of
 #' the concepts found in each concept column, and the source tables and SQL
-#' each plugin used.
+#' each plugin used. The last of those, and the private half of the
+#' documentation, are omitted unless asked for --- see Privacy below.
 #'
 #' The two inputs are gathered by [omop_es_plugins_extract_metadata()], which
 #' runs the OMOP-ES plugins in a subprocess, and [omop_cross_tabulation()],
@@ -24,9 +25,13 @@
 #' sections are interleaved. The report is written to `output_dir` and can
 #' optionally be previewed in the RStudio Viewer pane.
 #'
-#' @param conn,schema_public Currently unused. The report is built entirely
-#'   from `plugin_metadata`, and [omop_es_plugins_extract_metadata()] opens
-#'   its own connections in a subprocess, so no connection is needed here.
+#' @param conn A [DBI::DBIConnection-class] object with the extract
+#'   registered, as by [duckdb_register_omop_es_output()]. Used only to build
+#'   the default `cross_tabulations`, so it can be omitted when that argument
+#'   is supplied.
+#' @param schema_public Currently unused. The cross-tabulation is built by
+#'   [omop_cross_tabulation()], which reads the connection's default OMOP
+#'   schema.
 #' @param omop_es_path Path to the OMOP-ES repository directory.
 #' @param settings_id Identifier for the OMOP-ES settings configuration to use.
 #'   Defaults to `"CUH_EPIC_small_cohort"`.
@@ -37,7 +42,15 @@
 #' @param plugin_metadata Named list containing plugin metadata. Defaults to
 #'   automatically calling [omop_es_plugins_extract_metadata()].
 #' @param cross_tabulations A collected cross-tabulation of the concept
-#'   columns of the extract, with one row per concept per column.
+#'   columns of the extract, with one row per concept per column. Defaults to
+#'   collecting [omop_cross_tabulation()] on `conn`.
+#' @param include_private Whether to include the two sections that reveal
+#'   source-system detail: the data provenance section, and the private
+#'   hand-written documentation. Defaults to `FALSE`.
+#' @param curtail_cross_tabulation The maximum number of rows to show in each
+#'   concept tabulation, keeping the most frequent.
+#' @param suppress_numbers_below Counts below this are shown in the concept
+#'   tabulations as `"<n"` rather than as the count itself.
 #' @param view Logical; if `TRUE`, opens the compiled HTML report in the
 #'   RStudio Viewer pane using [rstudioapi::viewer()]. Defaults to `TRUE`.
 #'
@@ -45,6 +58,25 @@
 #'   `extract_summary_report.html` in `output_dir`. The path returned by
 #'   [rmarkdown::render()] is discarded rather than passed on, so do not rely
 #'   on the return value.
+#'
+#' @section Privacy:
+#'
+#' A report of this kind can disclose more than intended, so the parts that
+#' could are controlled separately.
+#'
+#' `include_private = FALSE`, the default, omits the data provenance section
+#' --- which names source-system tables and prints the SQL run against them
+#' --- and the private hand-written documentation. What remains describes the
+#' OMOP output rather than the systems behind it.
+#'
+#' `suppress_numbers_below` replaces small counts in the concept tabulations
+#' with `"<n"`, since a count of one or two in a cross-tabulation of clinical
+#' data can identify an individual. `curtail_cross_tabulation` limits how many
+#' rows of each tabulation are shown at all.
+#'
+#' These reduce the obvious disclosures; they do not make a report
+#' disclosure-safe, and the defaults are not a substitute for reading one
+#' before sharing it.
 #'
 #' @family OMOP-ES extract summary report
 #' @seealso [omop_cross_tabulation()] for one of its two inputs, and
