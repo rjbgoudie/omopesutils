@@ -102,13 +102,13 @@ source system will affect.
 [`omop_es_plugins_extract_metadata()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_metadata.md)
 collects all of that in a single pipeline run rather than one per
 question, and
-[`extract_summary_report()`](https://rjbgoudie.github.io/omopesutils/reference/extract_summary_report.md)
+[`omop_es_extract_summary_report()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_extract_summary_report.md)
 renders it as a standalone HTML report describing what an extract
 contains and where it came from.
 
 ``` r
 
-extract_summary_report(omop_es_path = "~/omop_es")
+omop_es_extract_summary_report(omop_es_path = "~/omop_es")
 ```
 
 ## Documentation
@@ -158,9 +158,10 @@ comparing two extracts row by row.
 
 Recover the SQL queries, source database tables and hand-written
 documentation belonging to each OMOP-ES plugin, by running the plugins
-with database access stubbed out.
+with database access stubbed out, and render the result as a report
+describing what an extract contains and where it came from.
 
-- [`extract_summary_report()`](https://rjbgoudie.github.io/omopesutils/reference/extract_summary_report.md)
+- [`omop_es_extract_summary_report()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_extract_summary_report.md)
   : Render an OMOP-ES extract summary report
 - [`omop_es_plugins_extract_sql()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_sql.md)
   : Extract SQL queries for all OMOP-ES plugins
@@ -172,6 +173,42 @@ with database access stubbed out.
   : Load all table-level private documentation Markdown files
 - [`omop_es_plugins_extract_metadata()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_metadata.md)
   : Extract metadata about OMOP-ES plugins
+
+## Cross-tabulating concept columns
+
+Count how each concept column of an extract has been populated, which
+concepts were used and which rows are unmapped. This is the material the
+extract summary report is built from.
+
+- [`omop_cross_tabulation()`](https://rjbgoudie.github.io/omopesutils/reference/omop_cross_tabulation.md)
+  : Cross-tabulate the concept columns of every OMOP table
+- [`omop_table_cross_tabulation()`](https://rjbgoudie.github.io/omopesutils/reference/omop_table_cross_tabulation.md)
+  : Cross-tabulate the concept columns of one OMOP table
+
+## Extract summary report sections
+
+The building blocks of the extract summary report. Each returns a list
+of HTML named by OMOP table, which the report template interleaves into
+per-table sections. They are exported because the bundled R Markdown
+template calls them.
+
+- [`omop_es_extract_summary_all_tables()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_extract_summary_all_tables.md)
+  : Every table the extract summary report should cover
+- [`omop_es_all_tables_headings_html()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_all_tables_headings_html.md)
+  : Build the per-table headings of the extract summary report
+- [`omop_es_markdown_docs_public_html()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_markdown_docs_public_html.md)
+  : Build the public documentation sections of the extract summary
+  report
+- [`omop_es_markdown_docs_private_html()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_markdown_docs_private_html.md)
+  : Build the private documentation sections of the extract summary
+  report
+- [`omop_es_field_level_summary_html()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_field_level_summary_html.md)
+  : Build the column-level summary sections of the extract summary
+  report
+- [`omop_es_cross_tabulations_html()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_cross_tabulations_html.md)
+  : Build the concept tabulation sections of the extract summary report
+- [`omop_es_data_provenance_html()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_data_provenance_html.md)
+  : Build the data provenance sections of the extract summary report
 
 ## Concept mapping tables
 

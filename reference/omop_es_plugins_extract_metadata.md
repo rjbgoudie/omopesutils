@@ -50,7 +50,7 @@ times. All four extractions run in one `pre_mapping_fn` hook and are
 returned together by `return_fn`.
 
 This is what
-[`extract_summary_report()`](https://rjbgoudie.github.io/omopesutils/reference/extract_summary_report.md)
+[`omop_es_extract_summary_report()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_extract_summary_report.md)
 uses to gather its material.
 
 ## See also

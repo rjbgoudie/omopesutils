@@ -115,9 +115,9 @@
 <span><span class="co"># the source tables each plugin reads</span></span>
 <span><span class="va">tables</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/omop_es_plugins_extract_tables.html">omop_es_plugins_extract_tables</a></span><span class="op">(</span><span class="st">"~/omop_es"</span><span class="op">)</span></span></code></pre></div>
 <p>This is useful for data lineage, and for working out what a change to a source system will affect.</p>
-<p><code><a href="reference/omop_es_plugins_extract_metadata.html">omop_es_plugins_extract_metadata()</a></code> collects all of that in a single pipeline run rather than one per question, and <code><a href="reference/extract_summary_report.html">extract_summary_report()</a></code> renders it as a standalone HTML report describing what an extract contains and where it came from.</p>
+<p><code><a href="reference/omop_es_plugins_extract_metadata.html">omop_es_plugins_extract_metadata()</a></code> collects all of that in a single pipeline run rather than one per question, and <code><a href="reference/omop_es_extract_summary_report.html">omop_es_extract_summary_report()</a></code> renders it as a standalone HTML report describing what an extract contains and where it came from.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/extract_summary_report.html">extract_summary_report</a></span><span class="op">(</span>omop_es_path <span class="op">=</span> <span class="st">"~/omop_es"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="reference/omop_es_extract_summary_report.html">omop_es_extract_summary_report</a></span><span class="op">(</span>omop_es_path <span class="op">=</span> <span class="st">"~/omop_es"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>

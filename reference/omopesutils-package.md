@@ -71,7 +71,7 @@ Markdown documentation for each mapped table.
 Each of those starts a pipeline of its own, so
 [`omop_es_plugins_extract_metadata()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_metadata.md)
 gathers all four in a single run instead.
-[`extract_summary_report()`](https://rjbgoudie.github.io/omopesutils/reference/extract_summary_report.md)
+[`omop_es_extract_summary_report()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_extract_summary_report.md)
 renders the result as a standalone HTML report describing what the
 extract contains and where it came from.
 
