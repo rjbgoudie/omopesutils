@@ -66,6 +66,9 @@ omop_es_extract_summary_report <- function(
     cohort_limit = cohort_limit
   ),
   cross_tabulations = collect(omop_cross_tabulation(conn)),
+  include_private = FALSE,
+  curtail_cross_tabulation = 1000L,
+  suppress_numbers_below = 10L,
   view = TRUE
 ) {
   rmd_file <- fs::path_package(
@@ -79,7 +82,10 @@ omop_es_extract_summary_report <- function(
     rmd_file,
     params = list(
       plugin_metadata = plugin_metadata,
-      cross_tabulations = cross_tabulations
+      cross_tabulations = cross_tabulations,
+      include_private = include_private,
+      curtail_cross_tabulation = curtail_cross_tabulation,
+      suppress_numbers_below = suppress_numbers_below
     ),
     output_file = output_file,
     output_dir = output_dir,

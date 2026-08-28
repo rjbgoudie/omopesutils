@@ -14,6 +14,9 @@ omop_es_extract_summary_report(
   plugin_metadata = omop_es_plugins_extract_metadata(omop_es_path = omop_es_path,
     settings_id = settings_id, cohort_limit = cohort_limit),
   cross_tabulations = collect(omop_cross_tabulation(conn)),
+  include_private = FALSE,
+  curtail_cross_tabulation = 1000L,
+  suppress_numbers_below = 10L,
   view = TRUE
 )
 }
@@ -84,6 +87,7 @@ Other OMOP-ES extract summary report:
 \code{\link[=omop_es_data_provenance_html]{omop_es_data_provenance_html()}},
 \code{\link[=omop_es_extract_summary_all_tables]{omop_es_extract_summary_all_tables()}},
 \code{\link[=omop_es_field_level_summary_html]{omop_es_field_level_summary_html()}},
-\code{\link[=omop_es_markdown_docs_html]{omop_es_markdown_docs_html()}}
+\code{\link[=omop_es_markdown_docs_private_html]{omop_es_markdown_docs_private_html()}},
+\code{\link[=omop_es_markdown_docs_public_html]{omop_es_markdown_docs_public_html()}}
 }
 \concept{OMOP-ES extract summary report}
