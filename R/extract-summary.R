@@ -22,16 +22,16 @@
 #' @importFrom purrr imap reduce
 #' @importFrom tidyr pivot_longer
 omop_column_empty <- function(db) {
-  queries <- imap(dbListOmopTables(db), function(table, name) {
+  queries <- purrr::imap(dbListOmopTables(db), function(table, name) {
     tbl_omop(db, table) |>
-      summarise(across(everything(), function(col) {
+      dplyr::summarise(dplyr::across(dplyr::everything(), function(col) {
         all(is.na(col) | is.null(col))
       })) |>
-      mutate(table = table)
+      dplyr::mutate(table = table)
   })
-  out <- reduce(queries, union_all) |>
-    collect()
-  pivot_longer(
+  out <- purrr::reduce(queries, union_all) |>
+    dplyr::collect()
+  tidyr::pivot_longer(
     out,
     cols = -table,
     names_to = "column",
@@ -66,13 +66,13 @@ omop_es_extract_summary_all_tables <- function(
 ) {
   table_sources <- list(
     omop_metadata_field_level() |>
-      rename(table = cdmTableName) |>
-      filter(table %in% omop_cdm_tables()) |>
-      distinct(table) |>
-      pull(table),
+      dplyr::rename(table = cdmTableName) |>
+      dplyr::filter(table %in% omop_cdm_tables()) |>
+      dplyr::distinct(table) |>
+      dplyr::pull(table),
     cross_tabulations |>
-      distinct(table) |>
-      pull(table),
+      dplyr::distinct(table) |>
+      dplyr::pull(table),
     names(plugin_metadata)
   )
   purrr::reduce(table_sources, union)
@@ -118,7 +118,7 @@ omop_es_all_tables_headings_html <- function(
   )
 
   all_tables |>
-    imap(function(table, name) {
+    purrr::imap(function(table, name) {
       htmltools::tagList(
         htmltools::br(),
         htmltools::br(),
@@ -159,21 +159,21 @@ omop_es_all_tables_headings_html <- function(
 omop_es_data_provenance_html <- function(plugin_metadata) {
   plugin_metadata |>
     purrr::imap(function(metadata, table) {
-      tagList(
+      htmltools::tagList(
         htmltools::tags$h3("Data provenance"),
         htmltools::tags$h4("Source tables"),
         htmltools::tags$ul(
-          imap(metadata$tables, function(tables, plugin_name) {
+          purrr::imap(metadata$tables, function(tables, plugin_name) {
             htmltools::tags$li(
-              htmltools::strong(glue("Plugin {plugin_name}:")),
-              tag_collapse(map(tables, htmltools::code))
+              htmltools::strong(glue::glue("Plugin {plugin_name}:")),
+              tag_collapse(purrr::map(tables, htmltools::code))
             )
           })
         ),
         htmltools::tags$h4("SQL queries"),
-        imap(metadata$sql, function(sql, plugin_name) {
+        purrr::imap(metadata$sql, function(sql, plugin_name) {
           title <- glue::glue("Plugin: {plugin_name}")
-          code <- map(sql, function(sql) {
+          code <- purrr::map(sql, function(sql) {
             htmltools::tags$code(
               htmltools::tags$pre(sql)
             )
@@ -215,8 +215,8 @@ omop_es_markdown_docs_public_html <- function(
 ) {
   plugin_metadata |>
     purrr::imap(function(metadata, table) {
-      tagList(
-        imap(metadata$docs_public, function(docs, plugin_name) {
+      htmltools::tagList(
+        purrr::imap(metadata$docs_public, function(docs, plugin_name) {
           htmltools::div(docs)
         })
       )
@@ -253,8 +253,8 @@ omop_es_markdown_docs_private_html <- function(
 ) {
   plugin_metadata |>
     purrr::imap(function(metadata, table) {
-      tagList(
-        imap(metadata$docs_private, function(docs, plugin_name) {
+      htmltools::tagList(
+        purrr::imap(metadata$docs_private, function(docs, plugin_name) {
           htmltools::div(
             docs
           )
@@ -295,16 +295,16 @@ omop_es_cross_tabulations_html <- function(
   suppress_numbers_below = 10L
 ) {
   cross_tabulations |>
-    arrange(desc(n)) |>
+    dplyr::arrange(dplyr::desc(n)) |>
     split(~table) |>
-    imap(function(cross_tabulation_table, table) {
+    purrr::imap(function(cross_tabulation_table, table) {
       htmltools::tagList(
         htmltools::h3("Concept column tabulations"),
         cross_tabulation_table |>
           split(~column) |>
-          imap(
+          purrr::imap(
             function(cross_tabulation_table_column, column) {
-              tagList(
+              htmltools::tagList(
                 htmltools::h4(column),
                 htmltools::div(
                   DT::datatable(
@@ -312,8 +312,8 @@ omop_es_cross_tabulations_html <- function(
                       head(curtail_cross_tabulation) |>
                       pretty_athena_link("concept_id") |>
                       pretty_athena_link("source_concept_id") |>
-                      select(concept_id, source_concept_id, source_value, n) |>
-                      mutate(
+                      dplyr::select(concept_id, source_concept_id, source_value, n) |>
+                      dplyr::mutate(
                         n = suppress_and_format_number(
                           n,
                           suppress_numbers_below = suppress_numbers_below
@@ -358,15 +358,15 @@ omop_es_cross_tabulations_html <- function(
 #' @export
 omop_es_field_level_summary_html <- function(cross_tabulations) {
   omop_metadata_field_table <- omop_metadata_field_level() |>
-    rename(table = cdmTableName, column = cdmFieldName) |>
-    left_join(
+    dplyr::rename(table = cdmTableName, column = cdmFieldName) |>
+    dplyr::left_join(
       omop_concept_column_summaries(cross_tabulations),
       by = c("table", "column")
     ) |>
-    mutate(
-      status = case_when(
+    dplyr::mutate(
+      status = dplyr::case_when(
         n_zero_or_na == n_row ~ "Not implemented",
-        !is.na(n_distinct_concepts) ~ glue(
+        !is.na(n_distinct_concepts) ~ glue::glue(
           "<ul>",
           "<li>{scales::label_comma()(as.integer(n_distinct_concepts))} distinct concepts</li>",
           "<li>{scales::label_comma()(as.integer(n_zero_or_na))} `concept_id=0` or `NA`</li>",
@@ -379,25 +379,25 @@ omop_es_field_level_summary_html <- function(cross_tabulations) {
 
   field_table_html <- omop_metadata_field_table |>
     split(~table) |>
-    imap(function(omop_metadata_field, table) {
+    purrr::imap(function(omop_metadata_field, table) {
       field_table <- omop_metadata_field |>
-        select(column, status, vocabularies_text, userGuidance) |>
-        mutate(
-          column = glue("`{column}`")
+        dplyr::select(column, status, vocabularies_text, userGuidance) |>
+        dplyr::mutate(
+          column = glue::glue("`{column}`")
         ) |>
         gt::gt() |>
-        tab_style(
-          style = cell_text(color = "#999999", style = "italic"),
-          locations = cells_body(rows = status == "Not implemented")
+        gt::tab_style(
+          style = gt::cell_text(color = "#999999", style = "italic"),
+          locations = gt::cells_body(rows = status == "Not implemented")
         ) |>
-        cols_label(
+        gt::cols_label(
           column = "Column",
           status = "Status",
           vocabularies_text = "Vocabularies",
           userGuidance = "OMOP specification"
         ) |>
-        fmt_markdown(columns = c(status, vocabularies_text)) |>
-        cols_align(everything(), align = "left")
+        gt::fmt_markdown(columns = c(status, vocabularies_text)) |>
+        gt::cols_align(dplyr::everything(), align = "left")
 
       htmltools::tagList(
         htmltools::h3("Column-level summary"),
@@ -436,7 +436,7 @@ suppress_and_format_number <- function(
   commas = TRUE
 ) {
   suppressed_string <- glue::glue("<{suppress_numbers_below}")
-  case_when(
+  dplyr::case_when(
     x >= suppress_numbers_below ~ scales::label_comma()(x),
     x < suppress_numbers_below ~ suppressed_string
   )

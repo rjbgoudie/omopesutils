@@ -79,7 +79,7 @@ omop_es_diff_viewer <- function(
   links_patient_id_column_with_links <- glue::glue(
     "links__person__{links_patient_id_column}"
   )
-  links_patient_id_sym <- sym(links_patient_id_column_with_links)
+  links_patient_id_sym <- rlang::sym(links_patient_id_column_with_links)
 
   all_tables <- omop_es_tables_in_either_db(
     conn,
@@ -93,22 +93,22 @@ omop_es_diff_viewer <- function(
     schema_public = schema_public_left,
     schema_private = schema_private_left
   ) |>
-    arrange(links_patient_id_sym) |>
-    pull(links_patient_id_sym)
+    dplyr::arrange(links_patient_id_sym) |>
+    dplyr::pull(links_patient_id_sym)
 
   ui <- bslib::page_navbar(
     title = "OMOP-ES Diff",
     theme = bslib::bs_theme(bootswatch = "flatly"),
-    tags$head(
-      tags$style(HTML(shiny_app_css))
+    htmltools::tags$head(
+      htmltools::tags$style(htmltools::HTML(shiny_app_css))
     ),
     bslib::nav_panel(
       "Plugin Row Counts",
-      tableOutput("plugins_row_counts")
+      shiny::tableOutput("plugins_row_counts")
     ),
     bslib::nav_panel(
       "Table Row Counts",
-      tableOutput("tables_row_counts")
+      shiny::tableOutput("tables_row_counts")
     ),
     bslib::nav_panel(
       "Details",
@@ -128,7 +128,7 @@ omop_es_diff_viewer <- function(
           ),
           shiny::checkboxInput("omop_columns_only", "OMOP columns only", FALSE)
         ),
-        tags$div(
+        htmltools::tags$div(
           class = "highlighter",
           shiny::htmlOutput("daff_content")
         )
@@ -137,7 +137,7 @@ omop_es_diff_viewer <- function(
   )
 
   server <- function(input, output, session) {
-    data_left <- reactive({
+    data_left <- shiny::reactive({
       left <- omop_es_tbl_with_links(
         conn,
         input$table_sel,
@@ -145,12 +145,12 @@ omop_es_diff_viewer <- function(
         schema_private = schema_private_left,
         drop_omop_foreign_keys = TRUE
       ) |>
-        arrange(pick(c(
-          ends_with("datetime"),
-          ends_with("concept_id"),
-          contains("Key")
+        dplyr::arrange(dplyr::pick(c(
+          dplyr::ends_with("datetime"),
+          dplyr::ends_with("concept_id"),
+          dplyr::contains("Key")
         ))) |>
-        select(any_of(omop_table_columns(input$table_sel)), everything())
+        dplyr::select(dplyr::any_of(omop_table_columns(input$table_sel)), dplyr::everything())
 
       # If using duckdb, materialise to a temporary table,
       # since otherwise it runs out of memory in the setdiff()
@@ -160,7 +160,7 @@ omop_es_diff_viewer <- function(
       left
     })
 
-    data_right <- reactive({
+    data_right <- shiny::reactive({
       right <- omop_es_tbl_with_links(
         conn,
         input$table_sel,
@@ -168,12 +168,12 @@ omop_es_diff_viewer <- function(
         schema_private = schema_private_right,
         drop_omop_foreign_keys = TRUE
       ) |>
-        arrange(pick(c(
-          ends_with("datetime"),
-          ends_with("concept_id"),
-          contains("Key")
+        dplyr::arrange(dplyr::pick(c(
+          dplyr::ends_with("datetime"),
+          dplyr::ends_with("concept_id"),
+          dplyr::contains("Key")
         ))) |>
-        select(any_of(omop_table_columns(input$table_sel)), everything())
+        dplyr::select(dplyr::any_of(omop_table_columns(input$table_sel)), dplyr::everything())
 
       # If using duckdb, materialise to a temporary table,
       # since otherwise it runs out of memory in the setdiff()
@@ -183,7 +183,7 @@ omop_es_diff_viewer <- function(
       right
     })
 
-    data_left_filtered <- reactive({
+    data_left_filtered <- shiny::reactive({
       left <- data_left()
       if (
         links_patient_id_column_with_links %in%
@@ -191,7 +191,7 @@ omop_es_diff_viewer <- function(
           !is.null(input$links_patient_ids)
       ) {
         left <- left |>
-          filter(links_patient_id_sym %in% input$links_patient_ids)
+          dplyr::filter(links_patient_id_sym %in% input$links_patient_ids)
       } else {
         left <- left |>
           head(0)
@@ -199,13 +199,13 @@ omop_es_diff_viewer <- function(
 
       if (isTRUE(input$omop_columns_only)) {
         left <- left |>
-          select(any_of(omop_table_columns(input$table_sel)))
+          dplyr::select(dplyr::any_of(omop_table_columns(input$table_sel)))
       }
 
       left
     })
 
-    data_right_filtered <- reactive({
+    data_right_filtered <- shiny::reactive({
       right <- data_right()
       if (
         links_patient_id_column_with_links %in%
@@ -213,7 +213,7 @@ omop_es_diff_viewer <- function(
           !is.null(input$links_patient_ids)
       ) {
         right <- right |>
-          filter(links_patient_id_sym %in% input$links_patient_ids)
+          dplyr::filter(links_patient_id_sym %in% input$links_patient_ids)
       } else {
         right <- right |>
           head(0)
@@ -221,68 +221,68 @@ omop_es_diff_viewer <- function(
 
       if (isTRUE(input$omop_columns_only)) {
         right <- right |>
-          select(any_of(omop_table_columns(input$table_sel)))
+          dplyr::select(dplyr::any_of(omop_table_columns(input$table_sel)))
       }
 
       right
     })
 
-    data_setdiff_both_directions <- reactive({
+    data_setdiff_both_directions <- shiny::reactive({
       left <- data_left()
       right <- data_right()
 
-      union_all(
-        setdiff(left, right) |>
-          mutate(diff = "left_only") |>
-          relocate(diff),
-        setdiff(right, left) |>
-          mutate(diff = "right_only") |>
-          relocate(diff)
+      dplyr::union_all(
+        dplyr::setdiff(left, right) |>
+          dplyr::mutate(diff = "left_only") |>
+          dplyr::relocate(diff),
+        dplyr::setdiff(right, left) |>
+          dplyr::mutate(diff = "right_only") |>
+          dplyr::relocate(diff)
       )
     })
 
-    observeEvent(input$table_sel, {
+    shiny::observeEvent(input$table_sel, {
       if (
         links_patient_id_column_with_links %in%
           colnames(data_setdiff_both_directions())
       ) {
         table_diff <- data_setdiff_both_directions() |>
-          summarise(
-            n = n(),
+          dplyr::summarise(
+            n = dplyr::n(),
             .by = c(links_patient_id_sym, diff)
           ) |>
           tidyr::pivot_wider(names_from = diff, values_from = n)
 
         if (!"left_only" %in% colnames(table_diff)) {
           table_diff <- table_diff |>
-            mutate(left_only = 0)
+            dplyr::mutate(left_only = 0)
         }
         if (!"right_only" %in% colnames(table_diff)) {
           table_diff <- table_diff |>
-            mutate(right_only = 0)
+            dplyr::mutate(right_only = 0)
         }
 
         links_patient_ids_to_choose <- table_diff |>
-          arrange(links_patient_id_sym) |>
-          pull(links_patient_id_sym) |>
+          dplyr::arrange(links_patient_id_sym) |>
+          dplyr::pull(links_patient_id_sym) |>
           as.list()
         names(links_patient_ids_to_choose) <- table_diff |>
-          arrange(links_patient_id_sym) |>
-          collect() |>
-          mutate(
+          dplyr::arrange(links_patient_id_sym) |>
+          dplyr::collect() |>
+          dplyr::mutate(
             label = !!links_patient_id_sym,
-            label = glue(
+            label = glue::glue(
               "{label} (-{left_only}, +{right_only})"
             )
           ) |>
-          pull(label)
+          dplyr::pull(label)
       } else {
         links_patient_ids_to_choose <- links_patient_ids_all
         names(links_patient_ids_to_choose) <- links_patient_ids_to_choose
       }
 
       # Send the new choices to the UI
-      updateSelectInput(
+      shiny::updateSelectInput(
         session = session,
         inputId = "links_patient_ids",
         choices = links_patient_ids_to_choose
@@ -295,7 +295,7 @@ omop_es_diff_viewer <- function(
         tbl_right = data_right_filtered(),
         fragment = TRUE
       )
-      HTML(res)
+      htmltools::HTML(res)
     })
 
     output$tables_row_counts <-
@@ -304,8 +304,8 @@ omop_es_diff_viewer <- function(
         schema_left = schema_public_left,
         schema_right = schema_public_right
       ) |>
-      gt() |>
-      render_gt()
+      gt::gt() |>
+      gt::render_gt()
 
     output$plugins_row_counts <-
       omop_diff_plugins_row_count(
@@ -315,8 +315,8 @@ omop_es_diff_viewer <- function(
         schema_public_right = schema_public_right,
         schema_private_right = schema_private_right
       ) |>
-      gt() |>
-      render_gt()
+      gt::gt() |>
+      gt::render_gt()
   }
 
   shiny::shinyApp(ui, server)

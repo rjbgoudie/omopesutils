@@ -96,7 +96,7 @@ tbl_omop_links <- function(conn, table_name, schema = "priv") {
 dbListOmopTables <- function(conn, schema = "dbo", exclude_vocab = TRUE) {
   result <- dbListTablesAndViewsInSchema(conn, schema)
   if (exclude_vocab) {
-    result <- setdiff(result, omop_vocab_tables())
+    result <- dplyr::setdiff(result, omop_vocab_tables())
   }
   result
 }

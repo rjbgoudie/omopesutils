@@ -13,7 +13,7 @@ omop_es_extract_summary_report(
   output_dir = getwd(),
   plugin_metadata = omop_es_plugins_extract_metadata(omop_es_path = omop_es_path,
     settings_id = settings_id, cohort_limit = cohort_limit),
-  cross_tabulations = collect(omop_cross_tabulation(conn)),
+  cross_tabulations = dplyr::collect(omop_cross_tabulation(conn)),
   include_private = FALSE,
   curtail_cross_tabulation = 1000L,
   suppress_numbers_below = 10L,

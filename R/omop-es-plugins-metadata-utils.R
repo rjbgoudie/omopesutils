@@ -41,9 +41,9 @@ plugin_extract_sql <- function(plugin, name, conns, cohort) {
       # queries that involve only a single table). If so, revert to non-CTEs
       query <- tryCatch(
         {
-          sql_render(
+          dbplyr::sql_render(
             x,
-            sql_options = sql_options(
+            sql_options = dbplyr::sql_options(
               cte = TRUE,
               use_star = FALSE,
               qualify_all_columns = TRUE
@@ -51,9 +51,9 @@ plugin_extract_sql <- function(plugin, name, conns, cohort) {
           )
         },
         error = function(e) {
-          sql_render(
+          dbplyr::sql_render(
             x,
-            sql_options = sql_options(
+            sql_options = dbplyr::sql_options(
               cte = FALSE,
               use_star = FALSE,
               qualify_all_columns = TRUE
@@ -109,13 +109,13 @@ plugin_extract_sql <- function(plugin, name, conns, cohort) {
 #' @importFrom purrr imap keep map walk
 plugins_extract_sql <- function(omop_plugins, conns, cohort) {
   names(omop_plugins) |>
-    map(function(table) {
+    purrr::map(function(table) {
       cli::cli_h1("Extracting queries for {table}")
 
       omop_plugins[[table]] |>
-        walk(check_type) |>
-        keep(enabled_by_settings) |>
-        imap(
+        purrr::walk(check_type) |>
+        purrr::keep(enabled_by_settings) |>
+        purrr::imap(
           plugin_extract_sql,
           conns = conns,
           cohort = cohort
@@ -156,7 +156,7 @@ plugin_extract_tables <- function(plugin, name, conns, cohort) {
       if (class(from) == "character") {
         from_string <- from
       } else if (class(from) == "Id") {
-        from_string <- as.character(dbQuoteIdentifier(src, from))
+        from_string <- as.character(DBI::dbQuoteIdentifier(src, from))
       } else if (class(from) == "AsIs") {
         from_string <- as.character(from)
       }
@@ -199,13 +199,13 @@ plugin_extract_tables <- function(plugin, name, conns, cohort) {
 #' @importFrom purrr imap keep map walk
 plugins_extract_tables <- function(omop_plugins, conns, cohort) {
   names(omop_plugins) |>
-    map(function(table) {
+    purrr::map(function(table) {
       cli::cli_h1("Extracting tables for {table}")
 
       omop_plugins[[table]] |>
-        walk(check_type) |>
-        keep(enabled_by_settings) |>
-        imap(
+        purrr::walk(check_type) |>
+        purrr::keep(enabled_by_settings) |>
+        purrr::imap(
           plugin_extract_tables,
           conns = conns,
           cohort = cohort
@@ -233,7 +233,7 @@ plugins_extract_tables <- function(omop_plugins, conns, cohort) {
 # This function is copied from omop_es
 # Licence: GPL3
 enabled_by_settings <- function(plugin) {
-  some_intersection <- function(x, y) length(intersect(x, y)) > 0
+  some_intersection <- function(x, y) length(dplyr::intersect(x, y)) > 0
   source_enabled <- some_intersection(plugin$source, settings$enabled_sources)
   tags_enabled <- some_intersection(plugin$tags, settings$enabled_tags) |
     is.na(plugin$tags)

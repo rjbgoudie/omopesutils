@@ -59,15 +59,15 @@
 omop_es_viewer <- function(db, links_patient_id_column) {
   # Construct link column name to avoid including private column names in
   # open source code
-  links_patient_id_sym <- sym(glue::glue(
+  links_patient_id_sym <- rlang::sym(glue::glue(
     "links__person__{links_patient_id_column}"
   ))
 
   all_tables <- dbListTablesAndViewsInSchema(db, "dbo")
   links_patient_ids_all <- omop_es_tbl_with_links(db, "person") |>
-    count(links_patient_id_sym) |>
-    arrange(links_patient_id_sym) |>
-    pull(links_patient_id_sym)
+    dplyr::count(links_patient_id_sym) |>
+    dplyr::arrange(links_patient_id_sym) |>
+    dplyr::pull(links_patient_id_sym)
 
   ui <- bslib::page_navbar(
     title = "OMOP-ES",
@@ -84,15 +84,15 @@ omop_es_viewer <- function(db, links_patient_id_column) {
             "OMOP Table",
             choices = all_tables
           ),
-          actionButton("prev_page", "Previous", width = "100%"),
-          actionButton("next_page", "Next", width = "100%"),
-          selectInput(
+          shiny::actionButton("prev_page", "Previous", width = "100%"),
+          shiny::actionButton("next_page", "Next", width = "100%"),
+          shiny::selectInput(
             "page_size",
             "Rows per page:",
             choices = c(10, 25, 50, 100),
             selected = 50
           ),
-          selectizeInput(
+          shiny::selectizeInput(
             "links_patient_id_select",
             label = links_patient_id_column,
             choices = NULL,
@@ -103,24 +103,24 @@ omop_es_viewer <- function(db, links_patient_id_column) {
             "Show linking columns",
             FALSE
           ),
-          textOutput("unpaged_row_count")
+          shiny::textOutput("unpaged_row_count")
         ),
-        reactableOutput("db_table")
+        reactable::reactableOutput("db_table")
       )
     )
   )
 
   server <- function(input, output, session) {
-    updateSelectizeInput(
+    shiny::updateSelectizeInput(
       session,
       "links_patient_id_select",
       choices = links_patient_ids_all,
       server = TRUE
     )
 
-    current_page <- reactiveVal(1)
+    current_page <- shiny::reactiveVal(1)
 
-    observeEvent(input$next_page, {
+    shiny::observeEvent(input$next_page, {
       page_size <- as.numeric(input$page_size)
       max_page <- ceiling(total_rows / page_size)
 
@@ -129,36 +129,36 @@ omop_es_viewer <- function(db, links_patient_id_column) {
       }
     })
 
-    observeEvent(input$prev_page, {
+    shiny::observeEvent(input$prev_page, {
       if (current_page() > 1) {
         current_page(current_page() - 1)
       }
     })
 
     # Reset to page 1 if the user changes the rows-per-page dropdown
-    observeEvent(input$page_size, {
+    shiny::observeEvent(input$page_size, {
       current_page(1)
     })
 
-    output$unpaged_row_count <- renderText({
+    output$unpaged_row_count <- shiny::renderText({
       unpaged_data() |>
-        count() |>
-        pull(n)
+        dplyr::count() |>
+        dplyr::pull(n)
     })
 
-    unpaged_data <- reactive({
+    unpaged_data <- shiny::reactive({
       out <- omop_es_tbl_with_links(db, table = input$omop_table_select)
 
       if (!is.null(input$links_patient_id_select)) {
         out <- out |>
-          filter(
+          dplyr::filter(
             links_patient_id_sym %in% input$links_patient_id_select
           )
       }
       out
     })
 
-    paged_data <- reactive({
+    paged_data <- shiny::reactive({
       cli::cli_progress_step("Updating data")
       page_size <- as.numeric(input$page_size)
       start <- (current_page() - 1) * page_size
@@ -166,31 +166,31 @@ omop_es_viewer <- function(db, links_patient_id_column) {
 
       sort_column <- omop_table_primary_key(input$omop_table_select)
       out <- unpaged_data() |>
-        window_order(!!rlang::data_sym(sort_column)) |>
-        filter(row_number() > start & row_number() <= end)
+        dbplyr::window_order(!!rlang::data_sym(sort_column)) |>
+        dplyr::filter(dplyr::row_number() > start & dplyr::row_number() <= end)
 
       if (!isTRUE(input$show_link_columns_select)) {
         out <- out |>
-          select(-starts_with("links__"))
+          dplyr::select(-dplyr::starts_with("links__"))
       }
 
       result <- out |>
-        collect()
+        dplyr::collect()
       cli::cli_progress_demo()
       result
     })
 
-    output$db_table <- renderReactable({
-      reactable(
+    output$db_table <- reactable::renderReactable({
+      reactable::reactable(
         paged_data(),
         pagination = FALSE,
         highlight = TRUE,
         striped = TRUE,
         bordered = TRUE,
         resizable = TRUE,
-        defaultColDef = colDef(minWidth = 20),
+        defaultColDef = reactable::colDef(minWidth = 20),
         height = "calc(100vh - 120px)",
-        theme = reactableTheme(
+        theme = reactable::reactableTheme(
           borderColor = "#dfe2e5",
           stripedColor = "#f6f8fa",
           style = list(fontFamily = "consolas"),
@@ -198,7 +198,7 @@ omop_es_viewer <- function(db, links_patient_id_column) {
       )
     })
 
-    output$page_info <- renderText({
+    output$page_info <- shiny::renderText({
       page_size <- as.numeric(input$page_size)
       max_page <- ceiling(total_rows / page_size)
       paste("Page", current_page(), "of", max_page)

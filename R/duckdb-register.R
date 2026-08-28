@@ -273,19 +273,19 @@ duckdb_register_omop_es_single_batch <- function(
 ) {
   csv_tables <- fs::dir_ls(folder_path, glob = "*.csv")
   parquet_tables <- fs::dir_ls(folder_path, glob = "*.parquet")
-  tables <- union(csv_tables, parquet_tables)
+  tables <- dplyr::union(csv_tables, parquet_tables)
 
   prog <- cli::cli_progress_step(
     "Registering {length(tables)} tables from '{folder_path}' to schemas '{schema_public}' or {schema_private}"
   )
 
-  df <- tibble(path = tables) |>
-    mutate(
+  df <- dplyr::tibble(path = tables) |>
+    dplyr::mutate(
       table_name = path |>
         fs::path_file() |>
         fs::path_ext_remove() |>
         stringr::str_to_lower(),
-      type = case_when(
+      type = dplyr::case_when(
         stringr::str_detect(tables, "_LINKS") ~ "links",
         stringr::str_detect(tables, "_BAD") ~ "bad",
         TRUE ~ "public"
@@ -296,7 +296,7 @@ duckdb_register_omop_es_single_batch <- function(
         type == "links" ~ schema_private
       ),
       schema_string = glue::glue("{schema}."),
-      format = case_when(
+      format = dplyr::case_when(
         stringr::str_detect(tables, ".csv") ~ "csv",
         stringr::str_detect(tables, ".parquet") ~ "parquet"
       )

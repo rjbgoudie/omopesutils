@@ -75,7 +75,7 @@ omop_es_tbl_with_links <- function(
   # cli::li_progress_step("Joining {schema_public}.{table} to {schema_private}.{table}_links")
 
   omop_table_id <- id_omop(table, schema_public)
-  out <- tbl(conn, omop_table_id)
+  out <- dplyr::tbl(conn, omop_table_id)
 
   for (fk_table in omop_source_tables_for_foreign_key_columns(table)) {
     link_table <- glue::glue("{fk_table}_links")
@@ -84,7 +84,7 @@ omop_es_tbl_with_links <- function(
     if (DBI::dbExistsTable(conn, link_table_id)) {
       omop_table_fields <- DBI::dbListFields(conn, omop_table_id)
       links_table_fields <- DBI::dbListFields(conn, link_table_id)
-      overlapping_fields <- intersect(omop_table_fields, links_table_fields)
+      overlapping_fields <- dplyr::intersect(omop_table_fields, links_table_fields)
       has_overlapping_fields <- length(overlapping_fields) > 0
 
       if (has_overlapping_fields) {
@@ -101,14 +101,14 @@ omop_es_tbl_with_links <- function(
         # if (any(!same_col_types)) {
         #   cli::cli_alert_warning("Some mixed types found")
         # }
-        links_table <- tbl(conn, link_table_id)
+        links_table <- dplyr::tbl(conn, link_table_id)
 
         if (table != fk_table) {
           links_table <- links_table |>
-            select(-data_source, -plugin_provenance)
+            dplyr::select(-data_source, -plugin_provenance)
         } else {
           links_table <- links_table |>
-            rename(
+            dplyr::rename(
               links__plugin_provenance = plugin_provenance,
               links__data_source = data_source
             )
@@ -120,15 +120,15 @@ omop_es_tbl_with_links <- function(
           "links__data_source"
         )
         links_table <- links_table |>
-          rename_with(
+          dplyr::rename_with(
             function(colname) {
               glue::glue("links__{fk_table}__{colname}")
             },
-            .cols = -any_of(cols_dont_rename)
+            .cols = -dplyr::any_of(cols_dont_rename)
           )
 
         out <- out |>
-          left_join(
+          dplyr::left_join(
             links_table,
             by = by
           )
@@ -138,7 +138,7 @@ omop_es_tbl_with_links <- function(
 
   if (drop_omop_foreign_keys) {
     out |>
-      select(-any_of(omop_table_all_key_columns(table)))
+      dplyr::select(-dplyr::any_of(omop_table_all_key_columns(table)))
   } else {
     out
   }
@@ -158,7 +158,7 @@ omop_es_tbl_with_links <- function(
 #' @returns `TRUE` if the classes are identical, otherwise `FALSE`.
 #' @keywords internal
 is_col_class_same <- function(table1, table2, column) {
-  table1_class <- class(table1 |> head(1) |> pull(column))
-  table2_class <- class(table2 |> head(1) |> pull(column))
+  table1_class <- class(table1 |> head(1) |> dplyr::pull(column))
+  table2_class <- class(table2 |> head(1) |> dplyr::pull(column))
   identical(table1_class, table2_class)
 }

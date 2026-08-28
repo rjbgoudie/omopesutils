@@ -47,7 +47,7 @@ omop_metadata_table_level <- function() {
 #' @export
 omop_all_tables <- function() {
   omop_metadata_table_level() |>
-    pull(cdmTableName)
+    dplyr::pull(cdmTableName)
 }
 
 #' Names of the OMOP CDM clinical data tables
@@ -65,8 +65,8 @@ omop_all_tables <- function() {
 #' @export
 omop_cdm_tables <- function() {
   omop_metadata_table_level() |>
-    filter(schema == "CDM") |>
-    pull(cdmTableName)
+    dplyr::filter(schema == "CDM") |>
+    dplyr::pull(cdmTableName)
 }
 
 #' Names of the OMOP CDM vocabulary tables
@@ -82,8 +82,8 @@ omop_cdm_tables <- function() {
 #' @keywords internal
 omop_vocab_tables <- function() {
   omop_metadata_table_level() |>
-    filter(schema == "VOCAB") |>
-    pull(cdmTableName)
+    dplyr::filter(schema == "VOCAB") |>
+    dplyr::pull(cdmTableName)
 }
 
 #' Load the OMOP CDM field level definition table
@@ -157,15 +157,15 @@ omop_metadata_field_level <- function() {
 #' @import stringr
 omop_source_tables_for_foreign_key_columns <- function(table) {
   omop_metadata_field_level() |>
-    filter(cdmTableName == table) |>
-    filter(fkTableName != "CONCEPT" | isPrimaryKey == "Yes") |>
-    mutate(
-      table_name = case_when(
+    dplyr::filter(cdmTableName == table) |>
+    dplyr::filter(fkTableName != "CONCEPT" | isPrimaryKey == "Yes") |>
+    dplyr::mutate(
+      table_name = dplyr::case_when(
         isPrimaryKey == "Yes" ~ cdmTableName,
         TRUE ~ fkTableName
       )
     ) |>
-    pull(table_name) |>
+    dplyr::pull(table_name) |>
     stringr::str_to_lower() |>
     unique()
 }
@@ -183,8 +183,8 @@ omop_source_tables_for_foreign_key_columns <- function(table) {
 #' @keywords internal
 omop_table_columns <- function(table) {
   omop_metadata_field_level() |>
-    filter(cdmTableName == table) |>
-    pull(cdmFieldName)
+    dplyr::filter(cdmTableName == table) |>
+    dplyr::pull(cdmFieldName)
 }
 
 #' Primary key column of an OMOP table
@@ -204,9 +204,9 @@ omop_table_primary_key <- function(table) {
     "person_id"
   } else {
     omop_metadata_field_level() |>
-      filter(cdmTableName == table) |>
-      filter(isPrimaryKey == "Yes") |>
-      pull(cdmFieldName)
+      dplyr::filter(cdmTableName == table) |>
+      dplyr::filter(isPrimaryKey == "Yes") |>
+      dplyr::pull(cdmFieldName)
   }
 }
 
@@ -238,16 +238,16 @@ omop_table_primary_key <- function(table) {
 #' @importFrom stringr str_to_upper
 omop_table_common_columns <- function(table, fk_table) {
   table_omop <- omop_metadata_field_level() |>
-    filter(cdmTableName == table)
+    dplyr::filter(cdmTableName == table)
 
   if (table == fk_table) {
     table_omop |>
-      filter(isPrimaryKey == "Yes") |>
-      pull(cdmFieldName)
+      dplyr::filter(isPrimaryKey == "Yes") |>
+      dplyr::pull(cdmFieldName)
   } else {
     table_omop |>
-      filter(fkTableName == stringr::str_to_upper(fk_table)) |>
-      pull(cdmFieldName) |>
+      dplyr::filter(fkTableName == stringr::str_to_upper(fk_table)) |>
+      dplyr::pull(cdmFieldName) |>
       unique()
   }
 }
@@ -273,9 +273,9 @@ omop_table_common_columns <- function(table, fk_table) {
 #' @keywords internal
 omop_table_all_key_columns <- function(table) {
   omop_metadata_field_level() |>
-    filter(cdmTableName == table) |>
-    filter(fkTableName != "CONCEPT" | isPrimaryKey == "Yes") |>
-    pull(cdmFieldName)
+    dplyr::filter(cdmTableName == table) |>
+    dplyr::filter(fkTableName != "CONCEPT" | isPrimaryKey == "Yes") |>
+    dplyr::pull(cdmFieldName)
 }
 
 #' Concept column stems of an OMOP table
@@ -306,8 +306,8 @@ omop_table_all_key_columns <- function(table) {
 omop_table_concept_columns <- function(db, table) {
   tbl_omop(db, table) |>
     colnames() |>
-    str_extract("^([a-z_]+)_concept_id$", 1) |>
-    str_subset("source", negate = TRUE) |>
+    stringr::str_extract("^([a-z_]+)_concept_id$", 1) |>
+    stringr::str_subset("source", negate = TRUE) |>
     purrr::compact() |>
     unique()
 }

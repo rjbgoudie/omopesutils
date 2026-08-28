@@ -336,16 +336,16 @@ omop_es_main_cuh_interactive <- function(
         start <- Sys.time()
         create_omop_metadata_temp_concept_table(conns)
         create_omop_metadata_temp_con_rel_table(conns)
-        glue("Time elapsed to setup temp tables: {Sys.time() - start}.")
+        glue::glue("Time elapsed to setup temp tables: {Sys.time() - start}.")
 
-        omop_concepts <- tbl(conns$caboodle, "##omop_concepts")
-        omop_relationships <- tbl(conns$caboodle, "##omop_concept_relationship")
+        omop_concepts <- dplyr::tbl(conns$caboodle, "##omop_concepts")
+        omop_relationships <- dplyr::tbl(conns$caboodle, "##omop_concept_relationship")
 
         # Force assignment in global env
         assign("omop_concepts", omop_concepts, globalenv())
         assign("omop_relationships", omop_relationships, globalenv())
 
-        cli::cli_alert_info(glue(
+        cli::cli_alert_info(glue::glue(
           "Time elapsed to setup temp tables: {Sys.time() - start}."
         ))
       } else {
