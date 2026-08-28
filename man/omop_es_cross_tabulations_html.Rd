@@ -4,7 +4,11 @@
 \alias{omop_es_cross_tabulations_html}
 \title{Build the concept tabulation sections of the extract summary report}
 \usage{
-omop_es_cross_tabulations_html(cross_tabulations)
+omop_es_cross_tabulations_html(
+  cross_tabulations,
+  curtail_cross_tabulation = 10000L,
+  suppress_numbers_below = 10L
+)
 }
 \arguments{
 \item{cross_tabulations}{A collected cross-tabulation, as returned by
@@ -33,6 +37,7 @@ Other OMOP-ES extract summary report:
 \code{\link[=omop_es_extract_summary_all_tables]{omop_es_extract_summary_all_tables()}},
 \code{\link[=omop_es_extract_summary_report]{omop_es_extract_summary_report()}},
 \code{\link[=omop_es_field_level_summary_html]{omop_es_field_level_summary_html()}},
-\code{\link[=omop_es_markdown_docs_html]{omop_es_markdown_docs_html()}}
+\code{\link[=omop_es_markdown_docs_private_html]{omop_es_markdown_docs_private_html()}},
+\code{\link[=omop_es_markdown_docs_public_html]{omop_es_markdown_docs_public_html()}}
 }
 \concept{OMOP-ES extract summary report}

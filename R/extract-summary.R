@@ -182,13 +182,45 @@ omop_es_data_provenance_html <- function(plugin_metadata) {
 
 #' Build the hand-written documentation sections of the extract summary report
 #'
-#' For each OMOP table, the hand-written Markdown documentation that the
-#' OMOP-ES checkout carries for it, public followed by private.
+#' For each OMOP table, the hand-written public Markdown documentation that the
+#' OMOP-ES checkout carries for it.
 #'
 #' @details
 #' The documentation is the prose a person wrote about how a table is
 #' populated; it is collected from the checkout by
-#' [omop_es_plugins_extract_docs_public()] and
+#' [omop_es_plugins_extract_docs_public()]. A table with no documentation
+#' file simply contributes nothing, which is how an undocumented table shows
+#' up as an empty section in the report.
+#'
+#' @param plugin_metadata Plugin metadata in table-major form, i.e. the result
+#'   of [omop_es_plugins_extract_metadata()] passed through
+#'   [purrr::list_transpose()], so that it is named by OMOP table. Each element
+#'   is expected to have `docs_public` and `docs_private` entries.
+#' @returns A list of [htmltools::tagList()]s, named by OMOP table.
+#' @family OMOP-ES extract summary report
+#' @importFrom purrr imap
+#' @export
+omop_es_markdown_docs_public_html <- function(
+  plugin_metadata
+) {
+  plugin_metadata |>
+    purrr::imap(function(metadata, table) {
+      tagList(
+        imap(metadata$docs_public, function(docs, plugin_name) {
+          htmltools::div(docs)
+        })
+      )
+    })
+}
+
+#' Build the hand-written documentation sections of the extract summary report
+#'
+#' For each OMOP table, the hand-written private Markdown documentation that the
+#' OMOP-ES checkout carries for it.
+#'
+#' @details
+#' The documentation is the prose a person wrote about how a table is
+#' populated; it is collected from the checkout by
 #' [omop_es_plugins_extract_docs_private()]. A table with no documentation
 #' file simply contributes nothing, which is how an undocumented table shows
 #' up as an empty section in the report.
@@ -201,13 +233,12 @@ omop_es_data_provenance_html <- function(plugin_metadata) {
 #' @family OMOP-ES extract summary report
 #' @importFrom purrr imap
 #' @export
-omop_es_markdown_docs_html <- function(plugin_metadata) {
+omop_es_markdown_docs_private_html <- function(
+  plugin_metadata
+) {
   plugin_metadata |>
     purrr::imap(function(metadata, table) {
       tagList(
-        imap(metadata$docs_public, function(docs, plugin_name) {
-          htmltools::div(docs)
-        }),
         imap(metadata$docs_private, function(docs, plugin_name) {
           htmltools::div(
             docs
@@ -236,7 +267,11 @@ omop_es_markdown_docs_html <- function(plugin_metadata) {
 #' @family OMOP-ES extract summary report
 #' @importFrom purrr imap
 #' @export
-omop_es_cross_tabulations_html <- function(cross_tabulations) {
+omop_es_cross_tabulations_html <- function(
+  cross_tabulations,
+  curtail_cross_tabulation = 10000L,
+  suppress_numbers_below = 10L
+) {
   cross_tabulations |>
     arrange(desc(n)) |>
     split(~table) |>
@@ -252,11 +287,16 @@ omop_es_cross_tabulations_html <- function(cross_tabulations) {
                 htmltools::div(
                   DT::datatable(
                     cross_tabulation_table_column |>
-                      head(1000) |>
+                      head(curtail_cross_tabulation) |>
                       pretty_athena_link("concept_id") |>
                       pretty_athena_link("source_concept_id") |>
                       select(concept_id, source_concept_id, source_value, n) |>
-                      mutate(n = scales::label_comma()(n)),
+                      mutate(
+                        n = suppress_and_format_number(
+                          n,
+                          suppress_numbers_below = suppress_numbers_below
+                        )
+                      ),
                     escape = FALSE
                   )
                 )
@@ -342,4 +382,18 @@ omop_es_field_level_summary_html <- function(cross_tabulations) {
         field_table
       )
     })
+}
+
+#' @importFrom scales label_comma
+#' @importFrom glue glue
+suppress_and_format_number <- function(
+  x,
+  suppress_numbers_below = 10,
+  commas = TRUE
+) {
+  suppressed_string <- glue::glue("<{suppress_numbers_below}")
+  case_when(
+    x >= suppress_numbers_below ~ scales::label_comma()(x),
+    x < suppress_numbers_below ~ suppressed_string
+  )
 }

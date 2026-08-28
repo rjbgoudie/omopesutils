@@ -12,6 +12,9 @@ output:
 params:
   plugin_metadata: null
   cross_tabulations: null
+  include_private: null
+  curtail_cross_tabulation: null
+  suppress_numbers_below: null
 ---
 
 <style type="text/css">
@@ -37,16 +40,25 @@ DT::datatable(data.frame(x = 1))
 
 cross_tabulations <- params$cross_tabulations
 plugin_metadata <- params$plugin_metadata
+include_private <- params$include_private
+curtail_cross_tabulation <- params$curtail_cross_tabulation
+suppress_numbers_below <- params$suppress_numbers_below
 
 plugin_metadata <- purrr::list_transpose(plugin_metadata)
 
 list(
   omop_es_all_tables_headings_html(cross_tabulations, plugin_metadata),
-  omop_es_markdown_docs_html(plugin_metadata),
+  omop_es_markdown_docs_public_html(plugin_metadata),
   omop_es_field_level_summary_html(cross_tabulations),
-  omop_es_cross_tabulations_html(cross_tabulations),
-  omop_es_data_provenance_html(plugin_metadata)
+  omop_es_cross_tabulations_html(
+    cross_tabulations,
+    curtail_cross_tabulation = curtail_cross_tabulation,
+    suppress_numbers_below = suppress_numbers_below
+  ),
+  if (include_private) omop_es_data_provenance_html(plugin_metadata),
+  if (include_private) omop_es_markdown_docs_private_html(plugin_metadata)
 ) |>
+  purrr::compact() |>
   purrr::list_transpose() |>
   htmltools::tagList() |>
   print()
