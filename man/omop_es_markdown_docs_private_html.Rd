@@ -2,7 +2,7 @@
 % Please edit documentation in R/extract-summary.R
 \name{omop_es_markdown_docs_private_html}
 \alias{omop_es_markdown_docs_private_html}
-\title{Build the hand-written documentation sections of the extract summary report}
+\title{Build the private documentation sections of the extract summary report}
 \usage{
 omop_es_markdown_docs_private_html(plugin_metadata)
 }
@@ -10,14 +10,15 @@ omop_es_markdown_docs_private_html(plugin_metadata)
 \item{plugin_metadata}{Plugin metadata in table-major form, i.e. the result
 of \code{\link[=omop_es_plugins_extract_metadata]{omop_es_plugins_extract_metadata()}} passed through
 \code{\link[purrr:list_transpose]{purrr::list_transpose()}}, so that it is named by OMOP table. Each element
-is expected to have \code{docs_public} and \code{docs_private} entries.}
+is expected to have a \code{docs_private} entry.}
 }
 \value{
 A list of \code{\link[htmltools:tagList]{htmltools::tagList()}}s, named by OMOP table.
 }
 \description{
 For each OMOP table, the hand-written private Markdown documentation that the
-OMOP-ES checkout carries for it.
+OMOP-ES checkout carries for it --- the notes that are not publishable, for
+instance because they name source-system tables or columns.
 }
 \details{
 The documentation is the prose a person wrote about how a table is
@@ -25,8 +26,13 @@ populated; it is collected from the checkout by
 \code{\link[=omop_es_plugins_extract_docs_private]{omop_es_plugins_extract_docs_private()}}. A table with no documentation
 file simply contributes nothing, which is how an undocumented table shows
 up as an empty section in the report.
+
+The report template calls this only when
+\code{\link[=omop_es_extract_summary_report]{omop_es_extract_summary_report()}} is given \code{include_private = TRUE}.
 }
 \seealso{
+\code{\link[=omop_es_markdown_docs_public_html]{omop_es_markdown_docs_public_html()}} for the public counterpart.
+
 Other OMOP-ES extract summary report:
 \code{\link[=omop_column_empty]{omop_column_empty()}},
 \code{\link[=omop_es_all_tables_headings_html]{omop_es_all_tables_headings_html()}},
@@ -35,6 +41,7 @@ Other OMOP-ES extract summary report:
 \code{\link[=omop_es_extract_summary_all_tables]{omop_es_extract_summary_all_tables()}},
 \code{\link[=omop_es_extract_summary_report]{omop_es_extract_summary_report()}},
 \code{\link[=omop_es_field_level_summary_html]{omop_es_field_level_summary_html()}},
-\code{\link[=omop_es_markdown_docs_public_html]{omop_es_markdown_docs_public_html()}}
+\code{\link[=omop_es_markdown_docs_public_html]{omop_es_markdown_docs_public_html()}},
+\code{\link[=suppress_and_format_number]{suppress_and_format_number()}}
 }
 \concept{OMOP-ES extract summary report}

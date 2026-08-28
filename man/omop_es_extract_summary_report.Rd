@@ -21,9 +21,14 @@ omop_es_extract_summary_report(
 )
 }
 \arguments{
-\item{conn, schema_public}{Currently unused. The report is built entirely
-from \code{plugin_metadata}, and \code{\link[=omop_es_plugins_extract_metadata]{omop_es_plugins_extract_metadata()}} opens
-its own connections in a subprocess, so no connection is needed here.}
+\item{conn}{A \link[DBI:DBIConnection-class]{DBI::DBIConnection} object with the extract
+registered, as by \code{\link[=duckdb_register_omop_es_output]{duckdb_register_omop_es_output()}}. Used only to build
+the default \code{cross_tabulations}, so it can be omitted when that argument
+is supplied.}
+
+\item{schema_public}{Currently unused. The cross-tabulation is built by
+\code{\link[=omop_cross_tabulation]{omop_cross_tabulation()}}, which reads the connection's default OMOP
+schema.}
 
 \item{omop_es_path}{Path to the OMOP-ES repository directory.}
 
@@ -40,7 +45,18 @@ Defaults to the active working directory via \code{\link[=getwd]{getwd()}}.}
 automatically calling \code{\link[=omop_es_plugins_extract_metadata]{omop_es_plugins_extract_metadata()}}.}
 
 \item{cross_tabulations}{A collected cross-tabulation of the concept
-columns of the extract, with one row per concept per column.}
+columns of the extract, with one row per concept per column. Defaults to
+collecting \code{\link[=omop_cross_tabulation]{omop_cross_tabulation()}} on \code{conn}.}
+
+\item{include_private}{Whether to include the two sections that reveal
+source-system detail: the data provenance section, and the private
+hand-written documentation. Defaults to \code{FALSE}.}
+
+\item{curtail_cross_tabulation}{The maximum number of rows to show in each
+concept tabulation, keeping the most frequent.}
+
+\item{suppress_numbers_below}{Counts below this are shown in the concept
+tabulations as \code{"<n"} rather than as the count itself.}
 
 \item{view}{Logical; if \code{TRUE}, opens the compiled HTML report in the
 RStudio Viewer pane using \code{\link[rstudioapi:viewer]{rstudioapi::viewer()}}. Defaults to \code{TRUE}.}
@@ -60,7 +76,8 @@ The report describes, for every OMOP table, what the extract contains and
 where it came from: the hand-written documentation for the table, a
 column-level summary against the OMOP CDM specification, a tabulation of
 the concepts found in each concept column, and the source tables and SQL
-each plugin used.
+each plugin used. The last of those, and the private half of the
+documentation, are omitted unless asked for --- see Privacy below.
 
 The two inputs are gathered by \code{\link[=omop_es_plugins_extract_metadata]{omop_es_plugins_extract_metadata()}}, which
 runs the OMOP-ES plugins in a subprocess, and \code{\link[=omop_cross_tabulation]{omop_cross_tabulation()}},
@@ -76,6 +93,27 @@ section of the report; see \code{\link[=omop_es_all_tables_headings_html]{omop_e
 sections are interleaved. The report is written to \code{output_dir} and can
 optionally be previewed in the RStudio Viewer pane.
 }
+\section{Privacy}{
+
+
+A report of this kind can disclose more than intended, so the parts that
+could are controlled separately.
+
+\code{include_private = FALSE}, the default, omits the data provenance section
+--- which names source-system tables and prints the SQL run against them
+--- and the private hand-written documentation. What remains describes the
+OMOP output rather than the systems behind it.
+
+\code{suppress_numbers_below} replaces small counts in the concept tabulations
+with \code{"<n"}, since a count of one or two in a cross-tabulation of clinical
+data can identify an individual. \code{curtail_cross_tabulation} limits how many
+rows of each tabulation are shown at all.
+
+These reduce the obvious disclosures; they do not make a report
+disclosure-safe, and the defaults are not a substitute for reading one
+before sharing it.
+}
+
 \seealso{
 \code{\link[=omop_cross_tabulation]{omop_cross_tabulation()}} for one of its two inputs, and
 \code{\link[=omop_es_plugins_extract_metadata]{omop_es_plugins_extract_metadata()}} for the other.
@@ -88,6 +126,7 @@ Other OMOP-ES extract summary report:
 \code{\link[=omop_es_extract_summary_all_tables]{omop_es_extract_summary_all_tables()}},
 \code{\link[=omop_es_field_level_summary_html]{omop_es_field_level_summary_html()}},
 \code{\link[=omop_es_markdown_docs_private_html]{omop_es_markdown_docs_private_html()}},
-\code{\link[=omop_es_markdown_docs_public_html]{omop_es_markdown_docs_public_html()}}
+\code{\link[=omop_es_markdown_docs_public_html]{omop_es_markdown_docs_public_html()}},
+\code{\link[=suppress_and_format_number]{suppress_and_format_number()}}
 }
 \concept{OMOP-ES extract summary report}

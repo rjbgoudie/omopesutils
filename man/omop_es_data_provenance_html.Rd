@@ -28,6 +28,10 @@ Both come from the plugin introspection functions, so this section is a
 rendering of what the plugins actually did rather than of what anyone wrote
 down. See \code{\link[=omop_es_plugins_extract_sql]{omop_es_plugins_extract_sql()}} and
 \code{\link[=omop_es_plugins_extract_tables]{omop_es_plugins_extract_tables()}}.
+
+Because it names source-system tables and prints the queries against them,
+the report template calls this only when
+\code{\link[=omop_es_extract_summary_report]{omop_es_extract_summary_report()}} is given \code{include_private = TRUE}.
 }
 \seealso{
 Other OMOP-ES extract summary report:
@@ -38,6 +42,7 @@ Other OMOP-ES extract summary report:
 \code{\link[=omop_es_extract_summary_report]{omop_es_extract_summary_report()}},
 \code{\link[=omop_es_field_level_summary_html]{omop_es_field_level_summary_html()}},
 \code{\link[=omop_es_markdown_docs_private_html]{omop_es_markdown_docs_private_html()}},
-\code{\link[=omop_es_markdown_docs_public_html]{omop_es_markdown_docs_public_html()}}
+\code{\link[=omop_es_markdown_docs_public_html]{omop_es_markdown_docs_public_html()}},
+\code{\link[=suppress_and_format_number]{suppress_and_format_number()}}
 }
 \concept{OMOP-ES extract summary report}

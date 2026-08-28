@@ -92,6 +92,10 @@ omop_es_extract_summary_all_tables <- function(
 #' provenance appear together. Adding a section to the report therefore means
 #' adding another builder that is named by table in the same way.
 #'
+#' A builder may also contribute nothing: the template drops the sections that
+#' `include_private = FALSE` excludes before transposing, so a builder that is
+#' not called simply leaves its section out of every table.
+#'
 #' The tables covered are those given by
 #' [omop_es_extract_summary_all_tables()].
 #'
@@ -140,6 +144,10 @@ omop_es_all_tables_headings_html <- function(
 #' down. See [omop_es_plugins_extract_sql()] and
 #' [omop_es_plugins_extract_tables()].
 #'
+#' Because it names source-system tables and prints the queries against them,
+#' the report template calls this only when
+#' [omop_es_extract_summary_report()] is given `include_private = TRUE`.
+#'
 #' @param plugin_metadata Plugin metadata in table-major form, i.e. the result
 #'   of [omop_es_plugins_extract_metadata()] passed through
 #'   [purrr::list_transpose()], so that it is named by OMOP table. Each element
@@ -180,7 +188,7 @@ omop_es_data_provenance_html <- function(plugin_metadata) {
     })
 }
 
-#' Build the hand-written documentation sections of the extract summary report
+#' Build the public documentation sections of the extract summary report
 #'
 #' For each OMOP table, the hand-written public Markdown documentation that the
 #' OMOP-ES checkout carries for it.
@@ -195,9 +203,11 @@ omop_es_data_provenance_html <- function(plugin_metadata) {
 #' @param plugin_metadata Plugin metadata in table-major form, i.e. the result
 #'   of [omop_es_plugins_extract_metadata()] passed through
 #'   [purrr::list_transpose()], so that it is named by OMOP table. Each element
-#'   is expected to have `docs_public` and `docs_private` entries.
+#'   is expected to have a `docs_public` entry.
 #' @returns A list of [htmltools::tagList()]s, named by OMOP table.
 #' @family OMOP-ES extract summary report
+#' @seealso [omop_es_markdown_docs_private_html()] for the private
+#'   counterpart, which the report includes only when asked to.
 #' @importFrom purrr imap
 #' @export
 omop_es_markdown_docs_public_html <- function(
@@ -213,10 +223,11 @@ omop_es_markdown_docs_public_html <- function(
     })
 }
 
-#' Build the hand-written documentation sections of the extract summary report
+#' Build the private documentation sections of the extract summary report
 #'
 #' For each OMOP table, the hand-written private Markdown documentation that the
-#' OMOP-ES checkout carries for it.
+#' OMOP-ES checkout carries for it --- the notes that are not publishable, for
+#' instance because they name source-system tables or columns.
 #'
 #' @details
 #' The documentation is the prose a person wrote about how a table is
@@ -225,12 +236,16 @@ omop_es_markdown_docs_public_html <- function(
 #' file simply contributes nothing, which is how an undocumented table shows
 #' up as an empty section in the report.
 #'
+#' The report template calls this only when
+#' [omop_es_extract_summary_report()] is given `include_private = TRUE`.
+#'
 #' @param plugin_metadata Plugin metadata in table-major form, i.e. the result
 #'   of [omop_es_plugins_extract_metadata()] passed through
 #'   [purrr::list_transpose()], so that it is named by OMOP table. Each element
-#'   is expected to have `docs_public` and `docs_private` entries.
+#'   is expected to have a `docs_private` entry.
 #' @returns A list of [htmltools::tagList()]s, named by OMOP table.
 #' @family OMOP-ES extract summary report
+#' @seealso [omop_es_markdown_docs_public_html()] for the public counterpart.
 #' @importFrom purrr imap
 #' @export
 omop_es_markdown_docs_private_html <- function(
@@ -256,13 +271,20 @@ omop_es_markdown_docs_private_html <- function(
 #'
 #' @details
 #' Concept ids are rendered as Athena links by [pretty_athena_link()], so a
-#' concept can be looked up without leaving the report, and counts are
-#' formatted with thousands separators. Each tabulation is capped at the
-#' 1000 most frequent rows, since the full tabulation of a large table is
-#' neither readable nor worth loading into a browser.
+#' concept can be looked up without leaving the report.
+#'
+#' Each tabulation is capped at the `curtail_cross_tabulation` most frequent
+#' rows, since the full tabulation of a large table is neither readable nor
+#' worth loading into a browser, and counts are put through
+#' [suppress_and_format_number()], which withholds counts small enough to
+#' identify an individual.
 #'
 #' @param cross_tabulations A collected cross-tabulation, as returned by
 #'   [omop_cross_tabulation()].
+#' @param curtail_cross_tabulation The maximum number of rows to show per
+#'   tabulation, keeping the most frequent.
+#' @param suppress_numbers_below Counts below this are shown as `"<n"` rather
+#'   than as the count itself.
 #' @returns A list of [htmltools::tagList()]s, named by OMOP table.
 #' @family OMOP-ES extract summary report
 #' @importFrom purrr imap
@@ -384,6 +406,28 @@ omop_es_field_level_summary_html <- function(cross_tabulations) {
     })
 }
 
+#' Format a count, withholding small ones
+#'
+#' Formats counts for display, replacing any count below a threshold with
+#' `"<n"` instead of the number itself.
+#'
+#' @details
+#' A count of one or two in a cross-tabulation of clinical data can identify
+#' an individual, so small counts are withheld rather than shown. The
+#' replacement still conveys that the cell is populated, just not how
+#' sparsely.
+#'
+#' Counts at or above the threshold are formatted with thousands separators.
+#' `NA` matches neither branch of the [dplyr::case_when()] and so stays `NA`.
+#'
+#' @param x A numeric vector of counts.
+#' @param suppress_numbers_below Counts below this are replaced by `"<n"`.
+#'   Pass `0` to withhold nothing.
+#' @param commas Currently unused. Thousands separators are always applied to
+#'   the counts that are not withheld.
+#' @returns A character vector the same length as `x`.
+#' @family OMOP-ES extract summary report
+#' @keywords internal
 #' @importFrom scales label_comma
 #' @importFrom glue glue
 suppress_and_format_number <- function(

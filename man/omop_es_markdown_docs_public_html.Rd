@@ -2,7 +2,7 @@
 % Please edit documentation in R/extract-summary.R
 \name{omop_es_markdown_docs_public_html}
 \alias{omop_es_markdown_docs_public_html}
-\title{Build the hand-written documentation sections of the extract summary report}
+\title{Build the public documentation sections of the extract summary report}
 \usage{
 omop_es_markdown_docs_public_html(plugin_metadata)
 }
@@ -10,7 +10,7 @@ omop_es_markdown_docs_public_html(plugin_metadata)
 \item{plugin_metadata}{Plugin metadata in table-major form, i.e. the result
 of \code{\link[=omop_es_plugins_extract_metadata]{omop_es_plugins_extract_metadata()}} passed through
 \code{\link[purrr:list_transpose]{purrr::list_transpose()}}, so that it is named by OMOP table. Each element
-is expected to have \code{docs_public} and \code{docs_private} entries.}
+is expected to have a \code{docs_public} entry.}
 }
 \value{
 A list of \code{\link[htmltools:tagList]{htmltools::tagList()}}s, named by OMOP table.
@@ -27,6 +27,9 @@ file simply contributes nothing, which is how an undocumented table shows
 up as an empty section in the report.
 }
 \seealso{
+\code{\link[=omop_es_markdown_docs_private_html]{omop_es_markdown_docs_private_html()}} for the private
+counterpart, which the report includes only when asked to.
+
 Other OMOP-ES extract summary report:
 \code{\link[=omop_column_empty]{omop_column_empty()}},
 \code{\link[=omop_es_all_tables_headings_html]{omop_es_all_tables_headings_html()}},
@@ -35,6 +38,7 @@ Other OMOP-ES extract summary report:
 \code{\link[=omop_es_extract_summary_all_tables]{omop_es_extract_summary_all_tables()}},
 \code{\link[=omop_es_extract_summary_report]{omop_es_extract_summary_report()}},
 \code{\link[=omop_es_field_level_summary_html]{omop_es_field_level_summary_html()}},
-\code{\link[=omop_es_markdown_docs_private_html]{omop_es_markdown_docs_private_html()}}
+\code{\link[=omop_es_markdown_docs_private_html]{omop_es_markdown_docs_private_html()}},
+\code{\link[=suppress_and_format_number]{suppress_and_format_number()}}
 }
 \concept{OMOP-ES extract summary report}
