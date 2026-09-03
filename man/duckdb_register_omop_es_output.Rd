@@ -77,9 +77,14 @@ dplyr::tbl(db, DBI::Id(schema = "dbo", table = "person"))
 }
 }
 \seealso{
+\code{\link[=omop_vocab_download]{omop_vocab_download()}} to obtain the vocabulary tables without an
+OMOP-ES checkout, and \code{\link[=duckdb_register_omop_vocabs]{duckdb_register_omop_vocabs()}} to register those on
+their own when there is no extract to register beside them.
+
 Other OMOP-ES database registration:
 \code{\link[=duckdb_register_omop_es_datalake]{duckdb_register_omop_es_datalake()}},
 \code{\link[=duckdb_register_omop_es_single_batch]{duckdb_register_omop_es_single_batch()}},
+\code{\link[=duckdb_register_omop_vocabs]{duckdb_register_omop_vocabs()}},
 \code{\link[=duckdb_register_parquet_dir]{duckdb_register_parquet_dir()}}
 }
 \concept{OMOP-ES database registration}

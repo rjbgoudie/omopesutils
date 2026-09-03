@@ -48,6 +48,7 @@ duckdb reads the files directly rather than copying them in.
 Other OMOP-ES database registration:
 \code{\link[=duckdb_register_omop_es_datalake]{duckdb_register_omop_es_datalake()}},
 \code{\link[=duckdb_register_omop_es_output]{duckdb_register_omop_es_output()}},
+\code{\link[=duckdb_register_omop_vocabs]{duckdb_register_omop_vocabs()}},
 \code{\link[=duckdb_register_parquet_dir]{duckdb_register_parquet_dir()}}
 }
 \concept{OMOP-ES database registration}

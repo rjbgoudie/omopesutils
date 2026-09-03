@@ -24,6 +24,19 @@ reference:
   - duckdb_register_omop_es_datalake
   - dbListOmopTables
 
+- title: Downloading OMOP vocabularies
+  desc: >
+    Download the OMOP vocabulary tables as parquet from the published
+    omop-vocabs-processed releases, and register them in duckdb. This gets the
+    vocabularies without an OMOP-ES checkout or a database, and works in the
+    browser under webR as well as locally.
+  contents:
+  - omop_vocab_download
+  - duckdb_register_omop_vocabs
+  - omop_vocab_dir
+  - omop_vocab_parquet_url
+  - omop_vocab_processed_tables
+
 - title: Browsing and diffing extracts
   desc: >
     Shiny applications for looking at what the pipeline produced, and for

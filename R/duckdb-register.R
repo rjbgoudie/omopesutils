@@ -44,6 +44,9 @@
 #'   return value is that of the final [duckdb_register_parquet_dir()] call and
 #'   should not be relied upon.
 #' @family OMOP-ES database registration
+#' @seealso [omop_vocab_download()] to obtain the vocabulary tables without an
+#'   OMOP-ES checkout, and [duckdb_register_omop_vocabs()] to register those on
+#'   their own when there is no extract to register beside them.
 #' @examples
 #' \dontrun{
 #' db <- DBI::dbConnect(duckdb::duckdb())
