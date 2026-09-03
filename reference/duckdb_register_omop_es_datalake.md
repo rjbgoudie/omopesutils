@@ -42,4 +42,5 @@ parquet files directly and the files are not copied into the database.
 Other OMOP-ES database registration:
 [`duckdb_register_omop_es_output()`](https://rjbgoudie.github.io/omopesutils/reference/duckdb_register_omop_es_output.md),
 [`duckdb_register_omop_es_single_batch()`](https://rjbgoudie.github.io/omopesutils/reference/duckdb_register_omop_es_single_batch.md),
+[`duckdb_register_omop_vocabs()`](https://rjbgoudie.github.io/omopesutils/reference/duckdb_register_omop_vocabs.md),
 [`duckdb_register_parquet_dir()`](https://rjbgoudie.github.io/omopesutils/reference/duckdb_register_parquet_dir.md)

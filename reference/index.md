@@ -24,6 +24,24 @@ queried with dplyr and dbplyr without copying any data.
 - [`dbListOmopTables()`](https://rjbgoudie.github.io/omopesutils/reference/dbListOmopTables.md)
   : List the OMOP tables in a schema
 
+## Downloading OMOP vocabularies
+
+Download the OMOP vocabulary tables as parquet from the published
+omop-vocabs-processed releases, and register them in duckdb. This gets
+the vocabularies without an OMOP-ES checkout or a database, and works in
+the browser under webR as well as locally.
+
+- [`omop_vocab_download()`](https://rjbgoudie.github.io/omopesutils/reference/omop_vocab_download.md)
+  : Download published OMOP vocabulary tables
+- [`duckdb_register_omop_vocabs()`](https://rjbgoudie.github.io/omopesutils/reference/duckdb_register_omop_vocabs.md)
+  : Register downloaded OMOP vocabularies as duckdb views
+- [`omop_vocab_dir()`](https://rjbgoudie.github.io/omopesutils/reference/omop_vocab_dir.md)
+  : Directory in which downloaded OMOP vocabularies are kept
+- [`omop_vocab_parquet_url()`](https://rjbgoudie.github.io/omopesutils/reference/omop_vocab_parquet_url.md)
+  : URL of a published OMOP vocabulary parquet file
+- [`omop_vocab_processed_tables()`](https://rjbgoudie.github.io/omopesutils/reference/omop_vocab_processed_tables.md)
+  : Vocabulary tables published as parquet by omop-vocabs-processed
+
 ## Browsing and diffing extracts
 
 Shiny applications for looking at what the pipeline produced, and for

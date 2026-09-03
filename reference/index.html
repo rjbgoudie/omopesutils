@@ -95,6 +95,50 @@
         </dt>
         <dd>List the OMOP tables in a schema</dd>
       </dl></div><div class="section level2">
+      <h2 id="downloading-omop-vocabularies">Downloading OMOP vocabularies<a class="anchor" aria-label="anchor" href="#downloading-omop-vocabularies"></a></h2>
+
+      <div class="section-desc"><p>Download the OMOP vocabulary tables as parquet from the published omop-vocabs-processed releases, and register them in duckdb. This gets the vocabularies without an OMOP-ES checkout or a database, and works in the browser under webR as well as locally.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="omop_vocab_download.html">omop_vocab_download()</a></code>
+
+        </dt>
+        <dd>Download published OMOP vocabulary tables</dd>
+
+        <dt>
+
+          <code><a href="duckdb_register_omop_vocabs.html">duckdb_register_omop_vocabs()</a></code>
+
+        </dt>
+        <dd>Register downloaded OMOP vocabularies as duckdb views</dd>
+
+        <dt>
+
+          <code><a href="omop_vocab_dir.html">omop_vocab_dir()</a></code>
+
+        </dt>
+        <dd>Directory in which downloaded OMOP vocabularies are kept</dd>
+
+        <dt>
+
+          <code><a href="omop_vocab_parquet_url.html">omop_vocab_parquet_url()</a></code>
+
+        </dt>
+        <dd>URL of a published OMOP vocabulary parquet file</dd>
+
+        <dt>
+
+          <code><a href="omop_vocab_processed_tables.html">omop_vocab_processed_tables()</a></code>
+
+        </dt>
+        <dd>Vocabulary tables published as parquet by omop-vocabs-processed</dd>
+      </dl></div><div class="section level2">
       <h2 id="browsing-and-diffing-extracts">Browsing and diffing extracts<a class="anchor" aria-label="anchor" href="#browsing-and-diffing-extracts"></a></h2>
 
       <div class="section-desc"><p>Shiny applications for looking at what the pipeline produced, and for comparing two extracts row by row.</p></div>

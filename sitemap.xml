@@ -18,6 +18,7 @@
 <url><loc>https://rjbgoudie.github.io/omopesutils/reference/duckdb_register_omop_es_datalake.html</loc></url>
 <url><loc>https://rjbgoudie.github.io/omopesutils/reference/duckdb_register_omop_es_output.html</loc></url>
 <url><loc>https://rjbgoudie.github.io/omopesutils/reference/duckdb_register_omop_es_single_batch.html</loc></url>
+<url><loc>https://rjbgoudie.github.io/omopesutils/reference/duckdb_register_omop_vocabs.html</loc></url>
 <url><loc>https://rjbgoudie.github.io/omopesutils/reference/duckdb_register_parquet_dir.html</loc></url>
 <url><loc>https://rjbgoudie.github.io/omopesutils/reference/enabled_by_settings.html</loc></url>
 <url><loc>https://rjbgoudie.github.io/omopesutils/reference/git_is_clean.html</loc></url>
@@ -60,6 +61,7 @@
 <url><loc>https://rjbgoudie.github.io/omopesutils/reference/omop_es_tables_in_either_db.html</loc></url>
 <url><loc>https://rjbgoudie.github.io/omopesutils/reference/omop_es_tbl_with_links.html</loc></url>
 <url><loc>https://rjbgoudie.github.io/omopesutils/reference/omop_es_viewer.html</loc></url>
+<url><loc>https://rjbgoudie.github.io/omopesutils/reference/omop_is_webr.html</loc></url>
 <url><loc>https://rjbgoudie.github.io/omopesutils/reference/omop_metadata_field_level.html</loc></url>
 <url><loc>https://rjbgoudie.github.io/omopesutils/reference/omop_metadata_table_level.html</loc></url>
 <url><loc>https://rjbgoudie.github.io/omopesutils/reference/omop_plugin_row_count.html</loc></url>
@@ -71,6 +73,10 @@
 <url><loc>https://rjbgoudie.github.io/omopesutils/reference/omop_table_cross_tabulation.html</loc></url>
 <url><loc>https://rjbgoudie.github.io/omopesutils/reference/omop_table_primary_key.html</loc></url>
 <url><loc>https://rjbgoudie.github.io/omopesutils/reference/omop_tables_row_count.html</loc></url>
+<url><loc>https://rjbgoudie.github.io/omopesutils/reference/omop_vocab_dir.html</loc></url>
+<url><loc>https://rjbgoudie.github.io/omopesutils/reference/omop_vocab_download.html</loc></url>
+<url><loc>https://rjbgoudie.github.io/omopesutils/reference/omop_vocab_parquet_url.html</loc></url>
+<url><loc>https://rjbgoudie.github.io/omopesutils/reference/omop_vocab_processed_tables.html</loc></url>
 <url><loc>https://rjbgoudie.github.io/omopesutils/reference/omop_vocab_tables.html</loc></url>
 <url><loc>https://rjbgoudie.github.io/omopesutils/reference/omopesutils-package.html</loc></url>
 <url><loc>https://rjbgoudie.github.io/omopesutils/reference/plugin_extract_sql.html</loc></url>
@@ -87,5 +93,7 @@
 <url><loc>https://rjbgoudie.github.io/omopesutils/reference/tbl_omop.html</loc></url>
 <url><loc>https://rjbgoudie.github.io/omopesutils/reference/tbl_omop_concept.html</loc></url>
 <url><loc>https://rjbgoudie.github.io/omopesutils/reference/tbl_omop_links.html</loc></url>
+<url><loc>https://rjbgoudie.github.io/omopesutils/reference/vocab_assert_parquet.html</loc></url>
+<url><loc>https://rjbgoudie.github.io/omopesutils/reference/vocab_parquet_dir.html</loc></url>
 </urlset>
 
