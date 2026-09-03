@@ -84,6 +84,15 @@ the source databases.</p>
 viewer. The rest of this article takes the same thing apart, which is
 what you want when a step fails, or when the two extracts already
 exist.</p>
+<p>Extracts are cached by commit, under <code>extract/diff/cache</code>,
+so comparing a branch against <code>main</code> a second time runs only
+the branch: <code>main</code> has not moved, so its extract is reused
+and its side costs nothing. Two branches pointing at the same commit
+share one entry too.</p>
+<p>The cache is keyed on the commit and the run options — settings,
+cohort size, output format — and so knows nothing about the <em>source
+data</em>. If the database has changed since a cached run, that extract
+is stale and <code>refresh = TRUE</code> is what rebuilds it.</p>
 </div>
 <div class="section level2">
 <h2 id="running-the-pipeline">Running the pipeline<a class="anchor" aria-label="anchor" href="#running-the-pipeline"></a>

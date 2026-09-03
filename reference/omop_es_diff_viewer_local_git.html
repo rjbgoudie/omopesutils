@@ -63,6 +63,7 @@ OMOP-ES has on its output.</p>
 <span>  <span class="va">links_patient_id_column</span>,</span>
 <span>  output_parquet <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  fetch <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  refresh <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  envvar <span class="op">=</span> <span class="fu">callr</span><span class="fu">::</span><span class="fu"><a href="https://callr.r-lib.org/reference/rcmd_safe_env.html" class="external-link">rcmd_safe_env</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -102,8 +103,13 @@ overriding the format in the OMOP-ES settings</p></dd>
 
 
 <dt id="arg-fetch">fetch<a class="anchor" aria-label="anchor" href="#arg-fetch"></a></dt>
-<dd><p>Whether to fetch from the remote before merging upstream into
-each branch</p></dd>
+<dd><p>Whether to fetch from the remote before resolving and running
+the two branches</p></dd>
+
+
+<dt id="arg-refresh">refresh<a class="anchor" aria-label="anchor" href="#arg-refresh"></a></dt>
+<dd><p>Whether to ignore any cached extracts and run both branches
+again</p></dd>
 
 
 <dt id="arg-envvar">envvar<a class="anchor" aria-label="anchor" href="#arg-envvar"></a></dt>
@@ -118,16 +124,31 @@ connection details to OMOP-ES</p></dd>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The two runs write to <code>extract/diff/before</code> and <code>extract/diff/after</code> within
-<code>omop_es_path</code>. Within each of those, OMOP-ES creates a subdirectory named
-<code>&lt;settings_id&gt;_&lt;date&gt;</code>, which is where the extract is read back from; both
-runs must therefore happen on the same date for the extracts to be found.</p>
+    <p>Extracts are cached by commit, so a branch that has not moved since it was
+last run is not run again. A comparison against <code>main</code> therefore costs one
+pipeline run rather than two, every time but the first. Each side is
+resolved to a commit with <code><a href="git_resolve_run_sha.html">git_resolve_run_sha()</a></code> before anything is
+checked out, so a cache hit does not disturb the working tree, and if both
+branches resolve to the same commit the pipeline runs once and the extract
+is used for both sides.</p>
+<p>Cached runs live under <code>extract/diff/cache</code> within <code>omop_es_path</code>, in a
+directory named <code>&lt;sha&gt;/&lt;settings_id&gt;_n&lt;cohort_limit&gt;_&lt;output&gt;</code>. Delete
+that directory, or any single commit's subdirectory of it, to reclaim the
+space; <code>refresh = TRUE</code> rebuilds both sides in place.</p>
+<p>The cache is keyed on the commit and the run options, which means it knows
+nothing about the <em>source data</em>. A cached extract taken before the source
+database changed is stale, and only <code>refresh = TRUE</code> will notice. <code>envvar</code>
+is not part of the key either, so it will not distinguish runs pointed at
+different databases.</p>
 <p>The "before" extract is registered as <code>dbo</code>/<code>priv</code> and the "after" one as
 <code>dbo2</code>/<code>priv2</code>, which are the defaults <code><a href="omop_es_diff_viewer.html">omop_es_diff_viewer()</a></code> expects.</p>
-<p>Each run goes through <code><a href="omop_es_run_git_sha.html">omop_es_run_git_sha()</a></code>, so the working tree at
-<code>omop_es_path</code> is stashed if dirty, checked out at the requested branch,
-and fast-forwarded to its upstream. On return the repository remains on
-<code>after_branch</code>.</p>
+<p>The remote is fetched once up front rather than once per run, since
+resolving each branch to a commit needs current remote-tracking refs.</p>
+<p>Any side that actually runs goes through <code><a href="omop_es_run_git_sha.html">omop_es_run_git_sha()</a></code>, so the
+working tree at <code>omop_es_path</code> is stashed if dirty, checked out at the
+requested branch, and fast-forwarded to its upstream. If both sides come
+from the cache the repository is left as it was; otherwise it is left on
+whichever branch ran last.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
