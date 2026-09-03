@@ -56,18 +56,36 @@ omop_es_diff_viewer_local <- function(
 #' OMOP-ES has on its output.
 #'
 #' @details
-#' The two runs write to `extract/diff/before` and `extract/diff/after` within
-#' `omop_es_path`. Within each of those, OMOP-ES creates a subdirectory named
-#' `<settings_id>_<date>`, which is where the extract is read back from; both
-#' runs must therefore happen on the same date for the extracts to be found.
+#' Extracts are cached by commit, so a branch that has not moved since it was
+#' last run is not run again. A comparison against `main` therefore costs one
+#' pipeline run rather than two, every time but the first. Each side is
+#' resolved to a commit with [git_resolve_run_sha()] before anything is
+#' checked out, so a cache hit does not disturb the working tree, and if both
+#' branches resolve to the same commit the pipeline runs once and the extract
+#' is used for both sides.
+#'
+#' Cached runs live under `extract/diff/cache` within `omop_es_path`, in a
+#' directory named `<sha>/<settings_id>_n<cohort_limit>_<output>`. Delete
+#' that directory, or any single commit's subdirectory of it, to reclaim the
+#' space; `refresh = TRUE` rebuilds both sides in place.
+#'
+#' The cache is keyed on the commit and the run options, which means it knows
+#' nothing about the *source data*. A cached extract taken before the source
+#' database changed is stale, and only `refresh = TRUE` will notice. `envvar`
+#' is not part of the key either, so it will not distinguish runs pointed at
+#' different databases.
 #'
 #' The "before" extract is registered as `dbo`/`priv` and the "after" one as
 #' `dbo2`/`priv2`, which are the defaults [omop_es_diff_viewer()] expects.
 #'
-#' Each run goes through [omop_es_run_git_sha()], so the working tree at
-#' `omop_es_path` is stashed if dirty, checked out at the requested branch,
-#' and fast-forwarded to its upstream. On return the repository remains on
-#' `after_branch`.
+#' The remote is fetched once up front rather than once per run, since
+#' resolving each branch to a commit needs current remote-tracking refs.
+#'
+#' Any side that actually runs goes through [omop_es_run_git_sha()], so the
+#' working tree at `omop_es_path` is stashed if dirty, checked out at the
+#' requested branch, and fast-forwarded to its upstream. If both sides come
+#' from the cache the repository is left as it was; otherwise it is left on
+#' whichever branch ran last.
 #'
 #' @param omop_es_path Path to OMOP-ES directory
 #' @param settings_id The OMOP-ES settings to use
@@ -78,8 +96,10 @@ omop_es_diff_viewer_local <- function(
 #'   OMOP-ES `person` `_links` table, without the `links__person__` prefix.
 #' @param output_parquet Whether to force parquet output for both runs,
 #'   overriding the format in the OMOP-ES settings
-#' @param fetch Whether to fetch from the remote before merging upstream into
-#'   each branch
+#' @param fetch Whether to fetch from the remote before resolving and running
+#'   the two branches
+#' @param refresh Whether to ignore any cached extracts and run both branches
+#'   again
 #' @param envvar A list of environment variables to set in the child process
 #'  prior to running the pipeline. This can be used to pass e.g. database
 #'  connection details to OMOP-ES
@@ -96,6 +116,8 @@ omop_es_diff_viewer_local <- function(
 #'   links_patient_id_column = "my_patient_id_column"
 #' )
 #' }
+#' @importFrom cli cli_progress_step cli_progress_done
+#' @importFrom gert git_fetch
 #' @export
 omop_es_diff_viewer_local_git <- function(
   omop_es_path,
@@ -106,56 +128,43 @@ omop_es_diff_viewer_local_git <- function(
   links_patient_id_column,
   output_parquet = TRUE,
   fetch = TRUE,
+  refresh = FALSE,
   envvar = callr::rcmd_safe_env()
 ) {
-  custom_dir_before <- fs::path(omop_es_path, "extract", "diff", "before")
-  custom_dir_after <- fs::path(omop_es_path, "extract", "diff", "after")
+  if (fetch) {
+    prog <- cli::cli_progress_step("Fetching from remote")
+    gert::git_fetch(repo = omop_es_path)
+    cli::cli_progress_done(prog)
+  }
 
-  cli::cli_h1("Running before_branch: {before_branch}")
-  omop_es_run_git_sha(
+  before_extract_path <- omop_es_run_cached(
     branch = before_branch,
     omop_es_path = omop_es_path,
     settings_id = settings_id,
     cohort_limit = cohort_limit,
     output_parquet = output_parquet,
-    custom_dir = custom_dir_before,
-    fetch = fetch,
-    envvar = envvar
+    fetch = FALSE,
+    refresh = refresh,
+    envvar = envvar,
+    label = "before"
   )
 
-  cli::cli_h1("Running after_branch: {after_branch}")
-  omop_es_run_git_sha(
+  after_extract_path <- omop_es_run_cached(
     branch = after_branch,
     omop_es_path = omop_es_path,
     settings_id = settings_id,
     cohort_limit = cohort_limit,
     output_parquet = output_parquet,
-    custom_dir = custom_dir_after,
-    fetch = fetch,
-    envvar = envvar
+    fetch = FALSE,
+    refresh = refresh,
+    envvar = envvar,
+    label = "after"
   )
 
-  subdir <- glue::glue("{settings_id}_{Sys.Date()}")
-  custom_dir_before_subdir <- fs::path(custom_dir_before, subdir)
-  custom_dir_after_subdir <- fs::path(custom_dir_after, subdir)
-
-  db <- DBI::dbConnect(duckdb::duckdb())
-
-  duckdb_register_omop_es_output(
-    db,
-    extract_path = custom_dir_before_subdir,
+  omop_es_diff_viewer_local(
     omop_es_path = omop_es_path,
-    schema_public = "dbo",
-    schema_private = "priv"
+    before_extract_path = before_extract_path,
+    after_extract_path = after_extract_path,
+    links_patient_id_column = links_patient_id_column
   )
-
-  duckdb_register_omop_es_output(
-    db,
-    extract_path = custom_dir_after_subdir,
-    omop_es_path = omop_es_path,
-    schema_public = "dbo2",
-    schema_private = "priv2"
-  )
-
-  omop_es_diff_viewer(db, links_patient_id_column = links_patient_id_column)
 }
