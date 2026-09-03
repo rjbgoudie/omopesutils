@@ -58,7 +58,7 @@ table's own \verb{_links} table they are renamed to
 \code{links__plugin_provenance} and \code{links__data_source}; for the \verb{_links}
 tables of referenced tables they are dropped, since the provenance of a
 referenced row is not the provenance of this row.
-\item the join is a \code{\link[dplyr:mutate-joins]{dplyr::left_join()}}, so rows of the OMOP table are never
+\item the join is a \code{\link[dplyr:left_join]{dplyr::left_join()}}, so rows of the OMOP table are never
 dropped
 }
 
