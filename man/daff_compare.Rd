@@ -4,10 +4,10 @@
 \alias{daff_compare}
 \title{Render an HTML diff of two tables}
 \usage{
-daff_compare(tbl_left, tbl_right, fragment = FALSE)
+daff_compare(tbl_before, tbl_after, fragment = FALSE)
 }
 \arguments{
-\item{tbl_left, tbl_right}{Lazy \code{tbl} objects (or data frames) to compare}
+\item{tbl_before, tbl_after}{Lazy \code{tbl} objects (or data frames) to compare}
 
 \item{fragment}{Whether to render an HTML fragment rather than a complete
 HTML document. Use \code{TRUE} when embedding the result in a page, such as a

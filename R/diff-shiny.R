@@ -21,7 +21,7 @@
 #' be stable between pipeline runs. Rows are ordered by the columns whose
 #' names end in `datetime` or `concept_id`, or contain `Key`, and the standard
 #' OMOP columns are moved to the front. On duckdb, each side is materialised
-#' into a table (`temp_left` and `temp_right`) with [as_table()], because
+#' into a table (`temp_before` and `temp_after`) with [as_table()], because
 #' otherwise the set difference between the two sides runs out of memory.
 #'
 #' The table picker offers every table present in *either* extract (see
@@ -35,10 +35,11 @@
 #' source package.
 #'
 #' @param conn A [DBI::DBIConnection-class] object holding both extracts
-#' @param schema_public_left,schema_private_left Names of the schemas holding
-#'   the left-hand (baseline) public OMOP tables and private `_links` tables
-#' @param schema_public_right,schema_private_right Names of the schemas holding
-#'   the right-hand (comparison) public OMOP tables and private `_links`
+#' @param schema_public_before,schema_private_before Names of the schemas
+#'   holding the "before" (baseline) public OMOP tables and private `_links`
+#'   tables
+#' @param schema_public_after,schema_private_after Names of the schemas
+#'   holding the "after" (comparison) public OMOP tables and private `_links`
 #'   tables
 #' @param links_patient_id_column Name of the patient identifier column in the
 #'   OMOP-ES `person` `_links` table, without the `links__person__` prefix.
@@ -51,11 +52,11 @@
 #' \dontrun{
 #' db <- DBI::dbConnect(duckdb::duckdb())
 #' duckdb_register_omop_es_output(
-#'   db, left_extract_path, omop_es_path,
+#'   db, before_extract_path, omop_es_path,
 #'   schema_public = "dbo", schema_private = "priv"
 #' )
 #' duckdb_register_omop_es_output(
-#'   db, right_extract_path, omop_es_path,
+#'   db, after_extract_path, omop_es_path,
 #'   schema_public = "dbo2", schema_private = "priv2"
 #' )
 #' omop_es_diff_viewer(db, links_patient_id_column = "my_patient_id_column")
@@ -68,10 +69,10 @@
 #' @importFrom glue glue
 omop_es_diff_viewer <- function(
   conn,
-  schema_public_left = "dbo",
-  schema_private_left = "priv",
-  schema_public_right = "dbo2",
-  schema_private_right = "priv2",
+  schema_public_before = "dbo",
+  schema_private_before = "priv",
+  schema_public_after = "dbo2",
+  schema_private_after = "priv2",
   links_patient_id_column
 ) {
   # Construct link column name to avoid including private column names in
@@ -83,15 +84,15 @@ omop_es_diff_viewer <- function(
 
   all_tables <- omop_es_tables_in_either_db(
     conn,
-    schema_public1 = schema_public_left,
-    schema_public2 = schema_public_right
+    schema_public1 = schema_public_before,
+    schema_public2 = schema_public_after
   )
 
   links_patient_ids_all <- omop_es_tbl_with_links(
     conn,
     "person",
-    schema_public = schema_public_left,
-    schema_private = schema_private_left
+    schema_public = schema_public_before,
+    schema_private = schema_private_before
   ) |>
     dplyr::arrange(links_patient_id_sym) |>
     dplyr::pull(links_patient_id_sym)
@@ -137,12 +138,12 @@ omop_es_diff_viewer <- function(
   )
 
   server <- function(input, output, session) {
-    data_left <- shiny::reactive({
-      left <- omop_es_tbl_with_links(
+    data_before <- shiny::reactive({
+      before <- omop_es_tbl_with_links(
         conn,
         input$table_sel,
-        schema_public = schema_public_left,
-        schema_private = schema_private_left,
+        schema_public = schema_public_before,
+        schema_private = schema_private_before,
         drop_omop_foreign_keys = TRUE
       ) |>
         dplyr::arrange(dplyr::pick(c(
@@ -155,17 +156,17 @@ omop_es_diff_viewer <- function(
       # If using duckdb, materialise to a temporary table,
       # since otherwise it runs out of memory in the setdiff()
       if (class(attr(conn, "driver")) == "duckdb_driver") {
-        left <- as_table(left, "temp_left")
+        before <- as_table(before, "temp_before")
       }
-      left
+      before
     })
 
-    data_right <- shiny::reactive({
-      right <- omop_es_tbl_with_links(
+    data_after <- shiny::reactive({
+      after <- omop_es_tbl_with_links(
         conn,
         input$table_sel,
-        schema_public = schema_public_right,
-        schema_private = schema_private_right,
+        schema_public = schema_public_after,
+        schema_private = schema_private_after,
         drop_omop_foreign_keys = TRUE
       ) |>
         dplyr::arrange(dplyr::pick(c(
@@ -178,65 +179,65 @@ omop_es_diff_viewer <- function(
       # If using duckdb, materialise to a temporary table,
       # since otherwise it runs out of memory in the setdiff()
       if (class(attr(conn, "driver")) == "duckdb_driver") {
-        right <- as_table(right, "temp_right")
+        after <- as_table(after, "temp_after")
       }
-      right
+      after
     })
 
-    data_left_filtered <- shiny::reactive({
-      left <- data_left()
+    data_before_filtered <- shiny::reactive({
+      before <- data_before()
       if (
         links_patient_id_column_with_links %in%
-          colnames(left) &&
+          colnames(before) &&
           !is.null(input$links_patient_ids)
       ) {
-        left <- left |>
+        before <- before |>
           dplyr::filter(links_patient_id_sym %in% input$links_patient_ids)
       } else {
-        left <- left |>
+        before <- before |>
           head(0)
       }
 
       if (isTRUE(input$omop_columns_only)) {
-        left <- left |>
+        before <- before |>
           dplyr::select(dplyr::any_of(omop_table_columns(input$table_sel)))
       }
 
-      left
+      before
     })
 
-    data_right_filtered <- shiny::reactive({
-      right <- data_right()
+    data_after_filtered <- shiny::reactive({
+      after <- data_after()
       if (
         links_patient_id_column_with_links %in%
-          colnames(right) &&
+          colnames(after) &&
           !is.null(input$links_patient_ids)
       ) {
-        right <- right |>
+        after <- after |>
           dplyr::filter(links_patient_id_sym %in% input$links_patient_ids)
       } else {
-        right <- right |>
+        after <- after |>
           head(0)
       }
 
       if (isTRUE(input$omop_columns_only)) {
-        right <- right |>
+        after <- after |>
           dplyr::select(dplyr::any_of(omop_table_columns(input$table_sel)))
       }
 
-      right
+      after
     })
 
     data_setdiff_both_directions <- shiny::reactive({
-      left <- data_left()
-      right <- data_right()
+      before <- data_before()
+      after <- data_after()
 
       dplyr::union_all(
-        dplyr::setdiff(left, right) |>
-          dplyr::mutate(diff = "left_only") |>
+        dplyr::setdiff(before, after) |>
+          dplyr::mutate(diff = "before_only") |>
           dplyr::relocate(diff),
-        dplyr::setdiff(right, left) |>
-          dplyr::mutate(diff = "right_only") |>
+        dplyr::setdiff(after, before) |>
+          dplyr::mutate(diff = "after_only") |>
           dplyr::relocate(diff)
       )
     })
@@ -253,13 +254,13 @@ omop_es_diff_viewer <- function(
           ) |>
           tidyr::pivot_wider(names_from = diff, values_from = n)
 
-        if (!"left_only" %in% colnames(table_diff)) {
+        if (!"before_only" %in% colnames(table_diff)) {
           table_diff <- table_diff |>
-            dplyr::mutate(left_only = 0)
+            dplyr::mutate(before_only = 0)
         }
-        if (!"right_only" %in% colnames(table_diff)) {
+        if (!"after_only" %in% colnames(table_diff)) {
           table_diff <- table_diff |>
-            dplyr::mutate(right_only = 0)
+            dplyr::mutate(after_only = 0)
         }
 
         links_patient_ids_to_choose <- table_diff |>
@@ -272,7 +273,7 @@ omop_es_diff_viewer <- function(
           dplyr::mutate(
             label = !!links_patient_id_sym,
             label = glue::glue(
-              "{label} (-{left_only}, +{right_only})"
+              "{label} (-{before_only}, +{after_only})"
             )
           ) |>
           dplyr::pull(label)
@@ -291,8 +292,8 @@ omop_es_diff_viewer <- function(
 
     output$daff_content <- shiny::renderUI({
       res <- daff_compare(
-        tbl_left = data_left_filtered(),
-        tbl_right = data_right_filtered(),
+        tbl_before = data_before_filtered(),
+        tbl_after = data_after_filtered(),
         fragment = TRUE
       )
       htmltools::HTML(res)
@@ -301,8 +302,8 @@ omop_es_diff_viewer <- function(
     output$tables_row_counts <-
       omop_diff_tables_row_count(
         conn,
-        schema_left = schema_public_left,
-        schema_right = schema_public_right
+        schema_before = schema_public_before,
+        schema_after = schema_public_after
       ) |>
       gt::gt() |>
       gt::render_gt()
@@ -310,10 +311,10 @@ omop_es_diff_viewer <- function(
     output$plugins_row_counts <-
       omop_diff_plugins_row_count(
         conn,
-        schema_public_left = schema_public_left,
-        schema_private_left = schema_private_left,
-        schema_public_right = schema_public_right,
-        schema_private_right = schema_private_right
+        schema_public_before = schema_public_before,
+        schema_private_before = schema_private_before,
+        schema_public_after = schema_public_after,
+        schema_private_after = schema_private_after
       ) |>
       gt::gt() |>
       gt::render_gt()

@@ -6,8 +6,8 @@
 \usage{
 omop_es_diff_viewer_local_git(
   omop_es_path,
-  left_branch,
-  right_branch,
+  before_branch,
+  after_branch,
   settings_id = "CUH_EPIC_small_cohort",
   cohort_limit = 5000,
   links_patient_id_column,
@@ -19,9 +19,9 @@ omop_es_diff_viewer_local_git(
 \arguments{
 \item{omop_es_path}{Path to OMOP-ES directory}
 
-\item{left_branch}{A git branch or SHA}
+\item{before_branch}{A git branch or SHA to use as the baseline}
 
-\item{right_branch}{A git branch or SHA}
+\item{after_branch}{A git branch or SHA to compare against the baseline}
 
 \item{settings_id}{The OMOP-ES settings to use}
 
@@ -45,31 +45,31 @@ A shiny app object, as returned by \code{\link[shiny:shinyApp]{shiny::shinyApp()
 }
 \description{
 Runs the OMOP-ES pipeline twice from the same checkout --- once at
-\code{left_branch} and once at \code{right_branch} --- registers both extracts into a
-single in-memory duckdb database, and launches \code{\link[=omop_es_diff_viewer]{omop_es_diff_viewer()}} to
+\code{before_branch} and once at \code{after_branch} --- registers both extracts into
+a single in-memory duckdb database, and launches \code{\link[=omop_es_diff_viewer]{omop_es_diff_viewer()}} to
 compare them. This is the end-to-end way to see what effect a change to
 OMOP-ES has on its output.
 }
 \details{
-The two runs write to \code{extract/diff/left} and \code{extract/diff/right} within
+The two runs write to \code{extract/diff/before} and \code{extract/diff/after} within
 \code{omop_es_path}. Within each of those, OMOP-ES creates a subdirectory named
 \verb{<settings_id>_<date>}, which is where the extract is read back from; both
 runs must therefore happen on the same date for the extracts to be found.
 
-The left-hand extract is registered as \code{dbo}/\code{priv} and the right-hand one
-as \code{dbo2}/\code{priv2}, which are the defaults \code{\link[=omop_es_diff_viewer]{omop_es_diff_viewer()}} expects.
+The "before" extract is registered as \code{dbo}/\code{priv} and the "after" one as
+\code{dbo2}/\code{priv2}, which are the defaults \code{\link[=omop_es_diff_viewer]{omop_es_diff_viewer()}} expects.
 
 Each run goes through \code{\link[=omop_es_run_git_sha]{omop_es_run_git_sha()}}, so the working tree at
 \code{omop_es_path} is stashed if dirty, checked out at the requested branch,
-and fast-forwarded to its upstream. On return the repository is left on
-\code{right_branch}.
+and fast-forwarded to its upstream. On return the repository remains on
+\code{after_branch}.
 }
 \examples{
 \dontrun{
 omop_es_diff_viewer_local_git(
   omop_es_path = "~/omop_es",
-  left_branch = "main",
-  right_branch = "my-feature-branch",
+  before_branch = "main",
+  after_branch = "my-feature-branch",
   links_patient_id_column = "my_patient_id_column"
 )
 }

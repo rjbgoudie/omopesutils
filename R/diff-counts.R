@@ -12,29 +12,29 @@
 #'
 #' @param db A [DBI::DBIConnection-class] object holding both extracts, as
 #'   registered by two calls to [duckdb_register_omop_es_output()]
-#' @param schema_left Name of the schema holding the left-hand (baseline)
+#' @param schema_before Name of the schema holding the "before" (baseline)
 #'   public OMOP tables
-#' @param schema_right Name of the schema holding the right-hand (comparison)
+#' @param schema_after Name of the schema holding the "after" (comparison)
 #'   public OMOP tables
 #' @returns A tibble with one row per OMOP table and columns `table`,
-#'   `left_row_count`, `right_row_count` and `change`, where `change` is
-#'   `right_row_count - left_row_count`.
+#'   `before_row_count`, `after_row_count` and `change`, where `change` is
+#'   `after_row_count - before_row_count`.
 #' @family row counts
 #' @seealso [omop_diff_plugins_row_count()] to break the counts down by
 #'   OMOP-ES plugin.
 #' @keywords internal
 omop_diff_tables_row_count <- function(
   db,
-  schema_left = "dbo",
-  schema_right = "dbo2"
+  schema_before = "dbo",
+  schema_after = "dbo2"
 ) {
-  left <- omop_tables_row_count(db, schema = schema_left) |>
-    dplyr::rename(left_row_count = row_count)
-  right <- omop_tables_row_count(db, schema = schema_right) |>
-    dplyr::rename(right_row_count = row_count)
-  left |>
-    dplyr::full_join(right, by = "table") |>
-    dplyr::mutate(change = right_row_count - left_row_count)
+  before <- omop_tables_row_count(db, schema = schema_before) |>
+    dplyr::rename(before_row_count = row_count)
+  after <- omop_tables_row_count(db, schema = schema_after) |>
+    dplyr::rename(after_row_count = row_count)
+  before |>
+    dplyr::full_join(after, by = "table") |>
+    dplyr::mutate(change = after_row_count - before_row_count)
 }
 
 
@@ -52,36 +52,37 @@ omop_diff_tables_row_count <- function(
 #'
 #' @param db A [DBI::DBIConnection-class] object holding both extracts, as
 #'   registered by two calls to [duckdb_register_omop_es_output()]
-#' @param schema_public_left,schema_private_left Names of the schemas holding
-#'   the left-hand (baseline) public OMOP tables and private `_links` tables
-#' @param schema_public_right,schema_private_right Names of the schemas holding
-#'   the right-hand (comparison) public OMOP tables and private `_links`
+#' @param schema_public_before,schema_private_before Names of the schemas
+#'   holding the "before" (baseline) public OMOP tables and private `_links`
+#'   tables
+#' @param schema_public_after,schema_private_after Names of the schemas
+#'   holding the "after" (comparison) public OMOP tables and private `_links`
 #'   tables
 #' @returns A tibble with one row per OMOP table and plugin, and columns
-#'   `table`, `plugin`, `left_row_count`, `right_row_count` and `change`,
-#'   where `change` is `right_row_count - left_row_count`.
+#'   `table`, `plugin`, `before_row_count`, `after_row_count` and `change`,
+#'   where `change` is `after_row_count - before_row_count`.
 #' @family row counts
 #' @keywords internal
 omop_diff_plugins_row_count <- function(
   db,
-  schema_public_left = "dbo",
-  schema_private_left = "priv",
-  schema_public_right = "dbo2",
-  schema_private_right = "priv2"
+  schema_public_before = "dbo",
+  schema_private_before = "priv",
+  schema_public_after = "dbo2",
+  schema_private_after = "priv2"
 ) {
-  left <- omop_plugin_row_count(
+  before <- omop_plugin_row_count(
     db,
-    schema_public = schema_public_left,
-    schema_private = schema_private_left
+    schema_public = schema_public_before,
+    schema_private = schema_private_before
   ) |>
-    dplyr::rename(left_row_count = row_count)
-  right <- omop_plugin_row_count(
+    dplyr::rename(before_row_count = row_count)
+  after <- omop_plugin_row_count(
     db,
-    schema_public = schema_public_right,
-    schema_private = schema_private_right
+    schema_public = schema_public_after,
+    schema_private = schema_private_after
   ) |>
-    dplyr::rename(right_row_count = row_count)
-  left |>
-    dplyr::full_join(right, by = c("table", "plugin")) |>
-    dplyr::mutate(change = right_row_count - left_row_count)
+    dplyr::rename(after_row_count = row_count)
+  before |>
+    dplyr::full_join(after, by = c("table", "plugin")) |>
+    dplyr::mutate(change = after_row_count - before_row_count)
 }
