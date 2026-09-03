@@ -4,22 +4,22 @@
 \alias{omop_diff_tables_row_count}
 \title{Compare row counts of every OMOP table between two schemas}
 \usage{
-omop_diff_tables_row_count(db, schema_left = "dbo", schema_right = "dbo2")
+omop_diff_tables_row_count(db, schema_before = "dbo", schema_after = "dbo2")
 }
 \arguments{
 \item{db}{A \link[DBI:DBIConnection-class]{DBI::DBIConnection} object holding both extracts, as
 registered by two calls to \code{\link[=duckdb_register_omop_es_output]{duckdb_register_omop_es_output()}}}
 
-\item{schema_left}{Name of the schema holding the left-hand (baseline)
+\item{schema_before}{Name of the schema holding the "before" (baseline)
 public OMOP tables}
 
-\item{schema_right}{Name of the schema holding the right-hand (comparison)
+\item{schema_after}{Name of the schema holding the "after" (comparison)
 public OMOP tables}
 }
 \value{
 A tibble with one row per OMOP table and columns \code{table},
-\code{left_row_count}, \code{right_row_count} and \code{change}, where \code{change} is
-\code{right_row_count - left_row_count}.
+\code{before_row_count}, \code{after_row_count} and \code{change}, where \code{change} is
+\code{after_row_count - before_row_count}.
 }
 \description{
 Counts the rows of each OMOP table in two schemas of the same database and

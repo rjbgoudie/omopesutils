@@ -6,27 +6,28 @@
 \usage{
 omop_diff_plugins_row_count(
   db,
-  schema_public_left = "dbo",
-  schema_private_left = "priv",
-  schema_public_right = "dbo2",
-  schema_private_right = "priv2"
+  schema_public_before = "dbo",
+  schema_private_before = "priv",
+  schema_public_after = "dbo2",
+  schema_private_after = "priv2"
 )
 }
 \arguments{
 \item{db}{A \link[DBI:DBIConnection-class]{DBI::DBIConnection} object holding both extracts, as
 registered by two calls to \code{\link[=duckdb_register_omop_es_output]{duckdb_register_omop_es_output()}}}
 
-\item{schema_public_left, schema_private_left}{Names of the schemas holding
-the left-hand (baseline) public OMOP tables and private \verb{_links} tables}
+\item{schema_public_before, schema_private_before}{Names of the schemas
+holding the "before" (baseline) public OMOP tables and private \verb{_links}
+tables}
 
-\item{schema_public_right, schema_private_right}{Names of the schemas holding
-the right-hand (comparison) public OMOP tables and private \verb{_links}
+\item{schema_public_after, schema_private_after}{Names of the schemas
+holding the "after" (comparison) public OMOP tables and private \verb{_links}
 tables}
 }
 \value{
 A tibble with one row per OMOP table and plugin, and columns
-\code{table}, \code{plugin}, \code{left_row_count}, \code{right_row_count} and \code{change},
-where \code{change} is \code{right_row_count - left_row_count}.
+\code{table}, \code{plugin}, \code{before_row_count}, \code{after_row_count} and \code{change},
+where \code{change} is \code{after_row_count - before_row_count}.
 }
 \description{
 As \code{\link[=omop_diff_tables_row_count]{omop_diff_tables_row_count()}}, but broken down by the OMOP-ES plugin

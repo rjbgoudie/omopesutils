@@ -63,8 +63,8 @@ viewer showing row counts per table and per plugin, plus a row-level diff.
 ```r
 omop_es_diff_viewer_local_git(
   omop_es_path = "~/omop_es",
-  left_branch = "main",
-  right_branch = "my-feature-branch",
+  before_branch = "main",
+  after_branch = "my-feature-branch",
   links_patient_id_column = "my_patient_id_column"
 )
 ```

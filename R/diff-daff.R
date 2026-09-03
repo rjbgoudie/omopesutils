@@ -10,7 +10,7 @@
 #' that has already been narrowed down --- for example to a handful of
 #' patients.
 #'
-#' @param tbl_left,tbl_right Lazy `tbl` objects (or data frames) to compare
+#' @param tbl_before,tbl_after Lazy `tbl` objects (or data frames) to compare
 #' @param fragment Whether to render an HTML fragment rather than a complete
 #'   HTML document. Use `TRUE` when embedding the result in a page, such as a
 #'   shiny app.
@@ -18,7 +18,7 @@
 #' @seealso [omop_es_diff_viewer()], which displays this.
 #' @keywords internal
 #' @import daff
-daff_compare <- function(tbl_left, tbl_right, fragment = FALSE) {
-  diff <- daff::diff_data(dplyr::collect(tbl_left), dplyr::collect(tbl_right))
+daff_compare <- function(tbl_before, tbl_after, fragment = FALSE) {
+  diff <- daff::diff_data(dplyr::collect(tbl_before), dplyr::collect(tbl_after))
   daff::render_diff(diff, fragment = fragment, summary = TRUE)
 }

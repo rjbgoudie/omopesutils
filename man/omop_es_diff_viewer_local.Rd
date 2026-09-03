@@ -6,8 +6,8 @@
 \usage{
 omop_es_diff_viewer_local(
   omop_es_path,
-  left_extract_path,
-  right_extract_path,
+  before_extract_path,
+  after_extract_path,
   links_patient_id_column
 )
 }
@@ -15,10 +15,10 @@ omop_es_diff_viewer_local(
 \item{omop_es_path}{Path to OMOP-ES directory (used for registering the
 vocabulary tables, which are shared between the two extracts)}
 
-\item{left_extract_path}{Path to the folder containing the left-hand
+\item{before_extract_path}{Path to the folder containing the "before"
 (baseline) extract}
 
-\item{right_extract_path}{Path to the folder containing the right-hand
+\item{after_extract_path}{Path to the folder containing the "after"
 (comparison) extract}
 
 \item{links_patient_id_column}{Name of the patient identifier column in the
@@ -30,8 +30,8 @@ A shiny app object, as returned by \code{\link[shiny:shinyApp]{shiny::shinyApp()
 }
 \description{
 Registers two existing OMOP-ES extracts into a single in-memory duckdb
-database --- the first as \code{dbo}/\code{priv}, the second as \code{dbo2}/\code{priv2} ---
-and launches \code{\link[=omop_es_diff_viewer]{omop_es_diff_viewer()}} on the result.
+database --- the "before" extract as \code{dbo}/\code{priv}, the "after" extract as
+\code{dbo2}/\code{priv2} --- and launches \code{\link[=omop_es_diff_viewer]{omop_es_diff_viewer()}} on the result.
 }
 \details{
 Unlike \code{\link[=omop_es_diff_viewer_local_git]{omop_es_diff_viewer_local_git()}}, this does not run the pipeline:
