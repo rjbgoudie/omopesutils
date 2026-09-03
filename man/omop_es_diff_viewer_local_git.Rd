@@ -13,6 +13,7 @@ omop_es_diff_viewer_local_git(
   links_patient_id_column,
   output_parquet = TRUE,
   fetch = TRUE,
+  refresh = FALSE,
   envvar = callr::rcmd_safe_env()
 )
 }
@@ -33,8 +34,11 @@ OMOP-ES \code{person} \verb{_links} table, without the \code{links__person__} pr
 \item{output_parquet}{Whether to force parquet output for both runs,
 overriding the format in the OMOP-ES settings}
 
-\item{fetch}{Whether to fetch from the remote before merging upstream into
-each branch}
+\item{fetch}{Whether to fetch from the remote before resolving and running
+the two branches}
+
+\item{refresh}{Whether to ignore any cached extracts and run both branches
+again}
 
 \item{envvar}{A list of environment variables to set in the child process
 prior to running the pipeline. This can be used to pass e.g. database
@@ -51,18 +55,36 @@ compare them. This is the end-to-end way to see what effect a change to
 OMOP-ES has on its output.
 }
 \details{
-The two runs write to \code{extract/diff/before} and \code{extract/diff/after} within
-\code{omop_es_path}. Within each of those, OMOP-ES creates a subdirectory named
-\verb{<settings_id>_<date>}, which is where the extract is read back from; both
-runs must therefore happen on the same date for the extracts to be found.
+Extracts are cached by commit, so a branch that has not moved since it was
+last run is not run again. A comparison against \code{main} therefore costs one
+pipeline run rather than two, every time but the first. Each side is
+resolved to a commit with \code{\link[=git_resolve_run_sha]{git_resolve_run_sha()}} before anything is
+checked out, so a cache hit does not disturb the working tree, and if both
+branches resolve to the same commit the pipeline runs once and the extract
+is used for both sides.
+
+Cached runs live under \code{extract/diff/cache} within \code{omop_es_path}, in a
+directory named \verb{<sha>/<settings_id>_n<cohort_limit>_<output>}. Delete
+that directory, or any single commit's subdirectory of it, to reclaim the
+space; \code{refresh = TRUE} rebuilds both sides in place.
+
+The cache is keyed on the commit and the run options, which means it knows
+nothing about the \emph{source data}. A cached extract taken before the source
+database changed is stale, and only \code{refresh = TRUE} will notice. \code{envvar}
+is not part of the key either, so it will not distinguish runs pointed at
+different databases.
 
 The "before" extract is registered as \code{dbo}/\code{priv} and the "after" one as
 \code{dbo2}/\code{priv2}, which are the defaults \code{\link[=omop_es_diff_viewer]{omop_es_diff_viewer()}} expects.
 
-Each run goes through \code{\link[=omop_es_run_git_sha]{omop_es_run_git_sha()}}, so the working tree at
-\code{omop_es_path} is stashed if dirty, checked out at the requested branch,
-and fast-forwarded to its upstream. On return the repository remains on
-\code{after_branch}.
+The remote is fetched once up front rather than once per run, since
+resolving each branch to a commit needs current remote-tracking refs.
+
+Any side that actually runs goes through \code{\link[=omop_es_run_git_sha]{omop_es_run_git_sha()}}, so the
+working tree at \code{omop_es_path} is stashed if dirty, checked out at the
+requested branch, and fast-forwarded to its upstream. If both sides come
+from the cache the repository is left as it was; otherwise it is left on
+whichever branch ran last.
 }
 \examples{
 \dontrun{

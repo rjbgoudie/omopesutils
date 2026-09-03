@@ -37,6 +37,16 @@ That runs the pipeline twice, loads both extracts, and opens the diff viewer.
 The rest of this article takes the same thing apart, which is what you want
 when a step fails, or when the two extracts already exist.
 
+Extracts are cached by commit, under `extract/diff/cache`, so comparing a
+branch against `main` a second time runs only the branch: `main` has not
+moved, so its extract is reused and its side costs nothing. Two branches
+pointing at the same commit share one entry too.
+
+The cache is keyed on the commit and the run options --- settings, cohort
+size, output format --- and so knows nothing about the *source data*. If the
+database has changed since a cached run, that extract is stale and
+`refresh = TRUE` is what rebuilds it.
+
 ## Running the pipeline
 
 `omop_es_run()` runs a pipeline in a fresh subprocess. The subprocess matters:
