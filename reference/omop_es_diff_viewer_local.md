@@ -1,8 +1,8 @@
 # Compare two OMOP-ES extracts already on disk
 
 Registers two existing OMOP-ES extracts into a single in-memory duckdb
-database — the first as `dbo`/`priv`, the second as `dbo2`/`priv2` — and
-launches
+database — the "before" extract as `dbo`/`priv`, the "after" extract as
+`dbo2`/`priv2` — and launches
 [`omop_es_diff_viewer()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_diff_viewer.md)
 on the result.
 
@@ -11,8 +11,8 @@ on the result.
 ``` r
 omop_es_diff_viewer_local(
   omop_es_path,
-  left_extract_path,
-  right_extract_path,
+  before_extract_path,
+  after_extract_path,
   links_patient_id_column
 )
 ```
@@ -24,13 +24,13 @@ omop_es_diff_viewer_local(
   Path to OMOP-ES directory (used for registering the vocabulary tables,
   which are shared between the two extracts)
 
-- left_extract_path:
+- before_extract_path:
 
-  Path to the folder containing the left-hand (baseline) extract
+  Path to the folder containing the "before" (baseline) extract
 
-- right_extract_path:
+- after_extract_path:
 
-  Path to the folder containing the right-hand (comparison) extract
+  Path to the folder containing the "after" (comparison) extract
 
 - links_patient_id_column:
 

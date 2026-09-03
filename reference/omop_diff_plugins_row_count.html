@@ -50,10 +50,10 @@ mapper rather than just to a table.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">omop_diff_plugins_row_count</span><span class="op">(</span></span>
 <span>  <span class="va">db</span>,</span>
-<span>  schema_public_left <span class="op">=</span> <span class="st">"dbo"</span>,</span>
-<span>  schema_private_left <span class="op">=</span> <span class="st">"priv"</span>,</span>
-<span>  schema_public_right <span class="op">=</span> <span class="st">"dbo2"</span>,</span>
-<span>  schema_private_right <span class="op">=</span> <span class="st">"priv2"</span></span>
+<span>  schema_public_before <span class="op">=</span> <span class="st">"dbo"</span>,</span>
+<span>  schema_private_before <span class="op">=</span> <span class="st">"priv"</span>,</span>
+<span>  schema_public_after <span class="op">=</span> <span class="st">"dbo2"</span>,</span>
+<span>  schema_private_after <span class="op">=</span> <span class="st">"priv2"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -66,22 +66,23 @@ mapper rather than just to a table.</p>
 registered by two calls to <code><a href="duckdb_register_omop_es_output.html">duckdb_register_omop_es_output()</a></code></p></dd>
 
 
-<dt id="arg-schema-public-left-schema-private-left">schema_public_left, schema_private_left<a class="anchor" aria-label="anchor" href="#arg-schema-public-left-schema-private-left"></a></dt>
-<dd><p>Names of the schemas holding
-the left-hand (baseline) public OMOP tables and private <code>_links</code> tables</p></dd>
+<dt id="arg-schema-public-before-schema-private-before">schema_public_before, schema_private_before<a class="anchor" aria-label="anchor" href="#arg-schema-public-before-schema-private-before"></a></dt>
+<dd><p>Names of the schemas
+holding the "before" (baseline) public OMOP tables and private <code>_links</code>
+tables</p></dd>
 
 
-<dt id="arg-schema-public-right-schema-private-right">schema_public_right, schema_private_right<a class="anchor" aria-label="anchor" href="#arg-schema-public-right-schema-private-right"></a></dt>
-<dd><p>Names of the schemas holding
-the right-hand (comparison) public OMOP tables and private <code>_links</code>
+<dt id="arg-schema-public-after-schema-private-after">schema_public_after, schema_private_after<a class="anchor" aria-label="anchor" href="#arg-schema-public-after-schema-private-after"></a></dt>
+<dd><p>Names of the schemas
+holding the "after" (comparison) public OMOP tables and private <code>_links</code>
 tables</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A tibble with one row per OMOP table and plugin, and columns
-<code>table</code>, <code>plugin</code>, <code>left_row_count</code>, <code>right_row_count</code> and <code>change</code>,
-where <code>change</code> is <code>right_row_count - left_row_count</code>.</p>
+<code>table</code>, <code>plugin</code>, <code>before_row_count</code>, <code>after_row_count</code> and <code>change</code>,
+where <code>change</code> is <code>after_row_count - before_row_count</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

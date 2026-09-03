@@ -8,7 +8,7 @@ rows.
 ## Usage
 
 ``` r
-omop_diff_tables_row_count(db, schema_left = "dbo", schema_right = "dbo2")
+omop_diff_tables_row_count(db, schema_before = "dbo", schema_after = "dbo2")
 ```
 
 ## Arguments
@@ -20,20 +20,19 @@ omop_diff_tables_row_count(db, schema_left = "dbo", schema_right = "dbo2")
   object holding both extracts, as registered by two calls to
   [`duckdb_register_omop_es_output()`](https://rjbgoudie.github.io/omopesutils/reference/duckdb_register_omop_es_output.md)
 
-- schema_left:
+- schema_before:
 
-  Name of the schema holding the left-hand (baseline) public OMOP tables
+  Name of the schema holding the "before" (baseline) public OMOP tables
 
-- schema_right:
+- schema_after:
 
-  Name of the schema holding the right-hand (comparison) public OMOP
-  tables
+  Name of the schema holding the "after" (comparison) public OMOP tables
 
 ## Value
 
 A tibble with one row per OMOP table and columns `table`,
-`left_row_count`, `right_row_count` and `change`, where `change` is
-`right_row_count - left_row_count`.
+`before_row_count`, `after_row_count` and `change`, where `change` is
+`after_row_count - before_row_count`.
 
 ## Details
 

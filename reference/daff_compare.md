@@ -9,12 +9,12 @@ injects into its shiny app.
 ## Usage
 
 ``` r
-daff_compare(tbl_left, tbl_right, fragment = FALSE)
+daff_compare(tbl_before, tbl_after, fragment = FALSE)
 ```
 
 ## Arguments
 
-- tbl_left, tbl_right:
+- tbl_before, tbl_after:
 
   Lazy `tbl` objects (or data frames) to compare
 

@@ -97,8 +97,8 @@
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/omop_es_diff_viewer_local_git.html">omop_es_diff_viewer_local_git</a></span><span class="op">(</span></span>
 <span>  omop_es_path <span class="op">=</span> <span class="st">"~/omop_es"</span>,</span>
-<span>  left_branch <span class="op">=</span> <span class="st">"main"</span>,</span>
-<span>  right_branch <span class="op">=</span> <span class="st">"my-feature-branch"</span>,</span>
+<span>  before_branch <span class="op">=</span> <span class="st">"main"</span>,</span>
+<span>  after_branch <span class="op">=</span> <span class="st">"my-feature-branch"</span>,</span>
 <span>  links_patient_id_column <span class="op">=</span> <span class="st">"my_patient_id_column"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>If both extracts already exist on disk, register them under different schema names and call <code><a href="reference/omop_es_diff_viewer.html">omop_es_diff_viewer()</a></code> directly.</p>

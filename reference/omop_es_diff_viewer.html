@@ -50,10 +50,10 @@ have both been registered into the same database, typically by two calls to
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">omop_es_diff_viewer</span><span class="op">(</span></span>
 <span>  <span class="va">conn</span>,</span>
-<span>  schema_public_left <span class="op">=</span> <span class="st">"dbo"</span>,</span>
-<span>  schema_private_left <span class="op">=</span> <span class="st">"priv"</span>,</span>
-<span>  schema_public_right <span class="op">=</span> <span class="st">"dbo2"</span>,</span>
-<span>  schema_private_right <span class="op">=</span> <span class="st">"priv2"</span>,</span>
+<span>  schema_public_before <span class="op">=</span> <span class="st">"dbo"</span>,</span>
+<span>  schema_private_before <span class="op">=</span> <span class="st">"priv"</span>,</span>
+<span>  schema_public_after <span class="op">=</span> <span class="st">"dbo2"</span>,</span>
+<span>  schema_private_after <span class="op">=</span> <span class="st">"priv2"</span>,</span>
 <span>  <span class="va">links_patient_id_column</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -66,14 +66,15 @@ have both been registered into the same database, typically by two calls to
 <dd><p>A <a href="https://dbi.r-dbi.org/reference/DBIConnection-class.html" class="external-link">DBI::DBIConnection</a> object holding both extracts</p></dd>
 
 
-<dt id="arg-schema-public-left-schema-private-left">schema_public_left, schema_private_left<a class="anchor" aria-label="anchor" href="#arg-schema-public-left-schema-private-left"></a></dt>
-<dd><p>Names of the schemas holding
-the left-hand (baseline) public OMOP tables and private <code>_links</code> tables</p></dd>
+<dt id="arg-schema-public-before-schema-private-before">schema_public_before, schema_private_before<a class="anchor" aria-label="anchor" href="#arg-schema-public-before-schema-private-before"></a></dt>
+<dd><p>Names of the schemas
+holding the "before" (baseline) public OMOP tables and private <code>_links</code>
+tables</p></dd>
 
 
-<dt id="arg-schema-public-right-schema-private-right">schema_public_right, schema_private_right<a class="anchor" aria-label="anchor" href="#arg-schema-public-right-schema-private-right"></a></dt>
-<dd><p>Names of the schemas holding
-the right-hand (comparison) public OMOP tables and private <code>_links</code>
+<dt id="arg-schema-public-after-schema-private-after">schema_public_after, schema_private_after<a class="anchor" aria-label="anchor" href="#arg-schema-public-after-schema-private-after"></a></dt>
+<dd><p>Names of the schemas
+holding the "after" (comparison) public OMOP tables and private <code>_links</code>
 tables</p></dd>
 
 
@@ -102,7 +103,7 @@ particular patients, and hiding the OMOP-ES columns</p></li>
 be stable between pipeline runs. Rows are ordered by the columns whose
 names end in <code>datetime</code> or <code>concept_id</code>, or contain <code>Key</code>, and the standard
 OMOP columns are moved to the front. On duckdb, each side is materialised
-into a table (<code>temp_left</code> and <code>temp_right</code>) with <code><a href="as_table.html">as_table()</a></code>, because
+into a table (<code>temp_before</code> and <code>temp_after</code>) with <code><a href="as_table.html">as_table()</a></code>, because
 otherwise the set difference between the two sides runs out of memory.</p>
 <p>The table picker offers every table present in <em>either</em> extract (see
 <code><a href="omop_es_tables_in_either_db.html">omop_es_tables_in_either_db()</a></code>), so a table that has been added or removed
@@ -128,11 +129,11 @@ and then calls this; <code><a href="omop_es_viewer.html">omop_es_viewer()</a></c
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="va">db</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbConnect.html" class="external-link">dbConnect</a></span><span class="op">(</span><span class="fu">duckdb</span><span class="fu">::</span><span class="fu"><a href="https://r.duckdb.org/reference/duckdb.html" class="external-link">duckdb</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="duckdb_register_omop_es_output.html">duckdb_register_omop_es_output</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="va">db</span>, <span class="va">left_extract_path</span>, <span class="va">omop_es_path</span>,</span></span>
+<span class="r-in"><span>  <span class="va">db</span>, <span class="va">before_extract_path</span>, <span class="va">omop_es_path</span>,</span></span>
 <span class="r-in"><span>  schema_public <span class="op">=</span> <span class="st">"dbo"</span>, schema_private <span class="op">=</span> <span class="st">"priv"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="duckdb_register_omop_es_output.html">duckdb_register_omop_es_output</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="va">db</span>, <span class="va">right_extract_path</span>, <span class="va">omop_es_path</span>,</span></span>
+<span class="r-in"><span>  <span class="va">db</span>, <span class="va">after_extract_path</span>, <span class="va">omop_es_path</span>,</span></span>
 <span class="r-in"><span>  schema_public <span class="op">=</span> <span class="st">"dbo2"</span>, schema_private <span class="op">=</span> <span class="st">"priv2"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">omop_es_diff_viewer</span><span class="op">(</span><span class="va">db</span>, links_patient_id_column <span class="op">=</span> <span class="st">"my_patient_id_column"</span><span class="op">)</span></span></span>

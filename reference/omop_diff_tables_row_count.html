@@ -51,7 +51,7 @@ rows.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">omop_diff_tables_row_count</span><span class="op">(</span><span class="va">db</span>, schema_left <span class="op">=</span> <span class="st">"dbo"</span>, schema_right <span class="op">=</span> <span class="st">"dbo2"</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">omop_diff_tables_row_count</span><span class="op">(</span><span class="va">db</span>, schema_before <span class="op">=</span> <span class="st">"dbo"</span>, schema_after <span class="op">=</span> <span class="st">"dbo2"</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -63,21 +63,21 @@ rows.</p>
 registered by two calls to <code><a href="duckdb_register_omop_es_output.html">duckdb_register_omop_es_output()</a></code></p></dd>
 
 
-<dt id="arg-schema-left">schema_left<a class="anchor" aria-label="anchor" href="#arg-schema-left"></a></dt>
-<dd><p>Name of the schema holding the left-hand (baseline)
+<dt id="arg-schema-before">schema_before<a class="anchor" aria-label="anchor" href="#arg-schema-before"></a></dt>
+<dd><p>Name of the schema holding the "before" (baseline)
 public OMOP tables</p></dd>
 
 
-<dt id="arg-schema-right">schema_right<a class="anchor" aria-label="anchor" href="#arg-schema-right"></a></dt>
-<dd><p>Name of the schema holding the right-hand (comparison)
+<dt id="arg-schema-after">schema_after<a class="anchor" aria-label="anchor" href="#arg-schema-after"></a></dt>
+<dd><p>Name of the schema holding the "after" (comparison)
 public OMOP tables</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A tibble with one row per OMOP table and columns <code>table</code>,
-<code>left_row_count</code>, <code>right_row_count</code> and <code>change</code>, where <code>change</code> is
-<code>right_row_count - left_row_count</code>.</p>
+<code>before_row_count</code>, <code>after_row_count</code> and <code>change</code>, where <code>change</code> is
+<code>after_row_count - before_row_count</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

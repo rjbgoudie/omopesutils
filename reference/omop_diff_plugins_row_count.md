@@ -11,10 +11,10 @@ table.
 ``` r
 omop_diff_plugins_row_count(
   db,
-  schema_public_left = "dbo",
-  schema_private_left = "priv",
-  schema_public_right = "dbo2",
-  schema_private_right = "priv2"
+  schema_public_before = "dbo",
+  schema_private_before = "priv",
+  schema_public_after = "dbo2",
+  schema_private_after = "priv2"
 )
 ```
 
@@ -27,21 +27,21 @@ omop_diff_plugins_row_count(
   object holding both extracts, as registered by two calls to
   [`duckdb_register_omop_es_output()`](https://rjbgoudie.github.io/omopesutils/reference/duckdb_register_omop_es_output.md)
 
-- schema_public_left, schema_private_left:
+- schema_public_before, schema_private_before:
 
-  Names of the schemas holding the left-hand (baseline) public OMOP
+  Names of the schemas holding the "before" (baseline) public OMOP
   tables and private `_links` tables
 
-- schema_public_right, schema_private_right:
+- schema_public_after, schema_private_after:
 
-  Names of the schemas holding the right-hand (comparison) public OMOP
+  Names of the schemas holding the "after" (comparison) public OMOP
   tables and private `_links` tables
 
 ## Value
 
 A tibble with one row per OMOP table and plugin, and columns `table`,
-`plugin`, `left_row_count`, `right_row_count` and `change`, where
-`change` is `right_row_count - left_row_count`.
+`plugin`, `before_row_count`, `after_row_count` and `change`, where
+`change` is `after_row_count - before_row_count`.
 
 ## Details
 

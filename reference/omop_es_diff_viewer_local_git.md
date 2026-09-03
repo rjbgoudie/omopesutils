@@ -1,8 +1,8 @@
 # Run OMOP-ES for two git SHAs and compare
 
 Runs the OMOP-ES pipeline twice from the same checkout — once at
-`left_branch` and once at `right_branch` — registers both extracts into
-a single in-memory duckdb database, and launches
+`before_branch` and once at `after_branch` — registers both extracts
+into a single in-memory duckdb database, and launches
 [`omop_es_diff_viewer()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_diff_viewer.md)
 to compare them. This is the end-to-end way to see what effect a change
 to OMOP-ES has on its output.
@@ -12,8 +12,8 @@ to OMOP-ES has on its output.
 ``` r
 omop_es_diff_viewer_local_git(
   omop_es_path,
-  left_branch,
-  right_branch,
+  before_branch,
+  after_branch,
   settings_id = "CUH_EPIC_small_cohort",
   cohort_limit = 5000,
   links_patient_id_column,
@@ -29,13 +29,13 @@ omop_es_diff_viewer_local_git(
 
   Path to OMOP-ES directory
 
-- left_branch:
+- before_branch:
 
-  A git branch or SHA
+  A git branch or SHA to use as the baseline
 
-- right_branch:
+- after_branch:
 
-  A git branch or SHA
+  A git branch or SHA to compare against the baseline
 
 - settings_id:
 
@@ -73,14 +73,14 @@ A shiny app object, as returned by
 
 ## Details
 
-The two runs write to `extract/diff/left` and `extract/diff/right`
+The two runs write to `extract/diff/before` and `extract/diff/after`
 within `omop_es_path`. Within each of those, OMOP-ES creates a
 subdirectory named `<settings_id>_<date>`, which is where the extract is
 read back from; both runs must therefore happen on the same date for the
 extracts to be found.
 
-The left-hand extract is registered as `dbo`/`priv` and the right-hand
-one as `dbo2`/`priv2`, which are the defaults
+The "before" extract is registered as `dbo`/`priv` and the "after" one
+as `dbo2`/`priv2`, which are the defaults
 [`omop_es_diff_viewer()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_diff_viewer.md)
 expects.
 
@@ -88,7 +88,7 @@ Each run goes through
 [`omop_es_run_git_sha()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_run_git_sha.md),
 so the working tree at `omop_es_path` is stashed if dirty, checked out
 at the requested branch, and fast-forwarded to its upstream. On return
-the repository is left on `right_branch`.
+the repository remains on `after_branch`.
 
 ## See also
 
@@ -106,8 +106,8 @@ Other OMOP-ES extract viewers:
 if (FALSE) { # \dontrun{
 omop_es_diff_viewer_local_git(
   omop_es_path = "~/omop_es",
-  left_branch = "main",
-  right_branch = "my-feature-branch",
+  before_branch = "main",
+  after_branch = "my-feature-branch",
   links_patient_id_column = "my_patient_id_column"
 )
 } # }

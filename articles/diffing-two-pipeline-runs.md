@@ -13,8 +13,8 @@ library(omopesutils)
 
 omop_es_diff_viewer_local_git(
   omop_es_path = "~/omop_es",
-  left_branch = "main",
-  right_branch = "my-feature-branch",
+  before_branch = "main",
+  after_branch = "my-feature-branch",
   links_patient_id_column = "my_patient_id_column"
 )
 ```
@@ -37,7 +37,7 @@ omop_es_run(
   omop_es_path = "~/omop_es",
   settings_id = "CUH_EPIC_small_cohort",
   cohort_limit = 5000,
-  custom_dir = "~/omop_es/extract/diff/left"
+  custom_dir = "~/omop_es/extract/diff/before"
 )
 ```
 
@@ -53,7 +53,7 @@ divergence.
 omop_es_run_git_sha(
   branch = "my-feature-branch",
   omop_es_path = "~/omop_es",
-  custom_dir = "~/omop_es/extract/diff/right"
+  custom_dir = "~/omop_es/extract/diff/after"
 )
 ```
 
@@ -71,7 +71,7 @@ db <- DBI::dbConnect(duckdb::duckdb())
 
 duckdb_register_omop_es_output(
   db,
-  extract_path = "~/omop_es/extract/diff/left/CUH_EPIC_small_cohort_2026-02-01",
+  extract_path = "~/omop_es/extract/diff/before/CUH_EPIC_small_cohort_2026-02-01",
   omop_es_path = "~/omop_es",
   schema_public = "dbo",
   schema_private = "priv"
@@ -79,7 +79,7 @@ duckdb_register_omop_es_output(
 
 duckdb_register_omop_es_output(
   db,
-  extract_path = "~/omop_es/extract/diff/right/CUH_EPIC_small_cohort_2026-02-01",
+  extract_path = "~/omop_es/extract/diff/after/CUH_EPIC_small_cohort_2026-02-01",
   omop_es_path = "~/omop_es",
   schema_public = "dbo2",
   schema_private = "priv2"
@@ -158,8 +158,8 @@ handy in a script or a regression check.
 
 omopesutils:::omop_diff_tables_row_count(
   db,
-  schema_left = "dbo",
-  schema_right = "dbo2"
+  schema_before = "dbo",
+  schema_after = "dbo2"
 )
 
 omopesutils:::omop_diff_plugins_row_count(db)

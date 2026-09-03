@@ -11,10 +11,10 @@ with different schema names.
 ``` r
 omop_es_diff_viewer(
   conn,
-  schema_public_left = "dbo",
-  schema_private_left = "priv",
-  schema_public_right = "dbo2",
-  schema_private_right = "priv2",
+  schema_public_before = "dbo",
+  schema_private_before = "priv",
+  schema_public_after = "dbo2",
+  schema_private_after = "priv2",
   links_patient_id_column
 )
 ```
@@ -27,14 +27,14 @@ omop_es_diff_viewer(
   [DBI::DBIConnection](https://dbi.r-dbi.org/reference/DBIConnection-class.html)
   object holding both extracts
 
-- schema_public_left, schema_private_left:
+- schema_public_before, schema_private_before:
 
-  Names of the schemas holding the left-hand (baseline) public OMOP
+  Names of the schemas holding the "before" (baseline) public OMOP
   tables and private `_links` tables
 
-- schema_public_right, schema_private_right:
+- schema_public_after, schema_private_after:
 
-  Names of the schemas holding the right-hand (comparison) public OMOP
+  Names of the schemas holding the "after" (comparison) public OMOP
   tables and private `_links` tables
 
 - links_patient_id_column:
@@ -72,7 +72,7 @@ with `drop_omop_foreign_keys = TRUE`, since surrogate keys are not
 expected to be stable between pipeline runs. Rows are ordered by the
 columns whose names end in `datetime` or `concept_id`, or contain `Key`,
 and the standard OMOP columns are moved to the front. On duckdb, each
-side is materialised into a table (`temp_left` and `temp_right`) with
+side is materialised into a table (`temp_before` and `temp_after`) with
 [`as_table()`](https://rjbgoudie.github.io/omopesutils/reference/as_table.md),
 because otherwise the set difference between the two sides runs out of
 memory.
@@ -106,11 +106,11 @@ Other OMOP-ES extract viewers:
 if (FALSE) { # \dontrun{
 db <- DBI::dbConnect(duckdb::duckdb())
 duckdb_register_omop_es_output(
-  db, left_extract_path, omop_es_path,
+  db, before_extract_path, omop_es_path,
   schema_public = "dbo", schema_private = "priv"
 )
 duckdb_register_omop_es_output(
-  db, right_extract_path, omop_es_path,
+  db, after_extract_path, omop_es_path,
   schema_public = "dbo2", schema_private = "priv2"
 )
 omop_es_diff_viewer(db, links_patient_id_column = "my_patient_id_column")
