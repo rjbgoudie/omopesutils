@@ -33,6 +33,7 @@ parquet files directly and the files are not copied into the database.
 Other OMOP-ES database registration:
 \code{\link[=duckdb_register_omop_es_output]{duckdb_register_omop_es_output()}},
 \code{\link[=duckdb_register_omop_es_single_batch]{duckdb_register_omop_es_single_batch()}},
+\code{\link[=duckdb_register_omop_vocabs]{duckdb_register_omop_vocabs()}},
 \code{\link[=duckdb_register_parquet_dir]{duckdb_register_parquet_dir()}}
 }
 \concept{OMOP-ES database registration}

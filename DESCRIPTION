@@ -35,6 +35,7 @@ Imports:
     shiny,
     stringr,
     tidyr,
+    utils,
     withr
 Roxygen: list(markdown = TRUE)
 Config/Needs/website: pkgdown

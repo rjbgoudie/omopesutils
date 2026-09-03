@@ -32,7 +32,8 @@ The view name is the file name with its extension removed, lower-cased, so
 Other OMOP-ES database registration:
 \code{\link[=duckdb_register_omop_es_datalake]{duckdb_register_omop_es_datalake()}},
 \code{\link[=duckdb_register_omop_es_output]{duckdb_register_omop_es_output()}},
-\code{\link[=duckdb_register_omop_es_single_batch]{duckdb_register_omop_es_single_batch()}}
+\code{\link[=duckdb_register_omop_es_single_batch]{duckdb_register_omop_es_single_batch()}},
+\code{\link[=duckdb_register_omop_vocabs]{duckdb_register_omop_vocabs()}}
 }
 \concept{OMOP-ES database registration}
 \keyword{internal}

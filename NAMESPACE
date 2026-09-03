@@ -4,6 +4,7 @@ export(dbListOmopTables)
 export(decorate_mapping_table)
 export(duckdb_register_omop_es_datalake)
 export(duckdb_register_omop_es_output)
+export(duckdb_register_omop_vocabs)
 export(gt_decorate_mapping_table)
 export(mapping_table_report)
 export(omop_all_tables)
@@ -30,6 +31,10 @@ export(omop_es_run_git_sha)
 export(omop_es_viewer)
 export(omop_metadata_table_level)
 export(omop_table_cross_tabulation)
+export(omop_vocab_dir)
+export(omop_vocab_download)
+export(omop_vocab_parquet_url)
+export(omop_vocab_processed_tables)
 import(bslib)
 import(daff)
 import(dplyr)
@@ -53,7 +58,9 @@ importFrom(callr,
   rcmd_safe_env
 )
 importFrom(cli,
+  cli_abort,
   cli_alert_info,
+  cli_alert_warning,
   cli_progress_done,
   cli_progress_step
 )
@@ -72,9 +79,13 @@ importFrom(dplyr,
 )
 importFrom(duckdb,duckdb)
 importFrom(fs,
+  dir_create,
   dir_exists,
   dir_ls,
+  file_delete,
   file_exists,
+  file_move,
+  file_size,
   path,
   path_dir,
   path_ext_remove,
@@ -117,6 +128,7 @@ importFrom(tidyr,
   pivot_longer,
   pivot_wider
 )
+importFrom(utils,download.file)
 importFrom(withr,
   defer,
   with_dir
