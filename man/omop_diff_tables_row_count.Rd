@@ -28,7 +28,7 @@ cheap overview of where two extracts differ before looking at individual
 rows.
 }
 \details{
-The two sets of counts are combined with a \code{\link[dplyr:mutate-joins]{dplyr::full_join()}}, so a table
+The two sets of counts are combined with a \code{\link[dplyr:full_join]{dplyr::full_join()}}, so a table
 present in only one of the schemas appears with an \code{NA} count (and hence an
 \code{NA} change) for the other.
 }

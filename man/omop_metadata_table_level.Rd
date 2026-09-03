@@ -8,7 +8,7 @@ omop_metadata_table_level()
 }
 \value{
 A tibble with one row per OMOP CDM table, as returned by
-\code{\link[readr:read_delim]{readr::read_csv()}}.
+\code{\link[readr:read_csv]{readr::read_csv()}}.
 }
 \description{
 Reads the OMOP CDM v5.4 table-level specification that is shipped with this
