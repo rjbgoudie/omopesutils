@@ -91,6 +91,7 @@ decorate_mapping_table <- function(
 ) {
   original_cols <- colnames(mapping_table)
 
+  mapping_date <- Sys.Date()
   concept_table <- tbl_omop_concept(db) |>
     dplyr::select(
       concept_id,
@@ -98,7 +99,15 @@ decorate_mapping_table <- function(
       domain_id,
       vocabulary_id,
       standard_concept,
-      concept_code
+      concept_code,
+      invalid_reason,
+      valid_start_date,
+      valid_end_date
+    ) |>
+    mutate(
+      is_valid = valid_start_date <= mapping_date &
+        valid_end_date > mapping_date &
+        is.na(invalid_reason)
     )
 
   mapping_table |>
@@ -204,6 +213,16 @@ pretty_concept_table <- function(concept_table, column) {
 #' @importFrom rlang :=
 pretty_athena_link <- function(tab, column = "concept_id") {
   tab |>
+    mutate(
+      standard_concept = case_when(
+        standard_concept == "S" ~ "",
+        TRUE ~ pretty_pill("Non-standard", "orange")
+      ),
+      is_valid = case_when(
+        is_valid ~ "",
+        !is_valid ~ pretty_pill("Invalid", "purple")
+      )
+    ) |>
     dplyr::mutate(
       "{column}" := paste0(
         "<a href=\"https://athena.ohdsi.org/search-terms/terms/",
@@ -215,7 +234,8 @@ pretty_athena_link <- function(tab, column = "concept_id") {
         "<br>",
         pretty_pill(vocabulary_id, "red"),
         pretty_pill(domain_id, "blue"),
-        pretty_pill(standard_concept, "orange")
+        standard_concept,
+        is_valid
       )
     )
 }
