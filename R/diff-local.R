@@ -20,6 +20,7 @@
 #' @returns A shiny app object, as returned by [shiny::shinyApp()].
 #' @family OMOP-ES extract viewers
 #' @keywords internal
+#' @export
 omop_es_diff_viewer_local <- function(
   omop_es_path,
   before_extract_path,
