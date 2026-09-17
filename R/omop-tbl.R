@@ -107,6 +107,7 @@ dbListOmopTables <- function(conn, schema = "dbo", exclude_vocab = TRUE) {
 #' schema is hard-coded to `"dbo"`.
 #'
 #' @param conn A [DBI::DBIConnection-class] object, as returned by [DBI::dbConnect()].
+#' @param mapping_date The date at which validity of OMOP concepts should be assessed
 #' @returns A lazy `tbl`.
 #' @family OMOP table references
 #' @seealso [decorate_mapping_table()], which uses this to annotate concept
@@ -114,6 +115,11 @@ dbListOmopTables <- function(conn, schema = "dbo", exclude_vocab = TRUE) {
 #' @keywords internal
 #' @importFrom DBI Id
 #' @importFrom dplyr tbl
-tbl_omop_concept <- function(conn) {
-  dplyr::tbl(conn, id_omop(table_name = "concept", schema = "dbo"))
+tbl_omop_concept <- function(conn, mapping_date = Sys.Date() ) {
+  dplyr::tbl(conn, id_omop(table_name = "concept", schema = "dbo")) |>
+      mutate(
+        is_valid = valid_start_date <= mapping_date &
+          valid_end_date > mapping_date &
+          is.na(invalid_reason)
+      )
 }
