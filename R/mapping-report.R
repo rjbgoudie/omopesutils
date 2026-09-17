@@ -91,7 +91,6 @@ decorate_mapping_table <- function(
 ) {
   original_cols <- colnames(mapping_table)
 
-  mapping_date <- Sys.Date()
   concept_table <- tbl_omop_concept(db) |>
     dplyr::select(
       concept_id,
@@ -103,11 +102,6 @@ decorate_mapping_table <- function(
       invalid_reason,
       valid_start_date,
       valid_end_date
-    ) |>
-    mutate(
-      is_valid = valid_start_date <= mapping_date &
-        valid_end_date > mapping_date &
-        is.na(invalid_reason)
     )
 
   mapping_table |>
@@ -212,15 +206,27 @@ pretty_concept_table <- function(concept_table, column) {
 #' @keywords internal
 #' @importFrom rlang :=
 pretty_athena_link <- function(tab, column = "concept_id") {
+  if (column == "concept_id"){
+    is_valid_column <- "is_valid"
+    standard_concept_column <- "standard_concept"
+    vocabulary_id_column <- "vocabulary_id"
+    domain_id_column <- "domain_id"
+  } else if (column == "source_concept_id"){
+    is_valid_column <- "source_is_valid"
+    standard_concept_column <- "source_standard_concept"
+    vocabulary_id_column <- "source_vocabulary_id"
+    domain_id_column <- "source_domain_id"
+  }
+
   tab |>
     mutate(
       standard_concept = case_when(
-        standard_concept == "S" ~ "",
+        !!rlang::sym(standard_concept_column) == "S" ~ "",
         TRUE ~ pretty_pill("Non-standard", "orange")
       ),
       is_valid = case_when(
-        is_valid ~ "",
-        !is_valid ~ pretty_pill("Invalid", "purple")
+        !!rlang::sym(is_valid_column) ~ "",
+        !(!!rlang::sym(is_valid_column)) ~ pretty_pill("Invalid", "purple")
       )
     ) |>
     dplyr::mutate(
@@ -232,8 +238,8 @@ pretty_athena_link <- function(tab, column = "concept_id") {
         " \u2197</a><br>",
         concept_name,
         "<br>",
-        pretty_pill(vocabulary_id, "red"),
-        pretty_pill(domain_id, "blue"),
+        pretty_pill(!!rlang::sym(vocabulary_id_column), "red"),
+        pretty_pill(!!rlang::sym(domain_id_column), "blue"),
         standard_concept,
         is_valid
       )

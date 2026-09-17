@@ -4,10 +4,12 @@
 \alias{tbl_omop_concept}
 \title{Lazy table for the OMOP concept table}
 \usage{
-tbl_omop_concept(conn)
+tbl_omop_concept(conn, mapping_date = Sys.Date())
 }
 \arguments{
 \item{conn}{A \link[DBI:DBIConnection-class]{DBI::DBIConnection} object, as returned by \code{\link[DBI:dbConnect]{DBI::dbConnect()}}.}
+
+\item{mapping_date}{The date at which validity of OMOP concepts should be assessed}
 }
 \value{
 A lazy \code{tbl}.
