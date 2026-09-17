@@ -7,7 +7,7 @@ to `"dbo"`.
 ## Usage
 
 ``` r
-tbl_omop_concept(conn)
+tbl_omop_concept(conn, mapping_date = Sys.Date())
 ```
 
 ## Arguments
@@ -18,6 +18,10 @@ tbl_omop_concept(conn)
   [DBI::DBIConnection](https://dbi.r-dbi.org/reference/DBIConnection-class.html)
   object, as returned by
   [`DBI::dbConnect()`](https://dbi.r-dbi.org/reference/dbConnect.html).
+
+- mapping_date:
+
+  The date at which validity of OMOP concepts should be assessed
 
 ## Value
 
