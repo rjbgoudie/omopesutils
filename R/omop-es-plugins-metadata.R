@@ -135,6 +135,7 @@ omop_es_plugins_extract_sql <- function(
     omop_es_path = omop_es_path,
     settings_id = settings_id,
     cohort_limit = cohort_limit,
+    links_patient_id_column = links_patient_id_column,
     run_mapping = FALSE,
     run_linking = FALSE,
     run_projection = FALSE,
