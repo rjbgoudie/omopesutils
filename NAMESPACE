@@ -121,7 +121,11 @@ importFrom(purrr,
   walk
 )
 importFrom(readr,read_csv)
-importFrom(rlang,":=")
+importFrom(rlang,
+  ":=",
+  inject,
+  local_bindings
+)
 importFrom(rmarkdown,render)
 importFrom(rstudioapi,viewer)
 importFrom(scales,label_comma)

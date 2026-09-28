@@ -31,7 +31,7 @@ The path is
 Everything that changes what the pipeline produces is in the path, so
 entries for different commits, settings, cohort sizes or output formats
 cannot be mistaken for one another. Grouping by commit first means the
-entries for one commit can be removed with a single \code{\link[fs:delete]{fs::dir_delete()}}.
+entries for one commit can be removed with a single \code{\link[fs:dir_delete]{fs::dir_delete()}}.
 }
 \seealso{
 Other cached pipeline runs:

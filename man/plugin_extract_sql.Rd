@@ -4,7 +4,7 @@
 \alias{plugin_extract_sql}
 \title{Extract SQL queries used in a single OMOP-ES plugin}
 \usage{
-plugin_extract_sql(plugin, name, conns, cohort)
+plugin_extract_sql(plugin, name, conns, cohort, links_patient_id_column)
 }
 \arguments{
 \item{plugin}{An OMOP-ES plugin function}
@@ -14,6 +14,8 @@ plugin_extract_sql(plugin, name, conns, cohort)
 \item{conns}{The OMOP-ES \code{conns} object (a list of database connections)}
 
 \item{cohort}{The OMOP-ES \code{cohort} tibble}
+
+\item{links_patient_id_column}{Name of the patient identifier column}
 }
 \value{
 A list of character SQL queries

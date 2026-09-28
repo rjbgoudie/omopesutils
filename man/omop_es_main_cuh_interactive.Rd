@@ -11,6 +11,7 @@ omop_es_main_cuh_interactive(
   output_parquet = NA,
   zip_output = FALSE,
   custom_dir = NULL,
+  links_patient_id_column,
   run_setup = TRUE,
   run_mapping = TRUE,
   run_linking = TRUE,
