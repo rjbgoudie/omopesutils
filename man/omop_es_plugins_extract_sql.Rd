@@ -7,7 +7,8 @@
 omop_es_plugins_extract_sql(
   omop_es_path,
   settings_id = "CUH_EPIC_small_cohort",
-  cohort_limit = 10
+  cohort_limit = 10,
+  links_patient_id_column
 )
 }
 \arguments{
@@ -18,6 +19,8 @@ omop_es_plugins_extract_sql(
 \item{cohort_limit}{The max number of patients to use. This needs to be
 small enough to be fast, but large enough to avoid odd quirks (e.g. none
 of the included patients have imaging results).}
+
+\item{links_patient_id_column}{Name of the patient identifier column}
 }
 \value{
 A named nested list of character SQL queries. The outer named list
