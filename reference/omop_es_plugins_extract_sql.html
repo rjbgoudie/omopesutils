@@ -57,7 +57,8 @@ uses.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">omop_es_plugins_extract_sql</span><span class="op">(</span></span>
 <span>  <span class="va">omop_es_path</span>,</span>
 <span>  settings_id <span class="op">=</span> <span class="st">"CUH_EPIC_small_cohort"</span>,</span>
-<span>  cohort_limit <span class="op">=</span> <span class="fl">10</span></span>
+<span>  cohort_limit <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  <span class="va">links_patient_id_column</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -77,6 +78,10 @@ uses.</p>
 <dd><p>The max number of patients to use. This needs to be
 small enough to be fast, but large enough to avoid odd quirks (e.g. none
 of the included patients have imaging results).</p></dd>
+
+
+<dt id="arg-links-patient-id-column">links_patient_id_column<a class="anchor" aria-label="anchor" href="#arg-links-patient-id-column"></a></dt>
+<dd><p>Name of the patient identifier column</p></dd>
 
 </dl></div>
     <div class="section level2">

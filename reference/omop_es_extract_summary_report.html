@@ -52,6 +52,7 @@ metadata using a bundled R Markdown template.</p>
 <span>  settings_id <span class="op">=</span> <span class="st">"CUH_EPIC_small_cohort"</span>,</span>
 <span>  cohort_limit <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  output_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  output_file <span class="op">=</span> <span class="st">"extract_summary_report.html"</span>,</span>
 <span>  plugin_metadata <span class="op">=</span> <span class="fu"><a href="omop_es_plugins_extract_metadata.html">omop_es_plugins_extract_metadata</a></span><span class="op">(</span>omop_es_path <span class="op">=</span> <span class="va">omop_es_path</span>,</span>
 <span>    settings_id <span class="op">=</span> <span class="va">settings_id</span>, cohort_limit <span class="op">=</span> <span class="va">cohort_limit</span><span class="op">)</span>,</span>
 <span>  cross_tabulations <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/compute.html" class="external-link">collect</a></span><span class="op">(</span><span class="fu"><a href="omop_cross_tabulation.html">omop_cross_tabulation</a></span><span class="op">(</span><span class="va">conn</span><span class="op">)</span><span class="op">)</span>,</span>
@@ -96,6 +97,10 @@ extraction. Defaults to <code>10</code>.</p></dd>
 <dt id="arg-output-dir">output_dir<a class="anchor" aria-label="anchor" href="#arg-output-dir"></a></dt>
 <dd><p>Directory path where the output HTML report will be saved.
 Defaults to the active working directory via <code><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd()</a></code>.</p></dd>
+
+
+<dt id="arg-output-file">output_file<a class="anchor" aria-label="anchor" href="#arg-output-file"></a></dt>
+<dd><p>Filename for output HTML report</p></dd>
 
 
 <dt id="arg-plugin-metadata">plugin_metadata<a class="anchor" aria-label="anchor" href="#arg-plugin-metadata"></a></dt>

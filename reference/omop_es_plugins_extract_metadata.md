@@ -9,7 +9,8 @@ documentation across all OMOP-ES plugins in a single run.
 omop_es_plugins_extract_metadata(
   omop_es_path,
   settings_id = "CUH_EPIC_small_cohort",
-  cohort_limit = 10
+  cohort_limit = 10,
+  links_patient_id_column
 )
 ```
 
@@ -28,6 +29,10 @@ omop_es_plugins_extract_metadata(
   The max number of patients to use. This needs to be small enough to be
   fast, but large enough to avoid odd quirks (e.g. none of the included
   patients have imaging results).
+
+- links_patient_id_column:
+
+  Name of the patient identifier column
 
 ## Value
 

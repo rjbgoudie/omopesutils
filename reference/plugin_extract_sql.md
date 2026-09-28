@@ -8,7 +8,7 @@ uses.
 ## Usage
 
 ``` r
-plugin_extract_sql(plugin, name, conns, cohort)
+plugin_extract_sql(plugin, name, conns, cohort, links_patient_id_column)
 ```
 
 ## Arguments
@@ -28,6 +28,10 @@ plugin_extract_sql(plugin, name, conns, cohort)
 - cohort:
 
   The OMOP-ES `cohort` tibble
+
+- links_patient_id_column:
+
+  Name of the patient identifier column
 
 ## Value
 

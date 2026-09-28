@@ -13,6 +13,7 @@ omop_es_extract_summary_report(
   settings_id = "CUH_EPIC_small_cohort",
   cohort_limit = 10,
   output_dir = getwd(),
+  output_file = "extract_summary_report.html",
   plugin_metadata = omop_es_plugins_extract_metadata(omop_es_path = omop_es_path,
     settings_id = settings_id, cohort_limit = cohort_limit),
   cross_tabulations = dplyr::collect(omop_cross_tabulation(conn)),
@@ -59,6 +60,10 @@ omop_es_extract_summary_report(
   Directory path where the output HTML report will be saved. Defaults to
   the active working directory via
   [`getwd()`](https://rdrr.io/r/base/getwd.html).
+
+- output_file:
+
+  Filename for output HTML report
 
 - plugin_metadata:
 

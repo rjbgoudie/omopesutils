@@ -14,6 +14,7 @@ omop_es_run(
   zip_output = FALSE,
   custom_dir = NULL,
   envvar = callr::rcmd_safe_env(),
+  links_patient_id_column,
   run_setup = TRUE,
   run_mapping = TRUE,
   run_linking = TRUE,
