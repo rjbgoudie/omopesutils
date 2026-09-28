@@ -23,19 +23,27 @@
 #' @param name The name of the OMOP-ES plugin
 #' @param conns The OMOP-ES `conns` object (a list of database connections)
 #' @param cohort The OMOP-ES `cohort` tibble
+#' @param links_patient_id_column Name of the patient identifier column
 #' @returns A list of character SQL queries
 #' @family OMOP-ES plugin introspection
 #' @seealso [plugins_extract_sql()], which calls this for every plugin.
 #' @keywords internal
 #' @importFrom dbplyr sql_render sql_options
-plugin_extract_sql <- function(plugin, name, conns, cohort) {
+#' @importFrom rlang inject local_bindings
+plugin_extract_sql <- function(plugin, name, conns, cohort, links_patient_id_column) {
   cli::cli_progress_step("Extracting SQL queries for {name}")
 
   queries <- list()
 
   # Temporarily override collect() and dbGetQuery() functions to give us the
   # queries used
+  # Also override filter_caboodle_cohort() so that no patient IDs appear in
+  # the generated SQL
   rlang::local_bindings(
+    filter_caboodle_cohort =  function(table, cohort) {
+      table |> filter(.data[[links_patient_id_column]] == -314159265L)
+    },
+
     collect = function(x) {
       # Use CTEs if we can, but this sometimes fails (generally on simple
       # queries that involve only a single table). If so, revert to non-CTEs
@@ -49,6 +57,7 @@ plugin_extract_sql <- function(plugin, name, conns, cohort) {
               qualify_all_columns = TRUE
             )
           )
+
         },
         error = function(e) {
           dbplyr::sql_render(
@@ -69,7 +78,10 @@ plugin_extract_sql <- function(plugin, name, conns, cohort) {
         dplyr::collect()
     },
     dbGetQuery = function(conn, statement, ...) {
+      # Add the query to the queries list
+      # Note <<- assigns in the PARENT scope
       queries <<- c(queries, statement)
+
       DBI::dbGetQuery(
         conns = conns,
         statement = statement,
@@ -77,6 +89,7 @@ plugin_extract_sql <- function(plugin, name, conns, cohort) {
       )
     }
   )
+
 
   conns <- conns
   cohort <- cohort
@@ -101,13 +114,19 @@ plugin_extract_sql <- function(plugin, name, conns, cohort) {
 #' @param omop_plugins A list of OMOP-ES plugins
 #' @param conns The OMOP-ES `conns` object (a list of database connections)
 #' @param cohort The OMOP-ES `cohort` tibble
+#' @param links_patient_id_column Name of the patient identifier column
 #' @returns A nested list of list of character SQL queries
 #' @family OMOP-ES plugin introspection
 #' @seealso [omop_es_plugins_extract_sql()], which sets up the OMOP-ES
 #'   environment and then calls this.
 #' @keywords internal
 #' @importFrom purrr imap keep map walk
-plugins_extract_sql <- function(omop_plugins, conns, cohort) {
+plugins_extract_sql <- function(
+    omop_plugins,
+    conns,
+    cohort,
+    links_patient_id_column
+) {
   names(omop_plugins) |>
     purrr::map(function(table) {
       cli::cli_h1("Extracting queries for {table}")
@@ -118,7 +137,8 @@ plugins_extract_sql <- function(omop_plugins, conns, cohort) {
         purrr::imap(
           plugin_extract_sql,
           conns = conns,
-          cohort = cohort
+          cohort = cohort,
+          links_patient_id_column = links_patient_id_column
         )
     }) |>
     setNames(names(omop_plugins))

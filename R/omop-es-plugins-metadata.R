@@ -19,6 +19,7 @@
 #' @param cohort_limit The max number of patients to use. This needs to be
 #'   small enough to be fast, but large enough to avoid odd quirks (e.g. none
 #'   of the included patients have imaging results).
+#' @param links_patient_id_column Name of the patient identifier column
 #' @returns A list with four elements: `sql`, `tables`, `docs_public`, and
 #'   `docs_private`.
 #' @family OMOP-ES plugin introspection
@@ -29,18 +30,25 @@
 omop_es_plugins_extract_metadata <- function(
   omop_es_path,
   settings_id = "CUH_EPIC_small_cohort",
-  cohort_limit = 10
+  cohort_limit = 10,
+  links_patient_id_column
 ) {
   omop_es_run(
     omop_es_path = omop_es_path,
     settings_id = settings_id,
     cohort_limit = cohort_limit,
+    links_patient_id_column = links_patient_id_column,
     run_mapping = FALSE,
     run_linking = FALSE,
     run_projection = FALSE,
     run_output = FALSE,
     pre_mapping_fn = function() {
-      sql <- omopesutils:::plugins_extract_sql(omop_plugins, conns, cohort)
+      sql <- omopesutils:::plugins_extract_sql(
+        omop_plugins,
+        conns,
+        cohort,
+        links_patient_id_column = links_patient_id_column
+      )
 
       tables <- omopesutils:::plugins_extract_tables(
         omop_plugins,
@@ -104,6 +112,7 @@ omop_es_plugins_extract_metadata <- function(
 #' @param cohort_limit The max number of patients to use. This needs to be
 #'   small enough to be fast, but large enough to avoid odd quirks (e.g. none
 #'   of the included patients have imaging results).
+#' @param links_patient_id_column Name of the patient identifier column
 #' @returns A named nested list of character SQL queries. The outer named list
 #'   contains one element for each OMOP table. Within each table-level element,
 #'   there is a named list containing one element per plugin.
@@ -119,7 +128,8 @@ omop_es_plugins_extract_metadata <- function(
 omop_es_plugins_extract_sql <- function(
   omop_es_path,
   settings_id = "CUH_EPIC_small_cohort",
-  cohort_limit = 10
+  cohort_limit = 10,
+  links_patient_id_column
 ) {
   omop_es_run(
     omop_es_path = omop_es_path,
@@ -130,7 +140,7 @@ omop_es_plugins_extract_sql <- function(
     run_projection = FALSE,
     run_output = FALSE,
     pre_mapping_fn = function() {
-      sql <- omopesutils:::plugins_extract_sql(omop_plugins, conns, cohort)
+      sql <- omopesutils:::plugins_extract_sql(omop_plugins, conns, cohort, links_patient_id_column)
     },
     return_fn = function() {
       sql
