@@ -35,6 +35,17 @@ plugin_extract_sql <- function(plugin, name, conns, cohort, links_patient_id_col
 
   queries <- list()
 
+  # Override filter_caboodle_cohort() in the scope of the plugin object mapper
+  # This is needed in addition to below to handle the case that
+  # filter_caboodle_cohort() is called by a shared
+  # common function (e.g. pivoted_medication_components())
+  rlang::local_bindings(
+    filter_caboodle_cohort =  function(table, cohort) {
+      table |> filter(.data[[links_patient_id_column]] == -314159265L)
+    },
+    .env = environment(plugin$mapper)
+  )
+
   # Temporarily override collect() and dbGetQuery() functions to give us the
   # queries used
   # Also override filter_caboodle_cohort() so that no patient IDs appear in
