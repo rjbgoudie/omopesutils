@@ -39,6 +39,7 @@
 #'   extraction. Defaults to `10`.
 #' @param output_dir Directory path where the output HTML report will be saved.
 #'   Defaults to the active working directory via [getwd()].
+#' @param output_file Filename for output HTML report
 #' @param plugin_metadata Named list containing plugin metadata. Defaults to
 #'   automatically calling [omop_es_plugins_extract_metadata()].
 #' @param cross_tabulations A collected cross-tabulation of the concept
@@ -92,6 +93,7 @@ omop_es_extract_summary_report <- function(
   settings_id = "CUH_EPIC_small_cohort",
   cohort_limit = 10,
   output_dir = getwd(),
+  output_file = "extract_summary_report.html",
   plugin_metadata = omop_es_plugins_extract_metadata(
     omop_es_path = omop_es_path,
     settings_id = settings_id,
@@ -108,7 +110,6 @@ omop_es_extract_summary_report <- function(
     "templates",
     "omop_es_extract_summary.Rmd"
   )
-  output_file <- "extract_summary_report.html"
 
   rmarkdown::render(
     rmd_file,
