@@ -437,7 +437,7 @@ suppress_and_format_number <- function(
 ) {
   suppressed_string <- glue::glue("<{suppress_numbers_below}")
   dplyr::case_when(
-    x >= suppress_numbers_below ~ scales::label_comma()(x),
+    x >= suppress_numbers_below ~ scales::label_comma()(round(x/5)*5),
     x < suppress_numbers_below ~ suppressed_string
   )
 }
