@@ -110,9 +110,13 @@ omop_es_extract_summary_report <- function(
     "templates",
     "omop_es_extract_summary.Rmd"
   )
+  # Make a copy in case user doesn't have write access
+  # to omopesutils package directory
+  tmp_rmd_file <- tempfile(fileext = ".Rmd")
+  file.copy(from = rmd_file, to = tmp_rmd_file)
 
   rmarkdown::render(
-    rmd_file,
+    tmp_rmd_file,
     params = list(
       plugin_metadata = plugin_metadata,
       cross_tabulations = cross_tabulations,
@@ -124,6 +128,7 @@ omop_es_extract_summary_report <- function(
     output_dir = output_dir,
     clean = FALSE
   )
+  unlink(tmp_rmd_file)
   if (view) {
     rstudioapi::viewer(fs::path(output_dir, output_file))
   }
