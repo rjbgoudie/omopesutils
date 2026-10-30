@@ -211,11 +211,13 @@ pretty_athena_link <- function(tab, column = "concept_id") {
     standard_concept_column <- "standard_concept"
     vocabulary_id_column <- "vocabulary_id"
     domain_id_column <- "domain_id"
+    concept_name_column <- "concept_name"
   } else if (column == "source_concept_id"){
     is_valid_column <- "source_is_valid"
     standard_concept_column <- "source_standard_concept"
     vocabulary_id_column <- "source_vocabulary_id"
     domain_id_column <- "source_domain_id"
+    concept_name_column <- "source_concept_name"
   }
 
   tab |>
@@ -236,7 +238,7 @@ pretty_athena_link <- function(tab, column = "concept_id") {
         "\" target=\"_blank\" rel=\"noopener\">",
         !!rlang::sym(column),
         " \u2197</a><br>",
-        concept_name,
+        !!rlang::sym(concept_name_column),
         "<br>",
         pretty_pill(!!rlang::sym(vocabulary_id_column), "red"),
         pretty_pill(!!rlang::sym(domain_id_column), "blue"),
