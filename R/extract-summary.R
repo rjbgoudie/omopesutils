@@ -406,38 +406,49 @@ omop_es_field_level_summary_html <- function(cross_tabulations) {
     })
 }
 
-#' Format a count, withholding small ones
+#' Apply NHS England disclosure control to a numeric scalar and format
 #'
-#' Formats counts for display, replacing any count below a threshold with
-#' `"<n"` instead of the number itself.
+#' Implements NHS England HES sub-national disclosure control as specified in
+#' \url{https://digital.nhs.uk/data-and-information/data-tools-and-services/
+#' data-services/hospital-episode-statistics/disclosure-control-methodology-
+#' for-hospital-episode-statistics-and-emergency-care-data-set}
 #'
-#' @details
-#' A count of one or two in a cross-tabulation of clinical data can identify
-#' an individual, so small counts are withheld rather than shown. The
-#' replacement still conveys that the cell is populated, just not how
-#' sparsely.
-#'
-#' Counts at or above the threshold are formatted with thousands separators.
-#' `NA` matches neither branch of the [dplyr::case_when()] and so stays `NA`.
+#' This retains all zeros, replaces counts less than `suppress_numbers_below`
+#' with `"<X"`, and rounds all numbers about this to nearest 5. Rounding uses
+#' half rounds up, not R's default of bankers rounding. Retained numbers
+#' are formatted with [scales::label_comma].
 #'
 #' @param x A numeric vector of counts.
-#' @param suppress_numbers_below Counts below this are replaced by `"<n"`.
-#'   Pass `0` to withhold nothing.
-#' @param commas Currently unused. Thousands separators are always applied to
-#'   the counts that are not withheld.
-#' @returns A character vector the same length as `x`.
-#' @family OMOP-ES extract summary report
+#' @param suppress_numbers_below Counts below this are replaced by `"<X"`, where
+#'   X is `suppress_numbers_below`. Pass `0` to withhold nothing.
+#' @return 0 (if zero), "<`suppress_numbers_below`" (if between 1 to just
+#'   below `suppress_numbers_below`), or rounded-to-5
+#'   (if >= `suppress_numbers_below`)
 #' @keywords internal
 #' @importFrom scales label_comma
 #' @importFrom glue glue
-suppress_and_format_number <- function(
-  x,
-  suppress_numbers_below = 10,
-  commas = TRUE
-) {
+suppress_and_format_number <- function(x, suppress_numbers_below = 8) {
   suppressed_string <- glue::glue("<{suppress_numbers_below}")
   dplyr::case_when(
-    x >= suppress_numbers_below ~ scales::label_comma()(round(x/5)*5),
-    x < suppress_numbers_below ~ suppressed_string
+    is.na(x) ~ "NA",
+    x == 0L ~ as.character(0),
+    x >= 1L & x < suppress_numbers_below ~ suppressed_string,
+    x >= suppress_numbers_below ~ scales::label_comma()(round5(x)),
+    TRUE ~ "Unexpected"
   )
+}
+
+#' Round a single integer value to the nearest 5 (standard arithmetic rounding)
+#'
+#' This matches the NHS Digital spec: 8-12 -> 10, 13 -> 15, etc.
+#' Uses standard round-half-up (not R's default banker's rounding)
+#'
+#' \url{https://digital.nhs.uk/data-and-information/data-tools-and-services/
+#' data-services/hospital-episode-statistics/disclosure-control-methodology-
+#' for-hospital-episode-statistics-and-emergency-care-data-set}
+#'
+#' @param x A numeric vector
+#' @return Provided vector with each component rounded to nearest 5
+round5 <- function(x) {
+  as.integer(floor(x / 5 + 0.5) * 5)
 }
