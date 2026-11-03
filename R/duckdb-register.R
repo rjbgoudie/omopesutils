@@ -178,15 +178,18 @@ duckdb_register_omop_es_datalake <- function(con, folder_path, schema = NULL) {
       fs::path_file() |>
       stringr::str_to_lower()
 
-    DBI::dbExecute(
-      con,
-      glue::glue(
-        "
-      CREATE VIEW {schema_string}{table_name} AS
-        SELECT * FROM read_parquet('{path}/*.parquet');
-    "
+    if (length(fs::dir_ls(path, glob = "*.parquet")) > 0) {
+      statement <- glue::glue(
+        "CREATE VIEW {schema_string}{table_name} AS
+            SELECT * FROM read_parquet('{path}/*.parquet');"
       )
-    )
+    } else {
+      statement <- glue::glue(
+        "CREATE VIEW {schema_string}{table_name} AS
+            SELECT * FROM read_csv('{path}/*.csv');"
+      )
+    }
+    DBI::dbExecute(con, statement)
   }
 
   cli::cli_progress_done(prog)
