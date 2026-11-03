@@ -5,8 +5,10 @@
 #' becomes a duckdb view over the files on disk.
 #'
 #' @details
-#' OMOP-ES writes an extract in one of two layouts, and this function detects
-#' which by looking for a `public` subdirectory of `extract_path`.
+#' OMOP-ES writes an extract in one of three layouts, and this function detects
+#' which by looking for a `public` subdirectory of `extract_path`. Two different
+#' layouts were written by OMOP-ES before Febuary 2026. Since then a single
+#' layout is written for all extracts.
 #'
 #' **Single batch.** A single directory of `*.csv` or `*.parquet` files, one
 #' file per table. Files whose name contains `_LINKS` or `_BAD` are registered
@@ -19,13 +21,16 @@
 #' per OMOP table (e.g. `condition_occurrence`), which in turn contains
 #' several `*.parquet` files. See [duckdb_register_omop_es_datalake()].
 #'
-#' In the data-lake case the tables are registered as follows:
+#' **'Modern'** A directory containing `public` and `private` subdirectories.
+#' The `public` directory contains `public/omop` and `public/custom`.
 #'
-#' 1. Tables under `public` in `schema_public`
-#' 2. Tables under `private` in `schema_private`
-#' 3. Tables under `custom` in `schema_public`
+#' In the data-lake and 'modern' case the tables are registered as follows:
 #'
-#' In both cases the OMOP vocabulary tables are then registered into
+#' 1. Public tables in `schema_public`
+#' 2. Private tables in `schema_private`
+#' 3. Custom tables in `schema_public`
+#'
+#' In all cases the OMOP vocabulary tables are then registered into
 #' `schema_public` from the `omop_metadata/vocabs` subdirectory of
 #' `omop_es_path`, since these are shared between extracts rather than being
 #' written out with each one.
@@ -82,24 +87,34 @@ duckdb_register_omop_es_output <- function(
   )
   cli::cli_progress_done(prog)
 
+  is_modern <- fs::dir_exists(fs::path(extract_path, "public", "omop"))
   is_data_lake <- fs::dir_exists(fs::path(extract_path, "public"))
 
-  if (is_data_lake) {
+  if (is_data_lake || is_modern) {
+    if (is_modern) {
+      public_path <- fs::path(extract_path, "public", "omop")
+      private_path <- fs::path(extract_path, "private")
+      custom_path <- fs::path(extract_path, "public", "custom")
+    } else {
+      public_path <- fs::path(extract_path, "public")
+      private_path <- fs::path(extract_path, "private")
+      custom_path <- fs::path(extract_path, "custom")
+    }
     duckdb_register_omop_es_datalake(
       con,
-      folder_path = fs::path(extract_path, "public"),
+      folder_path = public_path,
       schema = schema_public
     )
 
     duckdb_register_omop_es_datalake(
       con,
-      folder_path = fs::path(extract_path, "custom"),
+      folder_path = custom_path,
       schema = schema_public
     )
 
     duckdb_register_omop_es_datalake(
       con,
-      folder_path = fs::path(extract_path, "private"),
+      folder_path = private_path,
       schema = schema_private
     )
   } else {
@@ -163,15 +178,18 @@ duckdb_register_omop_es_datalake <- function(con, folder_path, schema = NULL) {
       fs::path_file() |>
       stringr::str_to_lower()
 
-    DBI::dbExecute(
-      con,
-      glue::glue(
-        "
-      CREATE VIEW {schema_string}{table_name} AS
-        SELECT * FROM read_parquet('{path}/*.parquet');
-    "
+    if (length(fs::dir_ls(path, glob = "*.parquet")) > 0) {
+      statement <- glue::glue(
+        "CREATE VIEW {schema_string}{table_name} AS
+            SELECT * FROM read_parquet('{path}/*.parquet');"
       )
-    )
+    } else {
+      statement <- glue::glue(
+        "CREATE VIEW {schema_string}{table_name} AS
+            SELECT * FROM read_csv('{path}/*.csv');"
+      )
+    }
+    DBI::dbExecute(con, statement)
   }
 
   cli::cli_progress_done(prog)
