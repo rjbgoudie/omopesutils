@@ -37,14 +37,13 @@ DT::datatable(data.frame(x = 1))
 ```
 
 ```{r, echo=FALSE, results='asis'}
-
 cross_tabulations <- params$cross_tabulations
 plugin_metadata <- params$plugin_metadata
 include_private <- params$include_private
 curtail_cross_tabulation <- params$curtail_cross_tabulation
 suppress_numbers_below <- params$suppress_numbers_below
 
-plugin_metadata <- purrr::list_transpose(plugin_metadata)
+plugin_metadata <- purrr::list_transpose(plugin_metadata, simplify = FALSE)
 
 list(
   omop_es_all_tables_headings_html(cross_tabulations, plugin_metadata),
@@ -63,4 +62,3 @@ list(
   htmltools::tagList() |>
   print()
 ```
- 

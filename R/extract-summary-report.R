@@ -40,8 +40,6 @@
 #' @param output_dir Directory path where the output HTML report will be saved.
 #'   Defaults to the active working directory via [getwd()].
 #' @param output_file Filename for output HTML report
-#' @param plugin_metadata Named list containing plugin metadata. Defaults to
-#'   automatically calling [omop_es_plugins_extract_metadata()].
 #' @param cross_tabulations A collected cross-tabulation of the concept
 #'   columns of the extract, with one row per concept per column. Defaults to
 #'   collecting [omop_cross_tabulation()] on `conn`.
@@ -94,11 +92,6 @@ omop_es_extract_summary_report <- function(
   cohort_limit = 10,
   output_dir = getwd(),
   output_file = "extract_summary_report.html",
-  plugin_metadata = omop_es_plugins_extract_metadata(
-    omop_es_path = omop_es_path,
-    settings_id = settings_id,
-    cohort_limit = cohort_limit
-  ),
   cross_tabulations = dplyr::collect(omop_cross_tabulation(conn)),
   include_private = FALSE,
   curtail_cross_tabulation = 1000L,
@@ -114,6 +107,14 @@ omop_es_extract_summary_report <- function(
   # to omopesutils package directory
   tmp_rmd_file <- tempfile(fileext = ".Rmd")
   file.copy(from = rmd_file, to = tmp_rmd_file)
+
+  plugin_metadata <- omop_es_plugins_extract_metadata(
+    omop_es_path = omop_es_path,
+    settings_id = settings_id,
+    cohort_limit = cohort_limit,
+    table_names = dbListOmopTables(conn),
+    include_private = include_private
+  )
 
   rmarkdown::render(
     tmp_rmd_file,
