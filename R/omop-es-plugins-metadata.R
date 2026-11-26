@@ -19,6 +19,10 @@
 #' @param cohort_limit The max number of patients to use. This needs to be
 #'   small enough to be fast, but large enough to avoid odd quirks (e.g. none
 #'   of the included patients have imaging results).
+#' @param table_names OMOP table names. Used to check for documentation files
+#'   in the OMOP-ES `docs/` folder.
+#' @param include_private Whether to return SQL query and source table information
+#'   or not.
 #' @param links_patient_id_column Name of the patient identifier column
 #' @returns A list with four elements: `sql`, `tables`, `docs_public`, and
 #'   `docs_private`.
@@ -31,9 +35,32 @@ omop_es_plugins_extract_metadata <- function(
   omop_es_path,
   settings_id = "CUH_EPIC_small_cohort",
   cohort_limit = 10,
+  table_names,
+  include_private,
   links_patient_id_column
 ) {
-  omop_es_run(
+  docs_public <- table_names |>
+    purrr::map(\(table_name) {
+      omopesutils:::read_table_level_md(table_name, omop_es_path)
+    }) |>
+    setNames(table_names)
+
+  docs_private <- table_names |>
+    purrr::map(\(table_name) {
+      omopesutils:::read_table_level_private_md(table_name, omop_es_path)
+    }) |>
+    setNames(table_names)
+
+  if (!include_private) {
+    # Return early to save running the OMOP pipeline if we don't
+    # need any of the private information
+    return(list(
+      docs_public = docs_public,
+      docs_private = docs_private
+    ))
+  }
+
+  sql_table_metadata <- omop_es_run(
     omop_es_path = omop_es_path,
     settings_id = settings_id,
     cohort_limit = cohort_limit,
@@ -55,27 +82,19 @@ omop_es_plugins_extract_metadata <- function(
         conns,
         cohort
       )
-
-      docs_public <- names(omop_plugins) |>
-        purrr::map(\(table_name) {
-          omopesutils:::read_table_level_md(table_name, omop_es_path)
-        }) |>
-        setNames(names(omop_plugins))
-
-      docs_private <- names(omop_plugins) |>
-        purrr::map(\(table_name) {
-          omopesutils:::read_table_level_private_md(table_name, omop_es_path)
-        }) |>
-        setNames(names(omop_plugins))
     },
     return_fn = function() {
       list(
         sql = sql,
-        tables = tables,
-        docs_public = docs_public,
-        docs_private = docs_private
+        tables = tables
       )
     }
+  )
+  list(
+    docs_public = docs_public,
+    docs_private = docs_private,
+    sql = sql_table_metadata$sql,
+    tables = sql_table_metadata$tables
   )
 }
 
@@ -141,7 +160,12 @@ omop_es_plugins_extract_sql <- function(
     run_projection = FALSE,
     run_output = FALSE,
     pre_mapping_fn = function() {
-      sql <- omopesutils:::plugins_extract_sql(omop_plugins, conns, cohort, links_patient_id_column)
+      sql <- omopesutils:::plugins_extract_sql(
+        omop_plugins,
+        conns,
+        cohort,
+        links_patient_id_column
+      )
     },
     return_fn = function() {
       sql

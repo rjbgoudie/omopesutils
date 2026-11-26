@@ -12,8 +12,6 @@ omop_es_extract_summary_report(
   cohort_limit = 10,
   output_dir = getwd(),
   output_file = "extract_summary_report.html",
-  plugin_metadata = omop_es_plugins_extract_metadata(omop_es_path = omop_es_path,
-    settings_id = settings_id, cohort_limit = cohort_limit),
   cross_tabulations = dplyr::collect(omop_cross_tabulation(conn)),
   include_private = FALSE,
   curtail_cross_tabulation = 1000L,
@@ -43,9 +41,6 @@ extraction. Defaults to \code{10}.}
 Defaults to the active working directory via \code{\link[=getwd]{getwd()}}.}
 
 \item{output_file}{Filename for output HTML report}
-
-\item{plugin_metadata}{Named list containing plugin metadata. Defaults to
-automatically calling \code{\link[=omop_es_plugins_extract_metadata]{omop_es_plugins_extract_metadata()}}.}
 
 \item{cross_tabulations}{A collected cross-tabulation of the concept
 columns of the extract, with one row per concept per column. Defaults to
@@ -129,7 +124,6 @@ Other OMOP-ES extract summary report:
 \code{\link[=omop_es_extract_summary_all_tables]{omop_es_extract_summary_all_tables()}},
 \code{\link[=omop_es_field_level_summary_html]{omop_es_field_level_summary_html()}},
 \code{\link[=omop_es_markdown_docs_private_html]{omop_es_markdown_docs_private_html()}},
-\code{\link[=omop_es_markdown_docs_public_html]{omop_es_markdown_docs_public_html()}},
-\code{\link[=suppress_and_format_number]{suppress_and_format_number()}}
+\code{\link[=omop_es_markdown_docs_public_html]{omop_es_markdown_docs_public_html()}}
 }
 \concept{OMOP-ES extract summary report}
