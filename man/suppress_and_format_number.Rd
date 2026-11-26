@@ -2,46 +2,31 @@
 % Please edit documentation in R/extract-summary.R
 \name{suppress_and_format_number}
 \alias{suppress_and_format_number}
-\title{Format a count, withholding small ones}
+\title{Apply NHS England disclosure control to a numeric scalar and format}
 \usage{
-suppress_and_format_number(x, suppress_numbers_below = 10, commas = TRUE)
+suppress_and_format_number(x, suppress_numbers_below = 8)
 }
 \arguments{
 \item{x}{A numeric vector of counts.}
 
-\item{suppress_numbers_below}{Counts below this are replaced by \code{"<n"}.
-Pass \code{0} to withhold nothing.}
-
-\item{commas}{Currently unused. Thousands separators are always applied to
-the counts that are not withheld.}
+\item{suppress_numbers_below}{Counts below this are replaced by \code{"<X"}, where
+X is \code{suppress_numbers_below}. Pass \code{0} to withhold nothing.}
 }
 \value{
-A character vector the same length as \code{x}.
+0 (if zero), "<\code{suppress_numbers_below}" (if between 1 to just
+below \code{suppress_numbers_below}), or rounded-to-5
+(if >= \code{suppress_numbers_below})
 }
 \description{
-Formats counts for display, replacing any count below a threshold with
-\code{"<n"} instead of the number itself.
+Implements NHS England HES sub-national disclosure control as specified in
+\url{https://digital.nhs.uk/data-and-information/data-tools-and-services/
+data-services/hospital-episode-statistics/disclosure-control-methodology-
+for-hospital-episode-statistics-and-emergency-care-data-set}
 }
 \details{
-A count of one or two in a cross-tabulation of clinical data can identify
-an individual, so small counts are withheld rather than shown. The
-replacement still conveys that the cell is populated, just not how
-sparsely.
-
-Counts at or above the threshold are formatted with thousands separators.
-\code{NA} matches neither branch of the \code{\link[dplyr:case_when]{dplyr::case_when()}} and so stays \code{NA}.
+This retains all zeros, replaces counts less than \code{suppress_numbers_below}
+with \code{"<X"}, and rounds all numbers about this to nearest 5. Rounding uses
+half rounds up, not R's default of bankers rounding. Retained numbers
+are formatted with \link[scales:label_comma]{scales::label_comma}.
 }
-\seealso{
-Other OMOP-ES extract summary report:
-\code{\link[=omop_column_empty]{omop_column_empty()}},
-\code{\link[=omop_es_all_tables_headings_html]{omop_es_all_tables_headings_html()}},
-\code{\link[=omop_es_cross_tabulations_html]{omop_es_cross_tabulations_html()}},
-\code{\link[=omop_es_data_provenance_html]{omop_es_data_provenance_html()}},
-\code{\link[=omop_es_extract_summary_all_tables]{omop_es_extract_summary_all_tables()}},
-\code{\link[=omop_es_extract_summary_report]{omop_es_extract_summary_report()}},
-\code{\link[=omop_es_field_level_summary_html]{omop_es_field_level_summary_html()}},
-\code{\link[=omop_es_markdown_docs_private_html]{omop_es_markdown_docs_private_html()}},
-\code{\link[=omop_es_markdown_docs_public_html]{omop_es_markdown_docs_public_html()}}
-}
-\concept{OMOP-ES extract summary report}
 \keyword{internal}
