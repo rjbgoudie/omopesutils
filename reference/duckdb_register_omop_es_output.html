@@ -90,8 +90,10 @@ should not be relied upon.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>OMOP-ES writes an extract in one of two layouts, and this function detects
-which by looking for a <code>public</code> subdirectory of <code>extract_path</code>.</p>
+    <p>OMOP-ES writes an extract in one of three layouts, and this function detects
+which by looking for a <code>public</code> subdirectory of <code>extract_path</code>. Two different
+layouts were written by OMOP-ES before Febuary 2026. Since then a single
+layout is written for all extracts.</p>
 <p><strong>Single batch.</strong> A single directory of <code>*.csv</code> or <code>*.parquet</code> files, one
 file per table. Files whose name contains <code>_LINKS</code> or <code>_BAD</code> are registered
 into <code>schema_private</code>; everything else is registered into <code>schema_public</code>.
@@ -101,10 +103,14 @@ See <code><a href="duckdb_register_omop_es_single_batch.html">duckdb_register_om
 <code>private</code> and <code>custom</code> subdirectories. Each of those contains one directory
 per OMOP table (e.g. <code>condition_occurrence</code>), which in turn contains
 several <code>*.parquet</code> files. See <code><a href="duckdb_register_omop_es_datalake.html">duckdb_register_omop_es_datalake()</a></code>.</p>
-<p>In the data-lake case the tables are registered as follows:</p><ol><li><p>Tables under <code>public</code> in <code>schema_public</code></p></li>
-<li><p>Tables under <code>private</code> in <code>schema_private</code></p></li>
-<li><p>Tables under <code>custom</code> in <code>schema_public</code></p></li>
-</ol><p>In both cases the OMOP vocabulary tables are then registered into
+<p><strong>'Nested data lake'</strong> A directory containing <code>public</code> and <code>private</code>
+subdirectories. The <code>public</code> directory contains <code>public/omop</code> and
+<code>public/custom</code>.</p>
+<p>In the data-lake and 'nested data lake' cases the tables are registered as
+follows:</p><ol><li><p>Public tables in <code>schema_public</code></p></li>
+<li><p>Private tables in <code>schema_private</code></p></li>
+<li><p>Custom tables in <code>schema_public</code></p></li>
+</ol><p>In all cases the OMOP vocabulary tables are then registered into
 <code>schema_public</code> from the <code>omop_metadata/vocabs</code> subdirectory of
 <code>omop_es_path</code>, since these are shared between extracts rather than being
 written out with each one.</p>

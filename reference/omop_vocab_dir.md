@@ -61,7 +61,7 @@ Other remote OMOP vocabularies:
 
 ``` r
 omop_vocab_dir()
-#> /tmp/RtmpV5bgal/omop-vocabs/v20260227
+#> /tmp/Rtmpwe0yal/omop-vocabs/v20260227
 omop_vocab_dir(root = "~/omop-vocabs")
 #> ~/omop-vocabs/v20260227
 ```

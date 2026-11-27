@@ -48,8 +48,10 @@ call and should not be relied upon.
 
 ## Details
 
-OMOP-ES writes an extract in one of two layouts, and this function
+OMOP-ES writes an extract in one of three layouts, and this function
 detects which by looking for a `public` subdirectory of `extract_path`.
+Two different layouts were written by OMOP-ES before Febuary 2026. Since
+then a single layout is written for all extracts.
 
 **Single batch.** A single directory of `*.csv` or `*.parquet` files,
 one file per table. Files whose name contains `_LINKS` or `_BAD` are
@@ -64,15 +66,20 @@ directory per OMOP table (e.g. `condition_occurrence`), which in turn
 contains several `*.parquet` files. See
 [`duckdb_register_omop_es_datalake()`](https://rjbgoudie.github.io/omopesutils/reference/duckdb_register_omop_es_datalake.md).
 
-In the data-lake case the tables are registered as follows:
+**'Nested data lake'** A directory containing `public` and `private`
+subdirectories. The `public` directory contains `public/omop` and
+`public/custom`.
 
-1.  Tables under `public` in `schema_public`
+In the data-lake and 'nested data lake' cases the tables are registered
+as follows:
 
-2.  Tables under `private` in `schema_private`
+1.  Public tables in `schema_public`
 
-3.  Tables under `custom` in `schema_public`
+2.  Private tables in `schema_private`
 
-In both cases the OMOP vocabulary tables are then registered into
+3.  Custom tables in `schema_public`
+
+In all cases the OMOP vocabulary tables are then registered into
 `schema_public` from the `omop_metadata/vocabs` subdirectory of
 `omop_es_path`, since these are shared between extracts rather than
 being written out with each one.
