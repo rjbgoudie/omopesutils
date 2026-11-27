@@ -21,10 +21,12 @@
 #' per OMOP table (e.g. `condition_occurrence`), which in turn contains
 #' several `*.parquet` files. See [duckdb_register_omop_es_datalake()].
 #'
-#' **'Modern'** A directory containing `public` and `private` subdirectories.
-#' The `public` directory contains `public/omop` and `public/custom`.
+#' **'Nested data lake'** A directory containing `public` and `private`
+#' subdirectories. The `public` directory contains `public/omop` and
+#' `public/custom`.
 #'
-#' In the data-lake and 'modern' case the tables are registered as follows:
+#' In the data-lake and 'nested data lake' cases the tables are registered as
+#' follows:
 #'
 #' 1. Public tables in `schema_public`
 #' 2. Private tables in `schema_private`
@@ -87,11 +89,11 @@ duckdb_register_omop_es_output <- function(
   )
   cli::cli_progress_done(prog)
 
-  is_modern <- fs::dir_exists(fs::path(extract_path, "public", "omop"))
+  is_nested <- fs::dir_exists(fs::path(extract_path, "public", "omop"))
   is_data_lake <- fs::dir_exists(fs::path(extract_path, "public"))
 
-  if (is_data_lake || is_modern) {
-    if (is_modern) {
+  if (is_data_lake || is_nested) {
+    if (is_nested) {
       public_path <- fs::path(extract_path, "public", "omop")
       private_path <- fs::path(extract_path, "private")
       custom_path <- fs::path(extract_path, "public", "custom")
