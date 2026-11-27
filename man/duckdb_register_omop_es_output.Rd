@@ -35,8 +35,10 @@ queried with \pkg{dplyr} and \pkg{dbplyr}. Nothing is copied: each table
 becomes a duckdb view over the files on disk.
 }
 \details{
-OMOP-ES writes an extract in one of two layouts, and this function detects
-which by looking for a \code{public} subdirectory of \code{extract_path}.
+OMOP-ES writes an extract in one of three layouts, and this function detects
+which by looking for a \code{public} subdirectory of \code{extract_path}. Two different
+layouts were written by OMOP-ES before Febuary 2026. Since then a single
+layout is written for all extracts.
 
 \strong{Single batch.} A single directory of \verb{*.csv} or \verb{*.parquet} files, one
 file per table. Files whose name contains \verb{_LINKS} or \verb{_BAD} are registered
@@ -49,14 +51,19 @@ See \code{\link[=duckdb_register_omop_es_single_batch]{duckdb_register_omop_es_s
 per OMOP table (e.g. \code{condition_occurrence}), which in turn contains
 several \verb{*.parquet} files. See \code{\link[=duckdb_register_omop_es_datalake]{duckdb_register_omop_es_datalake()}}.
 
-In the data-lake case the tables are registered as follows:
+\strong{'Nested data lake'} A directory containing \code{public} and \code{private}
+subdirectories. The \code{public} directory contains \code{public/omop} and
+\code{public/custom}.
+
+In the data-lake and 'nested data lake' cases the tables are registered as
+follows:
 \enumerate{
-\item Tables under \code{public} in \code{schema_public}
-\item Tables under \code{private} in \code{schema_private}
-\item Tables under \code{custom} in \code{schema_public}
+\item Public tables in \code{schema_public}
+\item Private tables in \code{schema_private}
+\item Custom tables in \code{schema_public}
 }
 
-In both cases the OMOP vocabulary tables are then registered into
+In all cases the OMOP vocabulary tables are then registered into
 \code{schema_public} from the \code{omop_metadata/vocabs} subdirectory of
 \code{omop_es_path}, since these are shared between extracts rather than being
 written out with each one.
