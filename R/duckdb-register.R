@@ -32,10 +32,10 @@
 #' 2. Private tables in `schema_private`
 #' 3. Custom tables in `schema_public`
 #'
-#' In all cases the OMOP vocabulary tables are then registered into
-#' `schema_public` from the `omop_metadata/vocabs` subdirectory of
-#' `omop_es_path`, since these are shared between extracts rather than being
-#' written out with each one.
+#' If the output includes the OMOP vocabulary tables, then these will be
+#' registered along with the OMOP tables. Otherwise, the OMOP vocabulary tables
+#' will be registered into `schema_public` from the `omop_metadata/vocabs`
+#' subdirectory of `omop_es_path`.
 #'
 #' Both schemas are created if they do not already exist, but existing
 #' contents are left alone. Registering two extracts into the same connection
@@ -43,8 +43,9 @@
 #'
 #' @param con A database connection
 #' @param extract_path Path to folder containing OMOP-ES extract
-#' @param omop_es_path Path to OMOP-ES directory (used for registering
-#'   concept tables from the `omop_metadata` directory)
+#' @param omop_es_path Path to OMOP-ES directory, which is used for registering
+#'   concept tables from the `omop_metadata` directory (if they are not included
+#'   in the `extract_path` already)
 #' @param schema_public Name of schema into which public OMOP data goes
 #' @param schema_private Name of schema into which private OMOP data goes
 #' @returns Called for its side effect of registering views on `con`. The
@@ -128,12 +129,14 @@ duckdb_register_omop_es_output <- function(
     )
   }
 
-  # concept tables
-  duckdb_register_parquet_dir(
-    con,
-    folder_path = fs::path(omop_es_path, "omop_metadata", "vocabs"),
-    schema = schema_public
-  )
+  has_concept <- "concept" %in% dbListTablesAndViewsInSchema(con, schema_public)
+  if (!has_concept) {
+    duckdb_register_parquet_dir(
+      con,
+      folder_path = fs::path(omop_es_path, "omop_metadata", "vocabs"),
+      schema = schema_public
+    )
+  }
 }
 
 #' Register a data-lake directory of parquet files as duckdb views
