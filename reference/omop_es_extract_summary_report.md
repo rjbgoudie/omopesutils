@@ -14,8 +14,6 @@ omop_es_extract_summary_report(
   cohort_limit = 10,
   output_dir = getwd(),
   output_file = "extract_summary_report.html",
-  plugin_metadata = omop_es_plugins_extract_metadata(omop_es_path = omop_es_path,
-    settings_id = settings_id, cohort_limit = cohort_limit),
   cross_tabulations = dplyr::collect(omop_cross_tabulation(conn)),
   include_private = FALSE,
   curtail_cross_tabulation = 1000L,
@@ -64,12 +62,6 @@ omop_es_extract_summary_report(
 - output_file:
 
   Filename for output HTML report
-
-- plugin_metadata:
-
-  Named list containing plugin metadata. Defaults to automatically
-  calling
-  [`omop_es_plugins_extract_metadata()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_plugins_extract_metadata.md).
 
 - cross_tabulations:
 
@@ -170,5 +162,4 @@ Other OMOP-ES extract summary report:
 [`omop_es_extract_summary_all_tables()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_extract_summary_all_tables.md),
 [`omop_es_field_level_summary_html()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_field_level_summary_html.md),
 [`omop_es_markdown_docs_private_html()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_markdown_docs_private_html.md),
-[`omop_es_markdown_docs_public_html()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_markdown_docs_public_html.md),
-[`suppress_and_format_number()`](https://rjbgoudie.github.io/omopesutils/reference/suppress_and_format_number.md)
+[`omop_es_markdown_docs_public_html()`](https://rjbgoudie.github.io/omopesutils/reference/omop_es_markdown_docs_public_html.md)

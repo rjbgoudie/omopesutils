@@ -49,6 +49,8 @@ documentation across all OMOP-ES plugins in a single run.</p>
 <span>  <span class="va">omop_es_path</span>,</span>
 <span>  settings_id <span class="op">=</span> <span class="st">"CUH_EPIC_small_cohort"</span>,</span>
 <span>  cohort_limit <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  <span class="va">table_names</span>,</span>
+<span>  <span class="va">include_private</span>,</span>
 <span>  <span class="va">links_patient_id_column</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -69,6 +71,16 @@ documentation across all OMOP-ES plugins in a single run.</p>
 <dd><p>The max number of patients to use. This needs to be
 small enough to be fast, but large enough to avoid odd quirks (e.g. none
 of the included patients have imaging results).</p></dd>
+
+
+<dt id="arg-table-names">table_names<a class="anchor" aria-label="anchor" href="#arg-table-names"></a></dt>
+<dd><p>OMOP table names. Used to check for documentation files
+in the OMOP-ES <code>docs/</code> folder.</p></dd>
+
+
+<dt id="arg-include-private">include_private<a class="anchor" aria-label="anchor" href="#arg-include-private"></a></dt>
+<dd><p>Whether to return SQL query and source table information
+or not.</p></dd>
 
 
 <dt id="arg-links-patient-id-column">links_patient_id_column<a class="anchor" aria-label="anchor" href="#arg-links-patient-id-column"></a></dt>

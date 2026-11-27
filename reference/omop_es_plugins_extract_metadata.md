@@ -10,6 +10,8 @@ omop_es_plugins_extract_metadata(
   omop_es_path,
   settings_id = "CUH_EPIC_small_cohort",
   cohort_limit = 10,
+  table_names,
+  include_private,
   links_patient_id_column
 )
 ```
@@ -29,6 +31,15 @@ omop_es_plugins_extract_metadata(
   The max number of patients to use. This needs to be small enough to be
   fast, but large enough to avoid odd quirks (e.g. none of the included
   patients have imaging results).
+
+- table_names:
+
+  OMOP table names. Used to check for documentation files in the OMOP-ES
+  `docs/` folder.
+
+- include_private:
+
+  Whether to return SQL query and source table information or not.
 
 - links_patient_id_column:
 

@@ -53,8 +53,6 @@ metadata using a bundled R Markdown template.</p>
 <span>  cohort_limit <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  output_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  output_file <span class="op">=</span> <span class="st">"extract_summary_report.html"</span>,</span>
-<span>  plugin_metadata <span class="op">=</span> <span class="fu"><a href="omop_es_plugins_extract_metadata.html">omop_es_plugins_extract_metadata</a></span><span class="op">(</span>omop_es_path <span class="op">=</span> <span class="va">omop_es_path</span>,</span>
-<span>    settings_id <span class="op">=</span> <span class="va">settings_id</span>, cohort_limit <span class="op">=</span> <span class="va">cohort_limit</span><span class="op">)</span>,</span>
 <span>  cross_tabulations <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/compute.html" class="external-link">collect</a></span><span class="op">(</span><span class="fu"><a href="omop_cross_tabulation.html">omop_cross_tabulation</a></span><span class="op">(</span><span class="va">conn</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  include_private <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  curtail_cross_tabulation <span class="op">=</span> <span class="fl">1000L</span>,</span>
@@ -101,11 +99,6 @@ Defaults to the active working directory via <code><a href="https://rdrr.io/r/ba
 
 <dt id="arg-output-file">output_file<a class="anchor" aria-label="anchor" href="#arg-output-file"></a></dt>
 <dd><p>Filename for output HTML report</p></dd>
-
-
-<dt id="arg-plugin-metadata">plugin_metadata<a class="anchor" aria-label="anchor" href="#arg-plugin-metadata"></a></dt>
-<dd><p>Named list containing plugin metadata. Defaults to
-automatically calling <code><a href="omop_es_plugins_extract_metadata.html">omop_es_plugins_extract_metadata()</a></code>.</p></dd>
 
 
 <dt id="arg-cross-tabulations">cross_tabulations<a class="anchor" aria-label="anchor" href="#arg-cross-tabulations"></a></dt>
@@ -194,8 +187,7 @@ before sharing it.</p>
 <code><a href="omop_es_extract_summary_all_tables.html">omop_es_extract_summary_all_tables()</a></code>,
 <code><a href="omop_es_field_level_summary_html.html">omop_es_field_level_summary_html()</a></code>,
 <code><a href="omop_es_markdown_docs_private_html.html">omop_es_markdown_docs_private_html()</a></code>,
-<code><a href="omop_es_markdown_docs_public_html.html">omop_es_markdown_docs_public_html()</a></code>,
-<code><a href="suppress_and_format_number.html">suppress_and_format_number()</a></code></p></div>
+<code><a href="omop_es_markdown_docs_public_html.html">omop_es_markdown_docs_public_html()</a></code></p></div>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
