@@ -70,8 +70,9 @@ becomes a duckdb view over the files on disk.</p>
 
 
 <dt id="arg-omop-es-path">omop_es_path<a class="anchor" aria-label="anchor" href="#arg-omop-es-path"></a></dt>
-<dd><p>Path to OMOP-ES directory (used for registering
-concept tables from the <code>omop_metadata</code> directory)</p></dd>
+<dd><p>Path to OMOP-ES directory, which is used for registering
+concept tables from the <code>omop_metadata</code> directory (if they are not included
+in the <code>extract_path</code> already)</p></dd>
 
 
 <dt id="arg-schema-public">schema_public<a class="anchor" aria-label="anchor" href="#arg-schema-public"></a></dt>
@@ -110,10 +111,10 @@ subdirectories. The <code>public</code> directory contains <code>public/omop</co
 follows:</p><ol><li><p>Public tables in <code>schema_public</code></p></li>
 <li><p>Private tables in <code>schema_private</code></p></li>
 <li><p>Custom tables in <code>schema_public</code></p></li>
-</ol><p>In all cases the OMOP vocabulary tables are then registered into
-<code>schema_public</code> from the <code>omop_metadata/vocabs</code> subdirectory of
-<code>omop_es_path</code>, since these are shared between extracts rather than being
-written out with each one.</p>
+</ol><p>If the output includes the OMOP vocabulary tables, then these will be
+registered along with the OMOP tables. Otherwise, the OMOP vocabulary tables
+will be registered into <code>schema_public</code> from the <code>omop_metadata/vocabs</code>
+subdirectory of <code>omop_es_path</code>.</p>
 <p>Both schemas are created if they do not already exist, but existing
 contents are left alone. Registering two extracts into the same connection
 under different schema names is how <code><a href="omop_es_diff_viewer.html">omop_es_diff_viewer()</a></code> compares them.</p>

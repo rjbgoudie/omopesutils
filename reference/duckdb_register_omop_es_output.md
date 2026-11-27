@@ -28,8 +28,9 @@ duckdb_register_omop_es_output(
 
 - omop_es_path:
 
-  Path to OMOP-ES directory (used for registering concept tables from
-  the `omop_metadata` directory)
+  Path to OMOP-ES directory, which is used for registering concept
+  tables from the `omop_metadata` directory (if they are not included in
+  the `extract_path` already)
 
 - schema_public:
 
@@ -79,10 +80,10 @@ as follows:
 
 3.  Custom tables in `schema_public`
 
-In all cases the OMOP vocabulary tables are then registered into
-`schema_public` from the `omop_metadata/vocabs` subdirectory of
-`omop_es_path`, since these are shared between extracts rather than
-being written out with each one.
+If the output includes the OMOP vocabulary tables, then these will be
+registered along with the OMOP tables. Otherwise, the OMOP vocabulary
+tables will be registered into `schema_public` from the
+`omop_metadata/vocabs` subdirectory of `omop_es_path`.
 
 Both schemas are created if they do not already exist, but existing
 contents are left alone. Registering two extracts into the same
